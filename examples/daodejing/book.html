@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<title>道德經三版本對照箋注 · 第一章樣張</title>
+<link rel="stylesheet" href="fonts/fullface.css">
+<style>
+  @font-face{ font-family:"LXGW WenKai"; src:url("fonts/LXGWWenKai-Regular.ttf") format("truetype"); font-weight:400; }
+  @font-face{ font-family:"LXGW WenKai"; src:url("fonts/LXGWWenKai-Medium.ttf") format("truetype"); font-weight:500; }
+  /* Noto Serif TC（繁体全覆盖正文宋体）：本地 woff2 子集，见 fonts/nstc.css */
+
+  :root{
+    --paper:#F8F4E9; --ink:#2C2824; --ink2:#4E4738; --note:#8A8069;
+    --cinnabar:#9E2F23; --seal:#A63226; --dark:#1F2B38; --dark2:#16202B;
+    --rule:#C9B98A; --rule-soft:#DDD3B4; --gold:#B79B5E;
+    --song:"Noto Serif TC","Noto Serif SC","Songti SC",serif;
+    --kai:"LXGW WenKai","Noto Serif TC","Noto Serif SC",serif;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); }
+  body{ font-family:var(--song); color:var(--ink);
+        font-kerning:normal; text-autospace:normal; }
+
+  @page{ size:185mm 260mm; margin:0; }
+  .page{ width:185mm; height:260mm; position:relative; overflow:hidden;
+         background:var(--paper); page-break-after:always;
+         padding:19mm 20mm 15mm; }
+  .page.final{ page-break-after:auto; }
+
+  /* ---------- 页眉页脚 ---------- */
+  .rh{ position:absolute; top:9.5mm; left:20mm; right:20mm; display:flex;
+       justify-content:space-between; align-items:baseline;
+       font-family:var(--song); font-size:7pt; letter-spacing:.32em;
+       color:var(--note); border-bottom:.4pt solid var(--rule-soft); padding-bottom:2.2mm; }
+  .folio{ position:absolute; bottom:8mm; left:0; right:0; text-align:center;
+          font-family:var(--song); font-size:8.5pt; color:var(--note); letter-spacing:.1em; }
+  .folio::before{ content:"· "; } .folio::after{ content:" ·"; }
+
+  /* ---------- 章节小标 ---------- */
+  .kicker{ display:inline-flex; align-items:center; gap:2.6mm;
+           font-family:var(--song); font-size:8pt; letter-spacing:.5em;
+           color:var(--cinnabar); margin-bottom:6mm; }
+  .kicker::before{ content:""; width:7mm; height:.5pt; background:var(--cinnabar); }
+  .kicker.hollow{ color:var(--ink2); } .kicker.hollow::before{ background:var(--gold); }
+
+  h3.sec{ font-family:var(--song); font-weight:700; font-size:15pt;
+          letter-spacing:.42em; color:var(--ink); margin-bottom:1.6mm; }
+  .sec-sub{ font-size:9pt; color:var(--note); letter-spacing:.14em; margin-bottom:6mm; }
+
+  /* ============ P1 封面 ============ */
+  .cover{ background:linear-gradient(168deg, var(--dark) 0%, var(--dark2) 100%);
+          color:#EDE3C8; padding:0; }
+  .cover .frame{ position:absolute; inset:7mm; border:.6pt solid rgba(183,155,94,.55);
+                 outline:1.4pt double rgba(183,155,94,.28); outline-offset:1.8mm; }
+  .cover .main-title{ position:absolute; top:22mm; right:24mm; writing-mode:vertical-rl;
+      font-family:var(--kai); font-weight:700; font-size:57pt;
+      letter-spacing:.30em; line-height:1.12; }
+  .cover .sub-title{ position:absolute; top:30mm; right:88mm; writing-mode:vertical-rl;
+      font-size:15.5pt; letter-spacing:.62em; color:#C8B98D; }
+  .cover .editions{ position:absolute; top:24mm; left:26mm; writing-mode:vertical-rl;
+      font-size:10pt; letter-spacing:.42em; color:rgba(200,185,141,.85); height:120mm; }
+  .cover .quote{ position:absolute; bottom:40mm; left:26mm; writing-mode:vertical-rl;
+      font-size:9.5pt; letter-spacing:.34em; color:rgba(200,185,141,.6); height:78mm; }
+  .seal{ position:absolute; bottom:24mm; right:24mm; width:17mm; height:17mm;
+         background:var(--seal); color:#F6EBD9; display:flex; align-items:center; justify-content:center;
+         writing-mode:vertical-rl; text-orientation:upright; font-size:8.6pt; letter-spacing:.18em;
+         line-height:1.25; border-radius:1mm; box-shadow:0 0 0 .5pt rgba(246,235,217,.25) inset; }
+  .cover .foot{ position:absolute; bottom:11mm; left:0; right:0; text-align:center;
+      font-size:7.5pt; letter-spacing:.58em; color:rgba(200,185,141,.55); }
+
+  /* ============ P2 扉页 ============ */
+  .titlepage{ display:flex; flex-direction:column; align-items:center; padding-top:34mm; }
+  .titlepage .big{ writing-mode:vertical-rl; font-family:var(--song); font-weight:900;
+      font-size:40pt; letter-spacing:.34em; height:118mm; }
+  .titlepage .verline{ margin-top:12mm; font-size:12.5pt; letter-spacing:.42em; color:var(--ink2); }
+  .titlepage .rule-orn{ margin:11mm 0 9mm; display:flex; align-items:center; gap:3mm; }
+  .titlepage .rule-orn i{ width:26mm; height:.5pt; background:var(--rule); }
+  .titlepage .rule-orn b{ width:2.6mm; height:2.6mm; background:var(--cinnabar); transform:rotate(45deg); }
+  .titlepage .note-block{ text-align:center; font-size:9.5pt; line-height:2.15; color:var(--ink2); letter-spacing:.1em; }
+  .titlepage .sample-tag{ margin-top:13mm; font-size:8.5pt; letter-spacing:.4em; color:var(--note); }
+
+  /* ============ P3 凡例 ============ */
+  .fali li{ list-style:none; position:relative; padding-left:11mm; margin-bottom:5.2mm;
+            font-size:10pt; line-height:1.95; text-align:justify; }
+  .fali li .no{ position:absolute; left:0; top:.4mm; width:6.4mm; height:6.4mm;
+      border:.6pt solid var(--cinnabar); color:var(--cinnabar); border-radius:50%;
+      font-family:var(--song); font-size:8pt; display:flex; align-items:center; justify-content:center; }
+  .fali b{ font-family:var(--song); color:var(--ink); }
+
+  /* ============ P4 章首 ============ */
+  .ch-open{ padding:0; }
+  .ch-art{ position:absolute; top:0; right:0; bottom:0; width:86mm;
+           border-left:.5pt solid var(--rule-soft); }
+  .ch-art img{ width:100%; height:100%; object-fit:cover; object-position:78% 50%; filter:saturate(.92); }
+  .ch-art .cap{ position:absolute; left:3mm; bottom:3mm; writing-mode:vertical-rl;
+      font-size:7.5pt; letter-spacing:.3em; color:#F3ECD8;
+      background:rgba(31,43,56,.62); padding:2.6mm 1.6mm; border-radius:.8mm; }
+  .ch-body{ position:absolute; top:0; left:0; bottom:0; width:99mm; padding:20mm 11mm 14mm 20mm; }
+  .ch-num{ font-family:var(--song); font-weight:900; font-size:15pt; letter-spacing:.55em;
+           color:var(--cinnabar); margin-bottom:3mm; }
+  .ch-title{ writing-mode:vertical-rl; font-family:var(--kai); font-weight:500;
+      font-size:30pt; letter-spacing:.2em; height:122mm; color:var(--ink); }
+  .ch-title-row{ display:flex; flex-direction:row-reverse; justify-content:flex-end; gap:7mm; margin:2mm 0 8mm; }
+  .ch-title-row .zhang{ writing-mode:vertical-rl; text-orientation:upright; padding-top:2mm;
+      font-size:9pt; letter-spacing:.5em; color:var(--note); border-right:.5pt solid var(--rule-soft); padding-right:3.4mm; }
+  .ch-lead{ font-size:10pt; line-height:2.0; text-align:justify; color:var(--ink2); }
+  .ch-lead p{ margin-bottom:3mm; }
+  .ch-gist{ margin-top:4.4mm; padding:3.8mm 4.6mm; background:rgba(158,47,35,.055);
+      border-left:1pt solid var(--cinnabar); font-size:9.5pt; line-height:1.9; color:var(--ink); text-align:justify; }
+  .ch-gist b{ font-family:var(--song); font-size:8.5pt; letter-spacing:.35em; color:var(--cinnabar); margin-right:2.4mm; }
+
+  /* ============ P5-6 四版本对读 ============ */
+  .readers{ display:grid; grid-template-columns:1fr 1fr; gap:0 7mm; height:190mm; }
+  .rcell{ position:relative; min-width:0; min-height:0; }
+  .rcell .reader{ position:absolute; inset:0; border:.7pt solid var(--rule);
+      padding:6mm 5mm 9.5mm; overflow:hidden; }
+  .rcell .tag{ position:absolute; top:-5mm; left:-1px; z-index:2;
+      font-family:var(--song); font-size:8.5pt; letter-spacing:.3em; color:#F6EFDD;
+      padding:1.1mm 3.4mm 1.3mm 3.8mm;
+      border-radius:1mm 1mm 0 0; box-shadow:0 .3mm 1.2mm rgba(60,45,20,.18); }
+  .rcell .tag small{ font-size:6.5pt; letter-spacing:.2em; opacity:.75; margin-left:1.6mm; }
+  .tag.base{ background:var(--cinnabar); }
+  .tag.hss{ background:#775A28; }
+  .tag.jia{ background:#4F6540; }
+  .tag.yi{ background:#6E3A52; }
+  .reader .vtxt{ writing-mode:vertical-rl; height:100%; text-align:justify;
+      overflow:hidden; }
+  .reader .vtxt.base{ font-size:13.6pt; line-height:2.04; letter-spacing:.11em; font-weight:600;
+      background:repeating-linear-gradient(to left, rgba(158,47,35,.07) 0 .4pt, transparent .4pt 9.5mm); }
+  .reader .vtxt.other{ font-size:11.5pt; line-height:1.96; letter-spacing:.09em; color:var(--ink2);
+      background:repeating-linear-gradient(to left, rgba(158,47,35,.06) 0 .4pt, transparent .4pt 7.9mm); }
+  .reader .vtxt em{ font-style:normal; color:var(--cinnabar); font-size:.62em;
+      font-family:var(--song); vertical-align:super; letter-spacing:.05em; }
+  .reader .vtxt .lac{ color:var(--cinnabar); font-size:.72em; font-family:var(--song); }
+  .reader .vtxt .loanglyph{ color:var(--note); font-size:.78em; }
+  .reader .src{ position:absolute; bottom:2.8mm; left:0; right:0; text-align:center;
+      font-family:var(--song); font-size:6.5pt; letter-spacing:.18em; color:var(--note); }
+  .legend{ margin-top:3.6mm; font-size:8pt; color:var(--note); letter-spacing:.1em;
+      display:flex; gap:7mm; justify-content:center; }
+  .legend i{ font-style:normal; color:var(--cinnabar); font-family:var(--song); }
+
+  /* ============ 书影页 ============ */
+  .plates{ display:grid; gap:5.4mm; }
+  .plates.two{ grid-template-columns:1fr 1fr; }
+  .plates.two .plate .ph{ flex:0 0 auto; height:104mm; }
+  .plate{ display:flex; flex-direction:column; min-height:0; }
+  .plate .ph{ flex:1; min-height:0; display:flex; align-items:center; justify-content:center;
+      border:.7pt solid var(--rule); background:#FDFBF4; padding:3.2mm; }
+  .plate img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .plate figcaption{ margin-top:2.8mm; }
+  figcaption .ft{ font-family:var(--song); font-weight:700; font-size:9pt; letter-spacing:.18em; color:var(--ink); }
+  figcaption .ft i{ font-style:normal; color:var(--cinnabar); margin-right:2mm; }
+  figcaption .fs{ display:block; margin-top:1.2mm; font-size:7.8pt; color:var(--note); letter-spacing:.06em; }
+  .plates-remarks{ margin-top:4.4mm; font-size:9pt; line-height:1.95; color:var(--ink2); text-align:justify; }
+  /* P7 版式对看行 */
+  .p7row{ display:grid; gap:5.4mm; }
+  .p7row.r1{ grid-template-columns:88mm 1fr; height:74mm; }
+  .p7row.r2{ grid-template-columns:56mm 1fr; height:97mm; margin-top:5.4mm; }
+  .p7row .plate{ height:100%; }
+  .p7row .plate .ph{ flex:0 0 auto; height:52mm; }
+  .p7row.r2 .plate .ph{ height:77mm; }
+  .bankan{ border:.6pt solid var(--rule); background:#FBF7EC; padding:4.6mm 5mm;
+      display:flex; flex-direction:column; justify-content:center; }
+  .bankan h4{ font-family:var(--song); font-size:8.6pt; letter-spacing:.4em; color:var(--cinnabar); margin-bottom:2.4mm; }
+  .bankan p{ font-size:8.6pt; line-height:1.85; color:var(--ink2); text-align:justify; margin-bottom:1.8mm; }
+  .bankan p b{ font-family:var(--song); color:var(--ink); }
+
+  /* ============ 笺注 ============ */
+  .zhush{ column-count:2; column-gap:8mm; column-rule:.4pt solid var(--rule-soft); }
+  .zhush .entry{ break-inside:avoid; margin-bottom:4.6mm; }
+  .zhush .zi{ display:inline-block; font-family:var(--song); font-weight:700;
+      font-size:10.5pt; color:#F6EFDD; background:var(--ink2); padding:.4mm 2.4mm;
+      margin-right:2.2mm; letter-spacing:.06em; }
+  .zhush .entry p{ font-size:9.3pt; line-height:1.92; text-align:justify; color:var(--ink2); display:inline; }
+  .guzhu{ margin-top:6.4mm; border-top:.6pt solid var(--rule); padding-top:4mm; }
+  .guzhu h4{ font-family:var(--song); font-size:9pt; letter-spacing:.4em; color:var(--cinnabar); margin-bottom:2.8mm; }
+  .guzhu blockquote{ font-size:9pt; line-height:1.85; color:var(--ink2); margin-bottom:2.4mm; padding-left:4mm;
+      border-left:1pt solid var(--rule); text-align:justify; }
+  .guzhu blockquote b{ font-family:var(--song); color:var(--ink); }
+
+  /* ============ 今译 ============ */
+  .trans .body{ padding-top:2mm; font-size:13pt; line-height:2.5; letter-spacing:.05em; text-align:justify; color:var(--ink); }
+  .trans .body .mark{ color:var(--cinnabar); }
+  .dayi{ margin-top:7mm; padding:5mm 5.6mm; background:rgba(119,90,40,.05);
+      border:.5pt solid var(--rule); }
+  .dayi h4{ font-family:var(--song); font-size:9pt; letter-spacing:.42em; color:#775A28; margin-bottom:2.2mm; }
+  .dayi p{ font-size:9.8pt; line-height:2.0; text-align:justify; color:var(--ink2); }
+  .duanju{ margin-top:4.6mm; font-size:8.6pt; color:var(--note); line-height:1.9; text-align:justify; }
+
+  /* ============ 校勘记 ============ */
+  table.jiaokan{ width:100%; border-collapse:collapse; font-family:var(--song); }
+  .jiaokan th{ font-size:8.2pt; letter-spacing:.2em; color:#F6EFDD; background:var(--ink2);
+      padding:2.2mm 2mm; font-weight:400; }
+  .jiaokan td{ font-size:8.8pt; line-height:1.75; padding:2.4mm 2mm; text-align:center;
+      border-bottom:.4pt solid var(--rule-soft); vertical-align:middle; color:var(--ink); }
+  .jiaokan td.an{ text-align:left; font-size:8pt; color:var(--ink2); line-height:1.7; }
+  .jiaokan td .t{ color:var(--cinnabar); }
+  .xiaoan{ margin-top:5mm; }
+  .xiaoan .item{ display:flex; gap:3mm; margin-bottom:3.4mm; }
+  .xiaoan .item .n{ flex:none; width:5.8mm; height:5.8mm; margin-top:.6mm;
+      border:.55pt solid var(--cinnabar); color:var(--cinnabar); border-radius:50%;
+      font-family:var(--song); font-size:7.5pt; display:flex; align-items:center; justify-content:center; }
+  .xiaoan .item p{ font-size:9.2pt; line-height:1.88; text-align:justify; color:var(--ink2); }
+  .xiaoan .item p b{ font-family:var(--song); color:var(--ink); }
+
+  /* ============ 跋/封底 ============ */
+  .colophon{ background:linear-gradient(168deg, var(--dark) 0%, var(--dark2) 100%);
+      color:#EDE3C8; }
+  .colophon .frame{ position:absolute; inset:7mm; border:.6pt solid rgba(183,155,94,.5);
+      outline:1.4pt double rgba(183,155,94,.25); outline-offset:1.8mm; }
+  .colophon h3{ font-family:var(--song); font-size:13pt; letter-spacing:.5em;
+      color:#C8B98D; margin:10mm 0 6mm; font-weight:400; }
+  .colophon .ver-item{ margin-bottom:5mm; }
+  .colophon .ver-item b{ font-family:var(--song); font-size:11pt; letter-spacing:.2em;
+      color:#EDE3C8; display:block; margin-bottom:1.2mm; }
+  .colophon .ver-item b i{ font-style:normal; font-size:8pt; letter-spacing:.28em; color:#C8B98D; margin-left:2.6mm; }
+  .colophon .ver-item p{ font-size:9pt; line-height:1.95; color:rgba(237,227,200,.82); text-align:justify; }
+  .colophon .end-mark{ text-align:center; margin-top:9mm; font-size:9.5pt; letter-spacing:.7em; color:#C8B98D; }
+  .colophon .end-mark::before{ content:"❋"; margin-right:4mm; color:var(--gold); }
+  .colophon .end-mark::after{ content:"❋"; margin-left:4mm; color:var(--gold); }
+  .colophon .meta{ position:absolute; bottom:12mm; left:0; right:0; text-align:center;
+      font-size:7.5pt; letter-spacing:.3em; color:rgba(200,185,141,.55); line-height:2; }
+</style>
+</head>
+<body>
+
+<!-- ================= P1 封面 ================= -->
+<section class="page cover">
+  <div class="frame"></div>
+  <div class="main-title">道德經</div>
+  <div class="sub-title">三版本對照箋注</div>
+  <div class="editions">王弼本 · 河上公本 · 馬王堆帛書甲乙本</div>
+  <div class="quote">道可道非常道　名可名非常名</div>
+  <div class="seal">道法自然</div>
+  <div class="foot">逐章對讀 · 書影互證 · 箋注今譯 · 校勘隨章</div>
+</section>
+
+<!-- ================= P2 扉页 ================= -->
+<section class="page titlepage">
+  <div class="big">道德經三版本對照箋注</div>
+  <div class="verline">卷一 · 道經</div>
+  <div class="rule-orn"><i></i><b></b><i></i></div>
+  <div class="note-block">
+    以《古逸叢書》景刊王弼本為底本<br>
+    河上公本・馬王堆帛書甲乙本對讀<br>
+    古注箋釋　今譯附焉　校勘隨章
+  </div>
+  <div class="sample-tag">第一章 · 樣　張</div>
+  <div class="folio">1</div>
+</section>
+
+<!-- ================= P3 凡例（简体） ================= -->
+<section class="page">
+  <div class="rh"><span>道德經三版本對照箋注</span><span>凡例</span></div>
+  <div style="margin-top:9mm;">
+    <div class="kicker">凡例</div>
+    <h3 class="sec">如何使用这本书</h3>
+    <div class="sec-sub">全书八十一章，每章依同一体例编排；本册为第一章样张。</div>
+  </div>
+  <ul class="fali" style="margin-top:7mm;">
+    <li><span class="no">一</span><b>底本与对读。</b>经文以《古逸叢書》据集唐字本景刊<span style="color:var(--ink)">王弼注《老子道德經》</span>为底本，以南宋建阳刊<span style="color:var(--ink)">《音註河上公老子道德經》</span>、马王堆汉墓出土<span style="color:var(--ink)">帛书甲乙本</span>（释文据《長沙馬王堆漢墓簡帛集成》）四本对读。</li>
+    <li><span class="no">二</span><b>编排次第。</b>每章先陈<b>四版本对读</b>，继以<b>书影</b>互证，次为<b>笺注</b>（汇古注而系今释）、<b>今译</b>，末附<b>校勘记</b>。</li>
+    <li><span class="no">三</span><b>用字体例。</b>经文、古注、释文用繁体字，笺注、今译诸说用简体字。帛书释文中〔　〕表示残缺拟补，（　）注明通假今字。</li>
+    <li><span class="no">四</span><b>书影与核对。</b>书影采自台北故宫博物院、哈佛大学图书馆等处藏本；经文、古注均与藏本叶面逐一比对，释义纂辑并参考识典古籍、国家图书馆中华古籍智慧化服务平台等数字古籍库。</li>
+    <li><span class="no">五</span><b>篇次说明。</b>册本次序从王弼本：〈道经〉一至三十七章，〈德经〉三十八至八十一章。帛书甲乙本皆〈德〉篇在前、〈道〉篇在后，各章校勘记中随文说明。</li>
+    <li><span class="no">六</span><b>句读。</b>底本句读从通行整理本；两可之处于校勘记中并陈旧读新读，不主一家。</li>
+  </ul>
+  <div class="folio">2</div>
+</section>
+
+<!-- ================= P4 章首（简体导读） ================= -->
+<section class="page ch-open">
+  <div class="ch-art">
+    <img src="assets/st_ch1.png" alt="石涛楷书道德经上篇首">
+    <div class="cap">石濤楷書《道德經》冊 · 上篇首</div>
+  </div>
+  <div class="ch-body">
+    <div class="ch-num">第一章</div>
+    <div class="ch-title-row">
+      <div class="ch-title">道可道，非常道</div>
+      <div class="zhang">五千言之门径</div>
+    </div>
+    <div class="ch-lead">
+      <p>全书开宗明义：可用言语表述的「道」，就不是恒常不变的道。一句话划出了语言与真理的界限，也把全书的起点立在不可言说处。</p>
+      <p>四本并观，可见文本两千年的流动——帛书句句带「也」，恒字避讳作「常」，句读千年聚讼，皆浓缩于此章。</p>
+    </div>
+    <div class="ch-gist"><b>章旨</b>道超乎名言。「无」「有」同出而异名；观道者兼此两观，造乎玄之又玄。</div>
+  </div>
+  <div class="folio" style="color:var(--note)">3</div>
+</section>
+
+<!-- ================= P5 对读上 ================= -->
+<section class="page">
+  <div class="rh"><span>道德經三版本對照箋注</span><span>道經 · 第一章</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker">对读</div>
+    <h3 class="sec">四版本对读 · 上</h3>
+    <div class="sec-sub">刻本两系——底本王弼注本与河上公注本，经文并列，句读各存其旧。</div>
+  </div>
+  <div class="readers">
+    <div class="rcell">
+      <span class="tag base">王弼本<small>底本</small></span>
+      <div class="reader">
+        <div class="vtxt base">道可道，非常道。名可名，非常名。無名天地之始，有名萬物之母。故常無欲，以觀其妙；常有欲，以觀其徼。此兩者同出而異名，同謂之玄。玄之又玄，眾妙之門。</div>
+        <div class="src">《古逸叢書》景刊王弼注本 · 底本</div>
+      </div>
+    </div>
+    <div class="rcell">
+      <span class="tag hss">河上公本</span>
+      <div class="reader">
+        <div class="vtxt other">道可道，非常道。名可名，非常名。無名，天地之始；有名，萬物之母。故常無欲，以觀其妙；常有欲，以觀其徼。此兩者，同出而異名。同謂之玄。玄之又玄，眾妙之門。</div>
+        <div class="src">南宋建陽刊本 · 臺北故宮博物院藏</div>
+      </div>
+    </div>
+  </div>
+  <div class="folio">4</div>
+</section>
+
+<!-- ================= P6 对读下 ================= -->
+<section class="page">
+  <div class="rh"><span>道德經三版本對照箋注</span><span>道經 · 第一章</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker">对读</div>
+    <h3 class="sec">四版本对读 · 下</h3>
+    <div class="sec-sub">出土写本两系——马王堆帛书甲乙本，凡残缺以〔　〕拟补，通假以（　）注明。</div>
+  </div>
+  <div class="readers">
+    <div class="rcell">
+      <span class="tag jia">帛书甲本</span>
+      <div class="reader">
+        <div class="vtxt other">道，可道也，非恆道也。名，可名也，非恆名也。無，名萬物之始也；有，名萬物之母也。<span class="lac">〔故〕</span>恆無欲也，以觀其<span class="loanglyph">眇</span><em>（妙）</em>；恆有欲也，以觀其所<span class="loanglyph">噭</span><em>（徼）</em>。兩者同出，異名同<span class="loanglyph">胃</span><em>（謂）</em>。玄之有<em>（又）</em>玄，眾<span class="loanglyph">眇</span><em>（妙）</em>之<span class="lac">〔門〕</span>。</div>
+        <div class="src">西汉初年写本 · 《集成》释文</div>
+      </div>
+    </div>
+    <div class="rcell">
+      <span class="tag yi">帛书乙本</span>
+      <div class="reader">
+        <div class="vtxt other">道，可道也，<span class="lac">〔非恆道也。名，可名也，非〕</span>恆名也。無，名萬物之始也；有，名萬物之母也。故恆無欲也，<span class="lac">〔以觀其眇〕</span>；恆又<em>（有）</em>欲也，以觀其所<span class="loanglyph">噭</span><em>（徼）</em>。兩者同出，異名同<span class="loanglyph">胃</span><em>（謂）</em>。玄之有<em>（又）</em>玄，眾<span class="loanglyph">眇</span><em>（妙）</em>之門。</div>
+        <div class="src">西汉初年写本 · 《集成》释文</div>
+      </div>
+    </div>
+  </div>
+  <div class="legend"><span><i>〔　〕</i>残缺拟补</span><span><i>（　）</i>通假今字</span><span>句读从《集成》释文</span></div>
+  <div class="folio">5</div>
+</section>
+
+<!-- ================= P7 书影·刻本 ================= -->
+<section class="page">
+  <div class="rh"><span>道德經三版本對照箋注</span><span>道經 · 第一章</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker hollow">书影</div>
+    <h3 class="sec">刻本书影</h3>
+    <div class="sec-sub">底本与对读本的版刻原貌——经文大字，注文明显。</div>
+  </div>
+  <div class="p7row r1">
+    <figure class="plate">
+      <div class="ph"><img src="assets/wb_guyi.png" alt="王弼注老子道德经卷上首叶"></div>
+      <figcaption>
+        <span class="ft"><i>图一</i>王弼注《老子道德經》卷上首叶</span>
+      </figcaption>
+    </figure>
+    <div class="bankan">
+      <h4>版式对看</h4>
+      <p><b>王弼本</b>　白口，单鱼尾，左右双边。经文大字顶格，王弼注双行小字低一格附于句下，叶心题「一章」，卷首钤「王弼注」牌记。</p>
+      <p><b>河上公本</b>　黑口，对鱼尾。章题「體道第一」冠首，经注连文，音注夹行细字——「謂經術政教之道也」诸语即叶面所见。</p>
+    </div>
+  </div>
+  <div class="p7row r2">
+    <figure class="plate">
+      <div class="ph"><img src="assets/hsg_leaf.png" alt="音注河上公老子道德经體道第一"></div>
+      <figcaption>
+        <span class="ft"><i>图二</i>《音註河上公老子道德經》體道第一</span>
+      </figcaption>
+    </figure>
+    <div class="bankan" style="justify-content:flex-start; padding-top:7mm;">
+      <h4>书影说明</h4>
+      <p>图一为《古逸叢書》据集唐字本景刊本，清末黎庶昌刻于日本，经注同叶、朱墨粲然，最存旧本之貌；本册经文即以此为底。</p>
+      <p>图二为南宋建阳麻沙刘通判宅仰高堂刊本，台北故宫博物院藏，题「東萊先生呂祖謙重校正」。建本字体方峻，音注随文夹行，为宋刻民坊本之典型。</p>
+      <p>二本经文同作「無名天地之始」「觀其玅」，与帛书「無，名萬物之始也」「觀其眇」正可对勘。</p>
+    </div>
+  </div>
+  <div class="folio">6</div>
+</section>
+
+<!-- ================= P8 书影·写本 ================= -->
+<section class="page">
+  <div class="rh"><span>道德經三版本對照箋注</span><span>道經 · 第一章</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker hollow">书影</div>
+    <h3 class="sec">写本与书法书影</h3>
+    <div class="sec-sub">竹帛与笔墨之间——帛书写本的时代，第一章位居卷末。</div>
+  </div>
+  <div class="plates two">
+    <figure class="plate">
+      <div class="ph"><img src="assets/bo_jia.png" alt="马王堆帛书老子甲本书影"></div>
+      <figcaption>
+        <span class="ft"><i>图三</i>马王堆帛书《老子》甲本书影</span>
+        <span class="fs">西汉初年写本 · 《長沙馬王堆漢墓簡帛集成》图版 · 小篆隶写，朱丝界栏</span>
+      </figcaption>
+    </figure>
+    <figure class="plate">
+      <div class="ph"><img src="assets/bo_yi.png" alt="马王堆帛书老子乙本书影"></div>
+      <figcaption>
+        <span class="ft"><i>图四</i>马王堆帛书《老子》乙本书影</span>
+        <span class="fs">西汉初年写本 · 同上 · 帛色深暗，行间朱栏隐约可辨</span>
+      </figcaption>
+    </figure>
+  </div>
+  <div class="plates-remarks">帛书两本皆〈德〉篇在前、〈道〉篇在后，第一章居全卷之末。上二图为两本卷端书影，以见西汉写本形貌；本册帛书释文悉据《長沙馬王堆漢墓簡帛集成》迻录，与卷端朱丝界栏、篆隶笔意相参看。</div>
+  <div class="folio">7</div>
+</section>
+
+<!-- ================= P9 笺注（简体释义+繁体古注） ================= -->
+<section class="page">
+  <div class="rh"><span>道德經三版本對照箋注</span><span>道經 · 第一章</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker">笺注</div>
+    <h3 class="sec">字词笺释</h3>
+    <div class="sec-sub">释义用简体，括注异文；古注汇于其后。</div>
+  </div>
+  <div class="zhush" style="margin-top:5mm;">
+    <div class="entry"><span class="zi">道</span><p>首一「道」字为言说、称道；次「道」字方是老子哲学的最高范畴——宇宙的本根与律则。开篇即以语言能否把握道立论，可道者已非常道。</p></div>
+    <div class="entry"><span class="zi">名</span><p>称谓、命名。可名之名，系于具体事物；常名则是道之恒常称谓——道本不可以名名之，故名之为「名」亦只是权宜。</p></div>
+    <div class="entry"><span class="zi">无名</span><p>道的未显状态，天地自此发端。或读「無，名萬物之始也」，以「無」「有」对文（帛书句尾「也」字可证，说详校勘记）。</p></div>
+    <div class="entry"><span class="zi">有名</span><p>道之显而为万物者，万物由之以生，故称「母」。始与母，一就其端言，一就其生言。</p></div>
+    <div class="entry"><span class="zi">妙</span><p>微之极。王弼注：「妙者，微之極也。萬物始於微而後成，始於無而後生。」帛书作「眇」，刻本或作「玅」，一字异体。</p></div>
+    <div class="entry"><span class="zi">徼</span><p>归终、边际，引申指道显现之端倪与归趣。王弼注：「徼，歸終也。」帛书借字作「噭」，义并同。</p></div>
+    <div class="entry"><span class="zi">玄</span><p>幽深不可测之谓。王弼注：「玄者，冥也，默然無有也。」河上公则以天释玄：「玄，天也。」「玄之又玄」，谓并此一玄而复遣之，不令执著。</p></div>
+    <div class="entry"><span class="zi">众妙之门</span><p>一切精微所从出之门户。王弼注：「眾妙皆從同而出，故曰眾妙之門也。」</p></div>
+  </div>
+  <div class="guzhu">
+    <h4>古注荐读</h4>
+    <blockquote><b>王弼曰</b>　可道之道，可名之名，指事造形，非其常也。故不可道，不可名也。</blockquote>
+    <blockquote><b>王弼曰</b>　凡有皆始於無，故未形無名之時，則為萬物之始；及其有形有名之時，則長之育之，亭之毒之，為其母也。</blockquote>
+    <blockquote><b>河上公曰</b>　謂經術政教之道也，非自然長生之道也。常道當以無為養神，無事安民。</blockquote>
+  </div>
+  <div class="folio">8</div>
+</section>
+
+<!-- ================= P10 今译（简体） ================= -->
+<section class="page trans">
+  <div class="rh"><span>道德經三版本對照箋注</span><span>道經 · 第一章</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker">今译</div>
+    <h3 class="sec">白话通释</h3>
+    <div class="sec-sub">译文从旧读「無名／有名」；新读之别见次页校勘记。</div>
+  </div>
+  <div class="body">
+    可以言说的道，就不是恒常不移的道；可以称谓的名，就不是恒常不变的名。<span class="mark">「无名」</span>是天地的发端，<span class="mark">「有名」</span>是万物的母体。所以常在无欲之中，观照道的幽微；常在有欲之中，观照道的归趋。这两者同出一源，而名称相异，都可以称为<span class="mark">玄</span>。玄之又玄，那是一切奥妙的门径。
+  </div>
+  <div class="dayi">
+    <h4>大　意</h4>
+    <p>首章是全书的总纲：道在语言与名相之外，故一开篇便做「否定」——可道的不是常道，可名的不是常名。然而道并非空洞的悬设，它显现为「无」与「有」两面：无名而为天地之始，有名而为万物之母。观道者须兼此两观——观其妙，复观其徼。两者同出而异名，同归于玄；连「玄」也不可执，故曰「玄之又玄」。第四十章「天下萬物生於有，有生於無」，正是此章的展开。</p>
+  </div>
+  <div class="duanju">附记　句读两读：旧读「無名，天地之始；有名，萬物之母」，以「无名」「有名」连读；新读「無，名萬物之始也；有，名萬物之母也」，以「无」「有」绝句。帛书「也」字出句尾，新读因之而立，两读义各有所见。</div>
+  <div class="folio">9</div>
+</section>
+
+<!-- ================= P11 校勘记（校按简体） ================= -->
+<section class="page">
+  <div class="rh"><span>道德經三版本對照箋注</span><span>道經 · 第一章</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker">校勘记</div>
+    <h3 class="sec">版本比对与校记</h3>
+    <div class="sec-sub">以王弼本为底，异文红字标出；校按列于其后。</div>
+  </div>
+  <table class="jiaokan" style="margin-top:4.6mm;">
+    <tr><th style="width:17%">王弼本</th><th style="width:15%">河上公本</th><th style="width:24%">帛书甲本</th><th style="width:20%">帛书乙本</th><th>备考</th></tr>
+    <tr><td>非常<span class="t">常</span>道</td><td>同</td><td>非<span class="t">恆</span>道<span class="t">也</span></td><td>同甲（前句残）</td><td class="an">避讳改字，详校按一</td></tr>
+    <tr><td><span class="t">無名天地</span>之始</td><td>無名，天地之始</td><td>無，名<span class="t">萬物</span>之始也</td><td>同甲</td><td class="an">用字与句读两异，详校按二</td></tr>
+    <tr><td>觀其<span class="t">妙</span></td><td>觀其玅</td><td>觀其<span class="t">眇</span></td><td>同甲（残）</td><td class="an">一字异体，详校按三</td></tr>
+    <tr><td>觀其<span class="t">徼</span></td><td>同</td><td>觀其<span class="t">所噭</span></td><td>恆<span class="t">又</span>欲也，觀其所噭</td><td class="an">噭为借字；帛书多「所」字</td></tr>
+    <tr><td><span class="t">此</span>兩者同出而<span class="t">異</span>名</td><td>同</td><td>兩者同出，<span class="t">異</span>名同<span class="t">胃</span></td><td>同甲</td><td class="an">帛书无「此」；胃，借为「謂」</td></tr>
+    <tr><td>玄之<span class="t">又</span>玄</td><td>同</td><td>玄之<span class="t">有</span>玄</td><td>同甲</td><td class="an">有，通「又」</td></tr>
+    <tr><td>眾妙之門</td><td>同</td><td>眾眇之<span class="t">〔門〕</span></td><td>眾眇之門</td><td class="an">甲本「門」字残泐拟补</td></tr>
+  </table>
+  <div class="xiaoan">
+    <div class="item"><span class="n">一</span><p><b>避讳改字。</b>帛书甲乙本并作「非恆道也」，今本作「常」，盖汉人避文帝刘恒讳改。恆、义本相通，改字而义存；帛书句尾「也」字三见，今本则删之。</p></div>
+    <div class="item"><span class="n">二</span><p><b>句读与用字。</b>「無名天地之始」今本两系并同；帛书作「無，名萬物之始也」，不惟句读不同，「天地」亦与「萬物」异文。近人或据帛书句式主「无／有」绝句之读，义各有所见，本册译文从旧读而附记新读。</p></div>
+    <div class="item"><span class="n">三</span><p><b>妙字异体。</b>帛书作「眇」，王弼古逸本、河上公本、石涛写本并作「玅」，今通行整理本作「妙」——三形一字，经义无别。</p></div>
+    <div class="item"><span class="n">四</span><p><b>石涛写本可补证。</b>石涛楷书册本章一作「無名天地之始」「觀其玅」，与刻本系相同，可见清初书家所据仍是通行本系统；其自题「己卯八月」（康熙三十八年，1700），为断代之助。</p></div>
+  </div>
+  <div class="folio">10</div>
+</section>
+
+<!-- ================= P12 跋/封底（简体） ================= -->
+<section class="page colophon final">
+  <div class="frame"></div>
+  <div style="padding:16mm 22mm 0;">
+    <h3>附记 · 版本源流</h3>
+    <div class="ver-item">
+      <b>王弼本<i>底本 · 魏晋古注之宗</i></b>
+      <p>魏王弼注《老子道德經》二卷，义理派注老之冠。本册所用为《古逸叢書》据集唐字本景刊本，经文大字、注双行，最存宋本旧貌。</p>
+    </div>
+    <div class="ver-item">
+      <b>河上公本<i>养生治世之传</i></b>
+      <p>旧题汉河上公章句，民间流传最广。本册所用为南宋建阳麻沙刘通判宅仰高堂刊本，台北故宫博物院藏，吕祖谦重校，音注随文。</p>
+    </div>
+    <div class="ver-item">
+      <b>马王堆帛书甲乙本<i>最古之全帙</i></b>
+      <p>一九七三年长沙马王堆三号汉墓出土，抄写于西汉初年，皆〈德〉篇在前、〈道〉篇在后，多用借字，句尾多「也」。释文从《長沙馬王堆漢墓簡帛集成》。</p>
+    </div>
+    <div class="end-mark">第一章终</div>
+    <div class="meta">道德经三版本对照笺注 · 第一章样张<br>十六开本（185×260mm）· 编纂参考：识典古籍 / 中华古籍智慧化服务平台 / 《長沙馬王堆漢墓簡帛集成》</div>
+  </div>
+</section>
+
+</body>
+</html>

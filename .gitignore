@@ -1,0 +1,17 @@
+.DS_Store
+__pycache__/
+*.pyc
+
+# 字体（OFL 开源字体，体积大，用 scripts/fetch_fonts.sh 下载）
+examples/daodejing/fonts/
+
+# 构建产物（可由源文件重建）
+examples/daodejing/*.pdf
+examples/daodejing/preview/
+examples/daodejing/preview_full/
+examples/daodejing/epub_build/
+examples/daodejing/epub_full/
+
+# 书影裁切的中间原图（保留成品裁切）
+examples/daodejing/assets/*_full.png
+examples/daodejing/assets/shitao_p5.png
