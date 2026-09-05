@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<title>窮通寶鑑箋注 · 第一章樣章</title>
+<link rel="stylesheet" href="fonts/fullface.css">
+<style>
+  @font-face{ font-family:"LXGW WenKai"; src:url("fonts/LXGWWenKai-Regular.ttf") format("truetype"); font-weight:400; }
+  @font-face{ font-family:"LXGW WenKai"; src:url("fonts/LXGWWenKai-Medium.ttf") format("truetype"); font-weight:500; }
+  :root{
+    --paper:#F8F4E9; --ink:#2C2824; --ink2:#4E4738; --note:#8A8069;
+    --cinnabar:#9E2F23; --dark:#232D3F; --dark2:#141D2B;
+    --rule:#C9B98A; --rule-soft:#DDD3B4; --gold:#B79B5E;
+    --song:"Noto Serif TC","Songti SC",serif;
+    --kai:"LXGW WenKai","Noto Serif TC",serif;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--paper); }
+  body{ font-family:var(--song); color:var(--ink); }
+  @page{ size:185mm 260mm; margin:0; }
+  .page{ width:185mm; height:260mm; position:relative; overflow:hidden;
+         background:var(--paper); page-break-after:always; padding:19mm 20mm 15mm; }
+  .rh{ position:absolute; top:9.5mm; left:20mm; right:20mm; display:flex;
+       justify-content:space-between; align-items:baseline;
+       font-family:var(--song); font-size:7pt; letter-spacing:.32em;
+       color:var(--note); border-bottom:.4pt solid var(--rule-soft); padding-bottom:2.2mm; }
+  .folio{ position:absolute; bottom:8mm; left:0; right:0; text-align:center;
+          font-family:var(--song); font-size:8.5pt; color:var(--note); }
+  .folio::before{ content:"· "; } .folio::after{ content:" ·"; }
+  .kicker{ display:inline-flex; align-items:center; gap:2.6mm; font-family:var(--song);
+           font-size:8pt; letter-spacing:.5em; color:var(--cinnabar); margin-bottom:6mm; }
+  .kicker::before{ content:""; width:7mm; height:.5pt; background:var(--cinnabar); }
+  h3.sec{ font-family:var(--song); font-weight:700; font-size:15pt; letter-spacing:.42em;
+          color:var(--ink); margin-bottom:1.6mm; }
+  .sec-sub{ font-size:9pt; color:var(--note); letter-spacing:.14em; margin-bottom:6mm; }
+
+  /* 封面 */
+  .cover{ background:linear-gradient(168deg, var(--dark) 0%, var(--dark2) 100%);
+          color:#EDE3C8; padding:0; }
+  .cover .frame{ position:absolute; inset:7mm; border:.6pt solid rgba(183,155,94,.55);
+                 outline:1.4pt double rgba(183,155,94,.28); outline-offset:1.8mm; }
+  .cover .main-title{ position:absolute; top:20mm; right:24mm; writing-mode:vertical-rl;
+      font-family:var(--kai); font-weight:700; font-size:55pt; letter-spacing:.26em; line-height:1.12; }
+  .cover .sub-title{ position:absolute; top:28mm; right:86mm; writing-mode:vertical-rl;
+      font-size:14pt; letter-spacing:.55em; color:#C8B98D; }
+  .cover .editions{ position:absolute; top:24mm; left:26mm; writing-mode:vertical-rl;
+      font-size:9.5pt; letter-spacing:.4em; color:rgba(200,185,141,.85); height:120mm; }
+  .cover .quote{ position:absolute; bottom:38mm; left:26mm; writing-mode:vertical-rl;
+      font-size:9pt; letter-spacing:.32em; color:rgba(200,185,141,.6); height:72mm; }
+  .seal{ position:absolute; bottom:24mm; right:24mm; width:16mm; height:16mm;
+         background:var(--cinnabar); color:#F6EBD9; display:flex; align-items:center; justify-content:center;
+         writing-mode:vertical-rl; text-orientation:upright; font-size:8.4pt; letter-spacing:.16em;
+         line-height:1.25; border-radius:1mm; }
+  .cover .foot{ position:absolute; bottom:11mm; left:0; right:0; text-align:center;
+      font-size:7.5pt; letter-spacing:.5em; color:rgba(200,185,141,.55); }
+
+  /* 扉页 */
+  .titlepage{ display:flex; flex-direction:column; align-items:center; padding-top:32mm; }
+  .titlepage .big{ writing-mode:vertical-rl; font-family:var(--song); font-weight:900;
+      font-size:38pt; letter-spacing:.32em; height:112mm; }
+  .titlepage .verline{ margin-top:11mm; font-size:12pt; letter-spacing:.42em; color:var(--ink2); }
+  .titlepage .rule-orn{ margin:10mm 0 8mm; display:flex; align-items:center; gap:3mm; }
+  .titlepage .rule-orn i{ width:26mm; height:.5pt; background:var(--rule); }
+  .titlepage .rule-orn b{ width:2.6mm; height:2.6mm; background:var(--cinnabar); transform:rotate(45deg); }
+  .titlepage .note-block{ text-align:center; font-size:9.5pt; line-height:2.15; color:var(--ink2); letter-spacing:.1em; }
+  .titlepage .sample-tag{ margin-top:12mm; font-size:8.5pt; letter-spacing:.4em; color:var(--note); }
+
+  /* 凡例 */
+  .fali li{ list-style:none; position:relative; padding-left:11mm; margin-bottom:5.4mm;
+            font-size:10pt; line-height:1.95; text-align:justify; }
+  .fali li .no{ position:absolute; left:0; top:.4mm; width:6.4mm; height:6.4mm;
+      border:.6pt solid var(--cinnabar); color:var(--cinnabar); border-radius:50%;
+      font-family:var(--song); font-size:8pt; display:flex; align-items:center; justify-content:center; }
+  .fali b{ font-family:var(--song); color:var(--ink); }
+
+  /* 书影 */
+  .plate .ph{ display:flex; align-items:center; justify-content:center;
+      border:.7pt solid var(--rule); background:#FDFBF4; padding:3.2mm; }
+  .plate img{ max-width:100%; max-height:100%; object-fit:contain; }
+  figcaption{ margin-top:2.8mm; }
+  figcaption .ft{ font-family:var(--song); font-weight:700; font-size:9pt; letter-spacing:.18em; color:var(--ink); }
+  figcaption .ft i{ font-style:normal; color:var(--cinnabar); margin-right:2mm; }
+  figcaption .fs{ display:block; margin-top:1.2mm; font-size:7.8pt; color:var(--note); letter-spacing:.06em; }
+
+  /* 章首 */
+  .ch-head{ padding-top:14mm; }
+  .ch-num{ font-family:var(--song); font-weight:900; font-size:15pt; letter-spacing:.55em;
+           color:var(--cinnabar); margin-bottom:4mm; }
+  .ch-title{ font-family:var(--song); font-weight:900; font-size:27pt; letter-spacing:.24em;
+             color:var(--ink); margin-bottom:5mm; }
+  .ch-rule{ display:flex; align-items:center; gap:3mm; margin-bottom:7mm; }
+  .ch-rule i{ width:34mm; height:.5pt; background:var(--rule); }
+  .ch-rule b{ width:2.4mm; height:2.4mm; background:var(--cinnabar); transform:rotate(45deg); }
+  .ch-gist{ padding:4.2mm 5mm; background:rgba(158,47,35,.055); border-left:1pt solid var(--cinnabar);
+            font-size:10pt; line-height:2.0; color:var(--ink); text-align:justify; }
+  .ch-gist b{ font-family:var(--song); font-size:8.5pt; letter-spacing:.35em; color:var(--cinnabar); margin-right:2.4mm; }
+  .ch-meta{ margin-top:5mm; font-size:8.5pt; line-height:2.0; color:var(--note); }
+
+  /* 原文（大字疏排） */
+  .yuanwen .para{ margin-bottom:7mm; break-inside:avoid; }
+  .yuanwen .seal-tag{ display:inline-block; font-family:var(--song); font-weight:700; font-size:8.5pt;
+      color:#F6EFDD; background:var(--ink2); padding:.5mm 2.6mm; margin-bottom:2.2mm; letter-spacing:.3em; }
+  .yuanwen .seal-tag.season{ background:var(--cinnabar); }
+  .yuanwen .text{ font-size:13.5pt; line-height:2.42; letter-spacing:.08em; text-align:justify; color:var(--ink); }
+  .yuanwen .text .zhu{ font-size:.72em; color:var(--note); letter-spacing:.02em; }
+
+  /* 白话 */
+  .baihua p{ font-size:10.5pt; line-height:2.15; text-align:justify; color:var(--ink2); margin-bottom:4.6mm; }
+  .baihua p b.seg{ font-family:var(--song); color:var(--cinnabar); letter-spacing:.2em; }
+
+  /* 术语卡 */
+  .kwcards{ display:grid; grid-template-columns:1fr 1fr; gap:4.6mm; }
+  .kwcard{ border:.6pt solid var(--rule); background:#FBF7EC; padding:4.4mm 4.8mm; }
+  .kwcard .kt{ display:inline-block; font-family:var(--song); font-weight:700; font-size:10pt;
+      color:#F6EFDD; background:var(--ink2); padding:.4mm 2.6mm; margin-bottom:2.2mm; letter-spacing:.15em; }
+  .kwcard p{ font-size:8.8pt; line-height:1.9; color:var(--ink2); text-align:justify; }
+
+  /* 现代启示（编者按） */
+  .qishi{ border:.7pt solid var(--rule); padding:6mm 6.4mm; background:#FBF7EC; }
+  .qishi .qt{ font-family:var(--song); font-size:9pt; letter-spacing:.42em; color:var(--cinnabar); margin-bottom:3mm; }
+  .qishi p{ font-size:9.8pt; line-height:2.05; text-align:justify; color:var(--ink2); }
+  .qishi .ask{ margin-top:3.4mm; font-family:var(--kai); font-size:10.5pt; color:var(--cinnabar); line-height:1.9; }
+
+  .note{ font-size:8.6pt; color:var(--note); line-height:1.9; }
+</style>
+</head>
+<body>
+
+<!-- 封面 -->
+<section class="page cover">
+  <div class="frame"></div>
+  <div class="main-title">窮通寶鑑</div>
+  <div class="sub-title">十干月令調候祕本</div>
+  <div class="editions">原文 · 徐樂吾評注 · 白話通釋 · 清寫刻本書影對讀</div>
+  <div class="quote">得氣之寒　遇暖而發</div>
+  <div class="seal">調候為急</div>
+  <div class="foot">欄江網 · 造化元鑰 · 子部術數類</div>
+</section>
+
+<!-- 扉页 -->
+<section class="page titlepage">
+  <div class="big">窮通寶鑑箋注</div>
+  <div class="verline">卷一 · 論甲木</div>
+  <div class="rule-orn"><i></i><b></b><i></i></div>
+  <div class="note-block">
+    原文以排印整理本為底，參風陵文庫藏清寫刻本<br>
+    徐樂吾評注隨文繫之　白話今譯附焉<br>
+    術語箋釋　今人按語別為一格
+  </div>
+  <div class="sample-tag">第一章 · 甲木總論　樣　張</div>
+</section>
+
+<!-- 凡例 -->
+<section class="page">
+  <div class="rh"><span>窮通寶鑑箋注</span><span>凡例</span></div>
+  <div style="margin-top:9mm;">
+    <div class="kicker">凡例</div>
+    <h3 class="sec">如何使用这本书</h3>
+    <div class="sec-sub">全书按十天干分卷、以十二月令立目；本册为第一章样章。</div>
+  </div>
+  <ul class="fali" style="margin-top:7mm;">
+    <li><span class="no">一</span><b>底本与对读。</b>文字以排印整理本为底，参<b>風陵文庫藏清寫刻本</b>（书影随文）；原书题《欄江網》，一名《造化元鑰》，余春台编次，徐乐吾评注。</li>
+    <li><span class="no">二</span><b>编排次第。</b>每章先陈<b>原文</b>（繁体大字，按季节分段），继以<b>白话通释</b>、<b>术语笺释</b>与<b>今人按语</b>；徐乐吾评注以「徐乐吾曰」随文标出（甲木总论为总纲文字，原书无注，自「正月甲木」起附见）。</li>
+    <li><span class="no">三</span><b>用字体例。</b>原文、评注用繁体字；凡例、今译、按语用简体字。命理专名（如「沖」「剋」）保留原字形。</li>
+    <li><span class="no">四</span><b>术语笺释。</b>调候、活木死木、斫轮格等专门术语，随章立卡释义；跨章互见者注「详见某章」。</li>
+    <li><span class="no">五</span><b>今人按语。</b>排印本所附现代解读别为一格辑录，仅供启发，不代表原书义理。</li>
+  </ul>
+</section>
+
+<!-- 卷首书影 -->
+<section class="page">
+  <div class="rh"><span>窮通寶鑑箋注</span><span>卷首</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker hollow">书影</div>
+    <h3 class="sec">清写刻本书影</h3>
+    <div class="sec-sub">风陵文库藏清写刻本 · 甲木总论起首叶（论甲木 · 木性腾上而无所止）。</div>
+  </div>
+  <figure class="plate">
+    <div class="ph" style="padding:2.6mm"><img src="assets/qtb_jiamu_leaf.png" style="max-height:158mm" alt="穷通宝鉴清写刻本甲木总论起首叶"></div>
+    <figcaption><span class="ft"><i>图一</i>《窮通寶鑑》甲木总论起首叶</span>
+    <span class="fs">清写刻本 · 风陵文库藏 · 版心题「窮通寶鑑 甲」</span></figcaption>
+  </figure>
+</section>
+
+<!-- 章首 -->
+<section class="page ch-head">
+  <div class="rh"><span>窮通寶鑑箋注</span><span>卷一 · 論甲木</span></div>
+  <div class="ch-num">第 一 章</div>
+  <div class="ch-title">甲 木 总 论</div>
+  <div class="ch-rule"><i></i><b></b><i></i></div>
+  <div class="ch-gist"><b>章旨</b>木性腾上，须金裁成、土培水济；活木死木之分，为全书调候取用之总纲。</div>
+  <div class="ch-meta">本章为卷一（论甲木）之总纲，论木之通性与四季喜忌；其后「正月甲木」至「十二月甲木」十一章，皆就此纲而分疏。</div>
+</section>
+
+<!-- 原文·总纲 -->
+<section class="page">
+  <div class="rh"><span>窮通寶鑑箋注</span><span>卷一 · 論甲木</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker">原文</div>
+    <h3 class="sec">甲木总论 · 总纲</h3>
+    <div class="sec-sub">底本文字迻录，参清写刻本覆核。总纲为总说，原书无注；徐乐吾评注自「正月甲木」起随文附见。</div>
+  </div>
+  <div class="yuanwen" style="margin-top:6mm;">
+    <div class="para">
+      <span class="seal-tag">总纲</span>
+      <p class="text">木性騰上而無所止，氣重則欲金任使。有金則有惟高惟斂之德。仍愛土重，則根蟠深固，土少則有枝茂根危之患。木賴水生，少則滋潤，多則漂流。甲戌、乙亥，木之源；甲寅、乙卯，木之鄉；甲辰、乙巳，木之生，皆活木也。甲申、乙酉，木受克；甲午、乙未，木自死；甲子、乙丑，金克木，皆死木也。生木得火而秀，丙丁相同；死木得金而造，庚辛必利。生木見金自傷，死木得火自焚。無風自止，其勢亂也。遇水返化其源，其勢盡也。金木相等，格謂斫輪。若向秋生，反為傷斧，是秋生忌金重也。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 原文·四时上 -->
+<section class="page">
+  <div class="rh"><span>窮通寶鑑箋注</span><span>卷一 · 論甲木</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker">原文</div>
+    <h3 class="sec">甲木总论 · 四时（上）</h3>
+    <div class="sec-sub">春木喜火温暖水滋扶；夏木忌火旺而需水滋。</div>
+  </div>
+  <div class="yuanwen" style="margin-top:5mm;">
+    <div class="para"><span class="seal-tag season">春</span>
+      <p class="text">木生於春，餘寒猶存。喜火溫暖，則無盤屈之患；藉水資扶，而有舒暢之美。春初不宜水盛，陰濃則根損枝枯；春木陽氣煩燥，無水則葉槁根枯。是以水火二物，既濟方佳。土多而損力，土薄則財豐。忌逢金重傷殘克伐，一生不閑。設使木旺，得金則良，終生獲福。</p></div>
+    <div class="para" style="margin-top:9mm"><span class="seal-tag season">夏</span>
+      <p class="text">夏月之木，根幹葉燥，盤而且直，屈而能伸。欲得水盛而成滋潤之力，誠不可少；切忌火旺而招焚化之憂，故以為凶。土宜在薄，不可厚重，厚則反為災咎。惡金在多，不可欠缺，缺則不能琢削。重重見木，徒以成林；迭迭逢華，終無結果。</p></div>
+  </div>
+</section>
+
+<!-- 原文·四时下 -->
+<section class="page">
+  <div class="rh"><span>窮通寶鑑箋注</span><span>卷一 · 論甲木</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker">原文</div>
+    <h3 class="sec">甲木总论 · 四时（下）</h3>
+    <div class="sec-sub">秋木欲刚金修削；冬木归根复命，只宜生旺。</div>
+  </div>
+  <div class="yuanwen" style="margin-top:5mm;">
+    <div class="para"><span class="seal-tag season">秋</span>
+      <p class="text">秋月之木，氣漸淒涼，形漸凋敗。初秋之時，火氣未除，尤喜水土以相滋；中秋之令，果以成實，欲得剛金而修削。霜降後不宜水盛，水盛則木漂；寒露節又喜火炎，火炎則木實。木多有多材之美，土厚無自任之能。</p></div>
+    <div class="para" style="margin-top:9mm"><span class="seal-tag season">冬</span>
+      <p class="text">冬月之木，盤屈在地，欲土多而培養。惡水盛而忘形，金總多不能克伐。火重見溫暖有功。歸根復命之時，木病安能輔助。須忌死絕之地，只宜生旺之方。</p></div>
+  </div>
+</section>
+
+<!-- 白话译文 -->
+<section class="page">
+  <div class="rh"><span>窮通寶鑑箋注</span><span>卷一 · 論甲木</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker">今译</div>
+    <h3 class="sec">白话通释</h3>
+    <div class="sec-sub">释文据排印整理本，个别语词酌改。</div>
+  </div>
+  <div class="baihua" style="margin-top:5mm;">
+    <p><b class="seg">总纲</b>　木的本性向上生长、无有止境。木气过旺时，需要金来驾驭约束，有金则木能内敛高洁；木喜土厚，土深则根系盘固，土少则枝茂根危；木依赖水滋养，水少则润泽，水多则漂流失根。甲戌、乙亥、甲寅、乙卯、甲辰、乙巳六种组合，木气有源、有乡、有生，皆为「活木」；甲申、乙酉受金克，甲午、乙未木气自绝，甲子、乙丑遭金压制，皆为「死木」。活木遇火则秀发华美，死木遇金则可雕琢成器；活木逢金则自伤，死木逢火则自焚。金木势均力敌，称「斫轮格」（轮匠执斧斫木之喻，象征金木平衡成器）。秋季所生之人最忌金重，重金反成伤斧。</p>
+    <p><b class="seg">春</b>　春木余寒未散，喜火温暖以除盘曲之患，借水滋扶以得舒畅之美。初春水盛则阴重伤根，但全无水则叶槁根枯——水火两者须「既济」（阴阳相互补益调和）方佳。土多耗木之力，土薄则财丰。木旺得金，终生获福。</p>
+    <p><b class="seg">夏</b>　夏木根干燥烈，最需水盛滋润，最忌火旺焚化。土宜薄，金不可缺，木多成林却终无结果。</p>
+    <p><b class="seg">秋</b>　秋木气渐凄凉，初秋喜水土滋养，中秋需刚金修削，霜降后忌水盛漂流，寒露节喜火炎以实木气。</p>
+    <p><b class="seg">冬</b>　冬木盘曲收缩于地，需土多培根，忌水盛失形，喜火温暖，此乃「归根复命」（回归本源完成生命循环）之时，木已衰病，须处生旺之地，忌入死绝之方。</p>
+  </div>
+</section>
+
+<!-- 术语笺释 -->
+<section class="page">
+  <div class="rh"><span>窮通寶鑑箋注</span><span>卷一 · 論甲木</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker">术语</div>
+    <h3 class="sec">本章术语笺释</h3>
+    <div class="sec-sub">命理专门语词，随章立卡；跨章互见者注明。</div>
+  </div>
+  <div class="kwcards" style="margin-top:5mm;">
+    <div class="kwcard"><span class="kt">活木与死木</span>
+      <p>以天干地支组合判断木气盛衰：甲寅、乙卯等木气有根有源为<b>活木</b>；甲午、甲申等气绝受克为<b>死木</b>。活木死木之分，决定喜火喜金之相反取用。</p></div>
+    <div class="kwcard"><span class="kt">斫轮格</span>
+      <p>金木势力相当时形成的命格，比喻良匠操斧雕木——金克有度，则木成大器。此格忌秋生金重，反成伤斧。</p></div>
+    <div class="kwcard"><span class="kt">既济</span>
+      <p>源自《周易》第六十三卦，指阴阳相互补益平衡。此处指水火调和、共同滋养木气的理想状态：春木赖火取暖、赖水滋润，二者不可偏废。</p></div>
+    <div class="kwcard"><span class="kt">归根复命</span>
+      <p>道家概念，出自《老子》「万物并作，吾以观复」。指事物回归本源；冬月木气潜藏收敛，正是归根复命之象。</p></div>
+    <div class="kwcard"><span class="kt">死绝之地</span>
+      <p>五行十二长生中「死」「绝」两位，代表气运衰竭之阶段，为行运最忌之处。反义为「生旺之方」。</p></div>
+    <div class="kwcard"><span class="kt">调候</span>
+      <p>调节命局寒暖燥湿。日主须借助适宜的气候条件方能发挥本气——此为《穷通宝鉴》全书立论之根本，详见各月令章。</p></div>
+  </div>
+</section>
+
+<!-- 今人按语 -->
+<section class="page">
+  <div class="rh"><span>窮通寶鑑箋注</span><span>卷一 · 論甲木</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker">按语</div>
+    <h3 class="sec">今人按语</h3>
+    <div class="sec-sub">排印整理本所附现代解读，别为一格辑录，仅供启发。</div>
+  </div>
+  <div class="qishi" style="margin-top:6mm;">
+    <div class="qt">现代启示 · 人境匹配</div>
+    <p>对甲木的论述，本质上是一套关于「环境适配性」的古典观察框架。古人将木气的盛衰与四季气候挂钩，试图建立「主体状态与外部条件最优匹配」的判断逻辑——这与现代行为科学中「人境匹配」（Person–Environment Fit）理论有相通之处。</p>
+    <p>春木需火温、夏木需水润、秋木需金雕、冬木需土培，揭示的核心逻辑是：同样的资质，在不同环境条件下，结果可以截然相反。更值得玩味的是「活木得金则伤，死木得金则成器」——这一观察提醒我们，判断某种外力是「助力」还是「阻力」，永远不能脱离主体当下的状态与处境。</p>
+    <p class="ask">你现在视为阻碍的那些压力，是否恰恰是让你成器的那把刀？</p>
+  </div>
+  <div class="note" style="margin-top:6mm;">按语为排印本编者所加，非原书文字；其以现代理论比附古义，读者参观可也。</div>
+</section>
+
+<!-- 版权/样章说明 -->
+<section class="page">
+  <div class="rh"><span>窮通寶鑑箋注</span><span>样章</span></div>
+  <div style="margin-top:12mm; text-align:center;">
+    <div class="kicker" style="justify-content:center">样章说明</div>
+    <p style="font-size:10pt; line-height:2.2; color:var(--ink2); text-align:justify; margin:6mm 2mm;">本章为《窮通寶鑑箋注》第一章样张。全书体例：按十天干分卷（卷一论甲木至卷十论癸水），每卷以十二月令立目，气候相近之月合并成章；每目先陈原文（附徐乐吾评注），继以白话通释、术语笺释与今人按语。</p>
+    <p style="font-size:10pt; line-height:2.2; color:var(--ink2); text-align:justify; margin:0 2mm;">书影采用风陵文库藏清写刻本，与排印本逐字对读；异文与阙文于校勘记中随文说明。</p>
+    <div style="margin-top:12mm; font-size:9pt; letter-spacing:.4em; color:var(--note);">第 一 章 終</div>
+  </div>
+</section>
+
+</body>
+</html>
