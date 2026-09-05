@@ -14,7 +14,7 @@ else echo "未找到 Edge/Chrome"; exit 1; fi
 render() {
   pkill -9 -f "$(basename "$BROWSER") .*headless" 2>/dev/null || true
   sleep 1
-  timeout 400 "$BROWSER" --headless --disable-gpu --no-pdf-header-footer \
+  timeout 900 "$BROWSER" --headless --disable-gpu --no-pdf-header-footer \
     --print-to-pdf="$OUT" --virtual-time-budget="$BUDGET" \
     "file://$(cd "$(dirname "$HTML")" && pwd)/$(basename "$HTML")" 2>&1 | grep -v CVDisplay | tail -1
 }
@@ -39,6 +39,9 @@ EOF
 for i in 1 2 3 4; do
   echo "--- render attempt $i ---"
   render
+  now=$(date +%s); mt=$(stat -f%m "$OUT" 2>/dev/null || echo 0)
+  age=$((now - mt))
+  if [ "$age" -gt 60 ]; then echo "STALE OUTPUT（${age}s 前的旧文件）——渲染未完成"; exit 1; fi
   if audit; then echo "BUILD OK"; exit 0; fi
   echo "字体回退，重渲..."
 done

@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bid" xml:lang="zh-Hans"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="bid">urn:uuid:880723c8-a362-48c4-bfb3-854beeb42086</dc:identifier><dc:title>窮通寶鑑箋注</dc:title><dc:creator>編纂</dc:creator><dc:language>zh-Hans</dc:language><meta property="dcterms:modified">2026-09-05T12:53:34Z</meta></metadata><manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="css" href="styles/epub.css" media-type="text/css"/>
+<item id="img1" href="images/qtb_jiamu_leaf.jpg" media-type="image/jpeg"/>
+<item id="img2" href="images/qtb_jiamu_spread.jpg" media-type="image/jpeg"/><item id="f0" href="text/cover.xhtml" media-type="application/xhtml+xml"/>
+<item id="f1" href="text/fanli.xhtml" media-type="application/xhtml+xml"/>
+<item id="f2" href="text/chap000_vol.xhtml" media-type="application/xhtml+xml"/>
+<item id="f3" href="text/chap001.xhtml" media-type="application/xhtml+xml"/>
+<item id="f4" href="text/chap002.xhtml" media-type="application/xhtml+xml"/>
+<item id="f5" href="text/chap003.xhtml" media-type="application/xhtml+xml"/>
+<item id="f6" href="text/chap004.xhtml" media-type="application/xhtml+xml"/>
+<item id="f7" href="text/chap005.xhtml" media-type="application/xhtml+xml"/>
+<item id="f8" href="text/chap006.xhtml" media-type="application/xhtml+xml"/>
+<item id="f9" href="text/chap007.xhtml" media-type="application/xhtml+xml"/>
+<item id="f10" href="text/chap008.xhtml" media-type="application/xhtml+xml"/>
+<item id="f11" href="text/chap009.xhtml" media-type="application/xhtml+xml"/>
+<item id="f12" href="text/chap010.xhtml" media-type="application/xhtml+xml"/>
+<item id="f13" href="text/chap011.xhtml" media-type="application/xhtml+xml"/>
+<item id="f14" href="text/chap012.xhtml" media-type="application/xhtml+xml"/>
+<item id="f15" href="text/chap100_vol.xhtml" media-type="application/xhtml+xml"/>
+<item id="f16" href="text/chap013.xhtml" media-type="application/xhtml+xml"/>
+<item id="f17" href="text/chap014.xhtml" media-type="application/xhtml+xml"/>
+<item id="f18" href="text/chap015.xhtml" media-type="application/xhtml+xml"/>
+<item id="f19" href="text/chap016.xhtml" media-type="application/xhtml+xml"/>
+<item id="f20" href="text/chap017.xhtml" media-type="application/xhtml+xml"/>
+<item id="f21" href="text/chap018.xhtml" media-type="application/xhtml+xml"/>
+<item id="f22" href="text/chap019.xhtml" media-type="application/xhtml+xml"/>
+<item id="f23" href="text/chap020.xhtml" media-type="application/xhtml+xml"/>
+<item id="f24" href="text/chap021.xhtml" media-type="application/xhtml+xml"/>
+<item id="f25" href="text/chap022.xhtml" media-type="application/xhtml+xml"/>
+<item id="f26" href="text/chap023.xhtml" media-type="application/xhtml+xml"/>
+<item id="f27" href="text/chap024.xhtml" media-type="application/xhtml+xml"/>
+<item id="f28" href="text/chap200_vol.xhtml" media-type="application/xhtml+xml"/>
+<item id="f29" href="text/chap025.xhtml" media-type="application/xhtml+xml"/>
+<item id="f30" href="text/chap026.xhtml" media-type="application/xhtml+xml"/>
+<item id="f31" href="text/chap027.xhtml" media-type="application/xhtml+xml"/>
+<item id="f32" href="text/chap028.xhtml" media-type="application/xhtml+xml"/>
+<item id="f33" href="text/chap029.xhtml" media-type="application/xhtml+xml"/>
+<item id="f34" href="text/chap030.xhtml" media-type="application/xhtml+xml"/>
+<item id="f35" href="text/chap031.xhtml" media-type="application/xhtml+xml"/>
+<item id="f36" href="text/chap032.xhtml" media-type="application/xhtml+xml"/>
+<item id="f37" href="text/chap033.xhtml" media-type="application/xhtml+xml"/>
+<item id="f38" href="text/chap034.xhtml" media-type="application/xhtml+xml"/>
+<item id="f39" href="text/chap035.xhtml" media-type="application/xhtml+xml"/>
+<item id="f40" href="text/chap036.xhtml" media-type="application/xhtml+xml"/>
+<item id="f41" href="text/chap300_vol.xhtml" media-type="application/xhtml+xml"/>
+<item id="f42" href="text/chap037.xhtml" media-type="application/xhtml+xml"/>
+<item id="f43" href="text/chap038.xhtml" media-type="application/xhtml+xml"/>
+<item id="f44" href="text/chap039.xhtml" media-type="application/xhtml+xml"/>
+<item id="f45" href="text/chap040.xhtml" media-type="application/xhtml+xml"/>
+<item id="f46" href="text/chap041.xhtml" media-type="application/xhtml+xml"/>
+<item id="f47" href="text/chap042.xhtml" media-type="application/xhtml+xml"/>
+<item id="f48" href="text/chap043.xhtml" media-type="application/xhtml+xml"/>
+<item id="f49" href="text/chap044.xhtml" media-type="application/xhtml+xml"/>
+<item id="f50" href="text/chap045.xhtml" media-type="application/xhtml+xml"/>
+<item id="f51" href="text/chap046.xhtml" media-type="application/xhtml+xml"/>
+<item id="f52" href="text/chap047.xhtml" media-type="application/xhtml+xml"/>
+<item id="f53" href="text/chap400_vol.xhtml" media-type="application/xhtml+xml"/>
+<item id="f54" href="text/chap048.xhtml" media-type="application/xhtml+xml"/>
+<item id="f55" href="text/chap049.xhtml" media-type="application/xhtml+xml"/>
+<item id="f56" href="text/chap050.xhtml" media-type="application/xhtml+xml"/>
+<item id="f57" href="text/chap051.xhtml" media-type="application/xhtml+xml"/>
+<item id="f58" href="text/chap052.xhtml" media-type="application/xhtml+xml"/>
+<item id="f59" href="text/chap053.xhtml" media-type="application/xhtml+xml"/>
+<item id="f60" href="text/chap054.xhtml" media-type="application/xhtml+xml"/>
+<item id="f61" href="text/chap055.xhtml" media-type="application/xhtml+xml"/>
+<item id="f62" href="text/chap056.xhtml" media-type="application/xhtml+xml"/>
+<item id="f63" href="text/chap057.xhtml" media-type="application/xhtml+xml"/>
+<item id="f64" href="text/chap500_vol.xhtml" media-type="application/xhtml+xml"/>
+<item id="f65" href="text/chap058.xhtml" media-type="application/xhtml+xml"/>
+<item id="f66" href="text/chap059.xhtml" media-type="application/xhtml+xml"/>
+<item id="f67" href="text/chap060.xhtml" media-type="application/xhtml+xml"/>
+<item id="f68" href="text/chap061.xhtml" media-type="application/xhtml+xml"/>
+<item id="f69" href="text/chap062.xhtml" media-type="application/xhtml+xml"/>
+<item id="f70" href="text/chap063.xhtml" media-type="application/xhtml+xml"/>
+<item id="f71" href="text/chap600_vol.xhtml" media-type="application/xhtml+xml"/>
+<item id="f72" href="text/chap064.xhtml" media-type="application/xhtml+xml"/>
+<item id="f73" href="text/chap065.xhtml" media-type="application/xhtml+xml"/>
+<item id="f74" href="text/chap066.xhtml" media-type="application/xhtml+xml"/>
+<item id="f75" href="text/chap067.xhtml" media-type="application/xhtml+xml"/>
+<item id="f76" href="text/chap068.xhtml" media-type="application/xhtml+xml"/>
+<item id="f77" href="text/chap069.xhtml" media-type="application/xhtml+xml"/>
+<item id="f78" href="text/chap070.xhtml" media-type="application/xhtml+xml"/>
+<item id="f79" href="text/chap071.xhtml" media-type="application/xhtml+xml"/>
+<item id="f80" href="text/chap072.xhtml" media-type="application/xhtml+xml"/>
+<item id="f81" href="text/chap073.xhtml" media-type="application/xhtml+xml"/>
+<item id="f82" href="text/chap074.xhtml" media-type="application/xhtml+xml"/>
+<item id="f83" href="text/chap075.xhtml" media-type="application/xhtml+xml"/>
+<item id="f84" href="text/chap076.xhtml" media-type="application/xhtml+xml"/>
+<item id="f85" href="text/chap700_vol.xhtml" media-type="application/xhtml+xml"/>
+<item id="f86" href="text/chap077.xhtml" media-type="application/xhtml+xml"/>
+<item id="f87" href="text/chap078.xhtml" media-type="application/xhtml+xml"/>
+<item id="f88" href="text/chap079.xhtml" media-type="application/xhtml+xml"/>
+<item id="f89" href="text/chap080.xhtml" media-type="application/xhtml+xml"/>
+<item id="f90" href="text/chap081.xhtml" media-type="application/xhtml+xml"/>
+<item id="f91" href="text/chap082.xhtml" media-type="application/xhtml+xml"/>
+<item id="f92" href="text/chap083.xhtml" media-type="application/xhtml+xml"/>
+<item id="f93" href="text/chap084.xhtml" media-type="application/xhtml+xml"/>
+<item id="f94" href="text/chap085.xhtml" media-type="application/xhtml+xml"/>
+<item id="f95" href="text/chap086.xhtml" media-type="application/xhtml+xml"/>
+<item id="f96" href="text/chap087.xhtml" media-type="application/xhtml+xml"/>
+<item id="f97" href="text/chap088.xhtml" media-type="application/xhtml+xml"/>
+<item id="f98" href="text/chap800_vol.xhtml" media-type="application/xhtml+xml"/>
+<item id="f99" href="text/chap089.xhtml" media-type="application/xhtml+xml"/>
+<item id="f100" href="text/chap090.xhtml" media-type="application/xhtml+xml"/>
+<item id="f101" href="text/chap091.xhtml" media-type="application/xhtml+xml"/>
+<item id="f102" href="text/chap092.xhtml" media-type="application/xhtml+xml"/>
+<item id="f103" href="text/chap093.xhtml" media-type="application/xhtml+xml"/>
+<item id="f104" href="text/chap094.xhtml" media-type="application/xhtml+xml"/>
+<item id="f105" href="text/chap095.xhtml" media-type="application/xhtml+xml"/>
+<item id="f106" href="text/chap096.xhtml" media-type="application/xhtml+xml"/>
+<item id="f107" href="text/chap097.xhtml" media-type="application/xhtml+xml"/>
+<item id="f108" href="text/chap098.xhtml" media-type="application/xhtml+xml"/>
+<item id="f109" href="text/chap099.xhtml" media-type="application/xhtml+xml"/>
+<item id="f110" href="text/chap100.xhtml" media-type="application/xhtml+xml"/>
+<item id="f111" href="text/chap101.xhtml" media-type="application/xhtml+xml"/>
+<item id="f112" href="text/chap900_vol.xhtml" media-type="application/xhtml+xml"/>
+<item id="f113" href="text/chap102.xhtml" media-type="application/xhtml+xml"/>
+<item id="f114" href="text/chap103.xhtml" media-type="application/xhtml+xml"/>
+<item id="f115" href="text/chap104.xhtml" media-type="application/xhtml+xml"/>
+<item id="f116" href="text/chap105.xhtml" media-type="application/xhtml+xml"/>
+<item id="f117" href="text/chap106.xhtml" media-type="application/xhtml+xml"/>
+<item id="f118" href="text/chap107.xhtml" media-type="application/xhtml+xml"/>
+<item id="f119" href="text/chap108.xhtml" media-type="application/xhtml+xml"/>
+<item id="f120" href="text/chap109.xhtml" media-type="application/xhtml+xml"/>
+<item id="f121" href="text/chap110.xhtml" media-type="application/xhtml+xml"/>
+<item id="f122" href="text/chap111.xhtml" media-type="application/xhtml+xml"/>
+<item id="f123" href="text/chap112.xhtml" media-type="application/xhtml+xml"/>
+<item id="f124" href="text/chap113.xhtml" media-type="application/xhtml+xml"/>
+<item id="f125" href="text/colophon.xhtml" media-type="application/xhtml+xml"/></manifest><spine><itemref idref="f0"/>
+<itemref idref="f1"/>
+<itemref idref="f2"/>
+<itemref idref="f3"/>
+<itemref idref="f4"/>
+<itemref idref="f5"/>
+<itemref idref="f6"/>
+<itemref idref="f7"/>
+<itemref idref="f8"/>
+<itemref idref="f9"/>
+<itemref idref="f10"/>
+<itemref idref="f11"/>
+<itemref idref="f12"/>
+<itemref idref="f13"/>
+<itemref idref="f14"/>
+<itemref idref="f15"/>
+<itemref idref="f16"/>
+<itemref idref="f17"/>
+<itemref idref="f18"/>
+<itemref idref="f19"/>
+<itemref idref="f20"/>
+<itemref idref="f21"/>
+<itemref idref="f22"/>
+<itemref idref="f23"/>
+<itemref idref="f24"/>
+<itemref idref="f25"/>
+<itemref idref="f26"/>
+<itemref idref="f27"/>
+<itemref idref="f28"/>
+<itemref idref="f29"/>
+<itemref idref="f30"/>
+<itemref idref="f31"/>
+<itemref idref="f32"/>
+<itemref idref="f33"/>
+<itemref idref="f34"/>
+<itemref idref="f35"/>
+<itemref idref="f36"/>
+<itemref idref="f37"/>
+<itemref idref="f38"/>
+<itemref idref="f39"/>
+<itemref idref="f40"/>
+<itemref idref="f41"/>
+<itemref idref="f42"/>
+<itemref idref="f43"/>
+<itemref idref="f44"/>
+<itemref idref="f45"/>
+<itemref idref="f46"/>
+<itemref idref="f47"/>
+<itemref idref="f48"/>
+<itemref idref="f49"/>
+<itemref idref="f50"/>
+<itemref idref="f51"/>
+<itemref idref="f52"/>
+<itemref idref="f53"/>
+<itemref idref="f54"/>
+<itemref idref="f55"/>
+<itemref idref="f56"/>
+<itemref idref="f57"/>
+<itemref idref="f58"/>
+<itemref idref="f59"/>
+<itemref idref="f60"/>
+<itemref idref="f61"/>
+<itemref idref="f62"/>
+<itemref idref="f63"/>
+<itemref idref="f64"/>
+<itemref idref="f65"/>
+<itemref idref="f66"/>
+<itemref idref="f67"/>
+<itemref idref="f68"/>
+<itemref idref="f69"/>
+<itemref idref="f70"/>
+<itemref idref="f71"/>
+<itemref idref="f72"/>
+<itemref idref="f73"/>
+<itemref idref="f74"/>
+<itemref idref="f75"/>
+<itemref idref="f76"/>
+<itemref idref="f77"/>
+<itemref idref="f78"/>
+<itemref idref="f79"/>
+<itemref idref="f80"/>
+<itemref idref="f81"/>
+<itemref idref="f82"/>
+<itemref idref="f83"/>
+<itemref idref="f84"/>
+<itemref idref="f85"/>
+<itemref idref="f86"/>
+<itemref idref="f87"/>
+<itemref idref="f88"/>
+<itemref idref="f89"/>
+<itemref idref="f90"/>
+<itemref idref="f91"/>
+<itemref idref="f92"/>
+<itemref idref="f93"/>
+<itemref idref="f94"/>
+<itemref idref="f95"/>
+<itemref idref="f96"/>
+<itemref idref="f97"/>
+<itemref idref="f98"/>
+<itemref idref="f99"/>
+<itemref idref="f100"/>
+<itemref idref="f101"/>
+<itemref idref="f102"/>
+<itemref idref="f103"/>
+<itemref idref="f104"/>
+<itemref idref="f105"/>
+<itemref idref="f106"/>
+<itemref idref="f107"/>
+<itemref idref="f108"/>
+<itemref idref="f109"/>
+<itemref idref="f110"/>
+<itemref idref="f111"/>
+<itemref idref="f112"/>
+<itemref idref="f113"/>
+<itemref idref="f114"/>
+<itemref idref="f115"/>
+<itemref idref="f116"/>
+<itemref idref="f117"/>
+<itemref idref="f118"/>
+<itemref idref="f119"/>
+<itemref idref="f120"/>
+<itemref idref="f121"/>
+<itemref idref="f122"/>
+<itemref idref="f123"/>
+<itemref idref="f124"/>
+<itemref idref="f125"/></spine></package>
