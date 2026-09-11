@@ -19,7 +19,12 @@ def clean_text(t):
     return re.sub(r'&[a-zA-Z#0-9]{1,8};', '', t)
 
 def to_trad(t):
-    return cc.convert(t)
+    s = cc.convert(clean_text(t))
+    s = re.sub(r',', '，', s)
+    s = re.sub(r';', '；', s)
+    s = re.sub(r'\?', '？', s)
+    s = re.sub(r'!', '！', s)
+    return s
 
 def esc(t):
     return re.sub(r'\s+', ' ', clean_text(t)).strip()
@@ -140,10 +145,13 @@ for n in range(1, 114):
     body_ep = [f'<h1 class="doctitle">第{n}节 · {esc(s["title"])}</h1>',
                '<h2 class="sec">原文</h2>']
     yparas = []
-    for p in merge_softwrap(s['yuanwen'].split('\n')):
+    ylines = s['yuanwen'].split('\n')
+    if ylines and re.sub(r'\s+', '', to_trad(ylines[0])) == re.sub(r'\s+', '', to_trad(s['title'])):
+        ylines = ylines[1:]
+    for p in merge_softwrap(ylines):
         p = norm_quotes(to_trad(p))
         if p.startswith('徐乐吾曰'):
-            yparas.append(('xu', re.sub(r'^徐乐吾曰[:：]?', '', p)))
+            yparas.append(('xu', re.sub(r'^徐乐吾曰[\s:：∶]*', '', p)))
         else:
             yparas.append(('main', p))
     for kind, p in yparas:
