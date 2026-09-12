@@ -227,21 +227,28 @@ sections = re.findall(r'<section class="page[^"]*">(.*?)</section>', base, re.S)
 assert len(sections) == 12, f'book.html sections={len(sections)}'
 cover, titlepage, fanli = sections[0], sections[1], sections[2]
 ch1_pages = '\n'.join(f'<section class="page">{s}</section>' for s in sections[3:12])
+# 内嵌 folio 是样章自排版码，全书页码统一由 stamp_folios 盖印，混用会一页双码
+ch1_pages = re.sub(r'<div class="folio"[^>]*>.*?</div>', '', ch1_pages, flags=re.S)
 
 FLOW_CSS = '''
   /* ===== 全书流式版式 ===== */
   @page{ size:185mm 260mm; margin:20mm 20mm 16mm; }
-  body{ background:var(--paper); }
+  body{ background:#FFFFFF; }
   .page{ page-break-after:always; }
-  .ch-flow-head{ padding-top:8mm; }
-  .ch-flow-num{ font-family:var(--song); font-size:10pt; letter-spacing:.5em; color:var(--cinnabar); margin-bottom:4mm; }
-  .ch-flow-title{ font-family:var(--song); font-weight:900; font-size:23pt; letter-spacing:.2em; color:var(--ink); margin-bottom:4mm; }
-  .ch-flow-rule{ display:flex; align-items:center; gap:3mm; margin-bottom:6mm; }
+  /* 章首隔页：居中构图，整页读作章回体副扉页而非半空页 */
+  .ch-flow-head{ padding-top:76mm; text-align:center; }
+  .ch-flow-num{ font-family:var(--song); font-size:10pt; letter-spacing:.5em; color:var(--cinnabar); margin-bottom:5mm; }
+  .ch-flow-title{ font-family:var(--song); font-weight:900; font-size:21pt; letter-spacing:.22em; color:var(--ink); margin-bottom:5mm; }
+  .ch-flow-rule{ display:flex; align-items:center; justify-content:center; gap:3mm; margin-bottom:7mm; }
+  .ch-flow-head .ch-gist{ display:inline-block; text-align:justify; max-width:116mm; margin-top:0; }
   .ch-flow-rule i{ width:30mm; height:.5pt; background:var(--rule); }
   .ch-flow-rule b{ width:2.2mm; height:2.2mm; background:var(--cinnabar); transform:rotate(45deg); }
   .readers{ margin-top:2mm; }
   .vtxt.sm.base{ font-size:12.8pt; } .vtxt.sm.other{ font-size:10.8pt; }
   .flow-sec{ break-before:page; }
+  .endpage{ background:linear-gradient(168deg, var(--dark) 0%, var(--dark2) 100%); }
+  .endpage .kicker{ color:#C8B98D; }
+  .endpage .kicker::before{ background:#C8B98D; }
   /* 流式内容之后的固定页分区必须强制换页，否则章首会与上一章拼接/跨页截断 */
   body > .flow-sec ~ .page{ break-before:page; }
   .chapter{ break-before:page; }
@@ -304,12 +311,12 @@ for n in range(2, 38):
 body.append(vol_head(38))
 for n in range(38, 82):
     body.append(chapter_html(n))
-body.append('''<section class="chapter">
-  <div style="text-align:center; padding-top:40mm;">
+body.append('''<section class="page endpage">
+  <div style="text-align:center; padding-top:78mm;">
     <div class="kicker" style="justify-content:center">跋</div>
-    <p style="font-size:10.5pt; line-height:2.2; color:var(--ink2); text-align:justify; margin:8mm 4mm 0;">本书以《古逸叢書》景刊王弼本为底，河上公本、马王堆帛书甲乙本对读，古注今译随章系之；异文表由四本字符级比对程序生成，校按规则化缀辑，图版以可核实为度。释文从《長沙馬王堆漢墓簡帛集成》，释义纂辑并参考识典古籍、国家图书馆中华古籍智慧化服务平台等数字古籍库。</p>
-    <div style="margin-top:14mm; font-size:10pt; letter-spacing:.7em; color:var(--cinnabar);">全 書 終</div>
-    <div style="margin-top:10mm; font-size:7.5pt; letter-spacing:.3em; color:var(--note); line-height:2;">道德经三版本对照笺注 · 全书八十一章<br/>十六开本（185×260mm）· 编纂参考：识典古籍 / 中华古籍智慧化服务平台 / 《長沙馬王堆漢墓簡帛集成》</div>
+    <p style="font-size:10.5pt; line-height:2.2; color:#CFC5AC; text-align:justify; margin:8mm 6mm 0;">本书以《古逸叢書》景刊王弼本为底，河上公本、马王堆帛书甲乙本对读，古注今译随章系之；异文表由四本字符级比对程序生成，校按规则化缀辑，图版以可核实为度。释文从《長沙馬王堆漢墓簡帛集成》，释义纂辑并参考识典古籍、国家图书馆中华古籍智慧化服务平台等数字古籍库。</p>
+    <div style="margin-top:14mm; font-size:10pt; letter-spacing:.7em; color:#C8B98D;">全 書 終</div>
+    <div style="margin-top:10mm; font-size:7.5pt; letter-spacing:.3em; color:rgba(200,185,141,.62); line-height:2;">道德经三版本对照笺注 · 全书八十一章<br/>十六开本（185×260mm）· 编纂参考：识典古籍 / 中华古籍智慧化服务平台 / 《長沙馬王堆漢墓簡帛集成》</div>
   </div></section>''')
 
 html = (f'<!DOCTYPE html>\n<html lang="zh-Hans"><head><meta charset="UTF-8">\n'

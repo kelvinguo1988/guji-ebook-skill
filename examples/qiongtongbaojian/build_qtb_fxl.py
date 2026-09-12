@@ -124,6 +124,10 @@ def main():
     print('DONE', OUT, round(os.path.getsize(OUT)/1048576, 1), 'MB')
 
 def esc(t):
+    # Type3 字形无 Unicode 映射时 PyMuPDF 返回 NUL 等控制字符——XML 1.0 非法，必须剥除
+    t = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]', '', t)
+    if not t.strip():
+        return ''
     return t.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
 
 def subset_fonts(chars, workdir):

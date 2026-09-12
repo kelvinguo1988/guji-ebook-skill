@@ -77,6 +77,7 @@ book.html（版式设计系统 + 全部内容，唯一手工源）
   ```
   陷阱说明：① 签条放面板内会压住竖排文字起头（间隙<1mm）；② 面板自身的 `overflow:hidden` 同时承担"锁定网格行高"职责（grid item 的 min-height:auto 会随内容撑大行），去掉它行高就会跑；但它又会裁掉凸出签条——所以必须"外层放签条、内层裁内容"分层。③ 竖排 vtxt 上加 padding-top 会让 Chromium 竖排折行失效（列溢出面板底部），禁止。
 - **对读面板必须放在固定 `.page` 分区内，禁止处于流式上下文**：流式中的网格会被 Chromium 碎片化——竖排列失去右起锚定（贴靠左缘、右侧大片空置）、签条与空框残条跨页孤悬。全书生成时每章应拆为：章首固定页 → 对读上固定页 → 对读下+图例固定页 → 古注/今译/校勘流式（`break-before:page`）。
+- **固定页与流式页混排必须用命名页解耦边距**：全书生成器若在固定页版式之后再声明 `@page{margin:20mm…}`（为流式章节设边距），会覆盖固定页的 `@page{margin:0}`——185mm 固定页被 Chromium 整体缩放进 145mm 版心（约 78% 缩放，封面/收束页四周出现白框，全书页数虚减、字号缩小，且极难察觉）。正解：`@page full{ size:…; margin:0 }` + `.page{ page:full }`，流式页走默认 `@page` 边距；命名页切换本身强制分页，与既有 break 规则恰好重合，不产生空白页。
 - **流式内容之后的固定页必须 `break-before:page`**：固定页自身只有 `page-break-after`，前面的流式区块（古注/今译）排完后，下一个固定页会从当页半空续排（章首与上一章拼接、被跨页截断、只剩章旨框孤悬）。用 `body > .flow-sec ~ .page{ break-before:page }` 精准命中（避免封面在文档起点产生空白页）。相邻的 break-after:page + break-before:page 按规范合并为一个断点，不会产生空白页。
 - 竖排文字：`writing-mode:vertical-rl` + `text-align:justify`；朱丝栏用 `repeating-linear-gradient(to left,…)` 画在文字层背景上，间距=行高。
 - 章首：竖排章题（楷体）+ 配图占右 86mm + 导读 + 章旨框（左 1pt 朱线）。
@@ -101,6 +102,8 @@ book.html（版式设计系统 + 全部内容，唯一手工源）
 | 下载大字体文件中断 | curl 加 `-C - --retry 3` 续传；或换 jsDelivr/gstatic 子集 |
 | github raw 大文件截断 | 校验文件头与声明长度（§1.2） |
 | 帛书图版页序与行号不线性 | 以页边栏名定文献边界，勿跨篇混用行号 |
+| PyMuPDF 对 Type3 无 Unicode 映射的字形返回 `\x00` 等控制字符 | 生成 XML/EPUB 前必须剥除（esc 内 `re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]','')`），否则 EPUB 解包校验报 not well-formed |
+| 竖排面板文字截断无法靠 PDF 文本比对发现（竖排提取乱序） | 用字符计数法：按章比对面板页提取的汉字总数与渲染文本基线的差值（容差 4 字） |
 
 ## 7. 资产索引（仓库即打包）
 

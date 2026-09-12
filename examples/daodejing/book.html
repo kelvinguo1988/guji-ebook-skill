@@ -17,13 +17,17 @@
     --kai:"LXGW WenKai","Noto Serif TC","Noto Serif SC",serif;
   }
   *{ margin:0; padding:0; box-sizing:border-box; }
-  html,body{ margin:0; padding:0; background:var(--paper); }
+  /* 纸面纯白：整页奶油底色会让白色页边距读作窗口背景，正文视觉上「贴边」（SKILL.md §4 禁令） */
+  html,body{ margin:0; padding:0; background:#FFFFFF; }
   body{ font-family:var(--song); color:var(--ink);
         font-kerning:normal; text-autospace:normal; }
 
   @page{ size:185mm 260mm; margin:0; }
-  .page{ width:185mm; height:260mm; position:relative; overflow:hidden;
-         background:var(--paper); page-break-after:always;
+  /* 命名页 full：固定页满版无页边距；流式页（古注/今译/校勘）走默认 @page 边距。
+     全书混排时若无命名页，后声明的 @page 边距会让 185mm 固定页被整体缩放进版心 */
+  @page full{ size:185mm 260mm; margin:0; }
+  .page{ width:185mm; height:260mm; position:relative; overflow:hidden; page:full;
+         background:#FFFFFF; page-break-after:always;
          padding:19mm 20mm 15mm; }
   .page.final{ page-break-after:auto; }
 
@@ -255,7 +259,7 @@
   <div style="margin-top:9mm;">
     <div class="kicker">凡例</div>
     <h3 class="sec">如何使用这本书</h3>
-    <div class="sec-sub">全书八十一章，每章依同一体例编排；本册为第一章样张。</div>
+    <div class="sec-sub">全书八十一章，每章依同一体例编排；本册为第一章样章。</div>
   </div>
   <ul class="fali" style="margin-top:7mm;">
     <li><span class="no">一</span><b>底本与对读。</b>经文以《古逸叢書》据集唐字本景刊<span style="color:var(--ink)">王弼注《老子道德經》</span>为底本，以南宋建阳刊<span style="color:var(--ink)">《音註河上公老子道德經》</span>、马王堆汉墓出土<span style="color:var(--ink)">帛书甲乙本</span>（释文据《長沙馬王堆漢墓簡帛集成》）四本对读。</li>
@@ -501,7 +505,7 @@
       <p>一九七三年长沙马王堆三号汉墓出土，抄写于西汉初年，皆〈德〉篇在前、〈道〉篇在后，多用借字，句尾多「也」。释文从《長沙馬王堆漢墓簡帛集成》。</p>
     </div>
     <div class="end-mark">第一章终</div>
-    <div class="meta">道德经三版本对照笺注 · 第一章样张<br>十六开本（185×260mm）· 编纂参考：识典古籍 / 中华古籍智慧化服务平台 / 《長沙馬王堆漢墓簡帛集成》</div>
+    <div class="meta">道德经三版本对照笺注 · 第一章样章<br>十六开本（185×260mm）· 编纂参考：识典古籍 / 中华古籍智慧化服务平台 / 《長沙馬王堆漢墓簡帛集成》</div>
   </div>
 </section>
 

@@ -15,13 +15,17 @@
     --kai:"LXGW WenKai","Noto Serif TC","Noto Serif SC",serif;
   }
   *{ margin:0; padding:0; box-sizing:border-box; }
-  html,body{ margin:0; padding:0; background:var(--paper); }
+  /* 纸面纯白：整页奶油底色会让白色页边距读作窗口背景，正文视觉上「贴边」（SKILL.md §4 禁令） */
+  html,body{ margin:0; padding:0; background:#FFFFFF; }
   body{ font-family:var(--song); color:var(--ink);
         font-kerning:normal; text-autospace:normal; }
 
   @page{ size:185mm 260mm; margin:0; }
-  .page{ width:185mm; height:260mm; position:relative; overflow:hidden;
-         background:var(--paper); page-break-after:always;
+  /* 命名页 full：固定页满版无页边距；流式页（古注/今译/校勘）走默认 @page 边距。
+     全书混排时若无命名页，后声明的 @page 边距会让 185mm 固定页被整体缩放进版心 */
+  @page full{ size:185mm 260mm; margin:0; }
+  .page{ width:185mm; height:260mm; position:relative; overflow:hidden; page:full;
+         background:#FFFFFF; page-break-after:always;
          padding:19mm 20mm 15mm; }
   .page.final{ page-break-after:auto; }
 
@@ -221,17 +225,22 @@
 
   /* ===== 全书流式版式 ===== */
   @page{ size:185mm 260mm; margin:20mm 20mm 16mm; }
-  body{ background:var(--paper); }
+  body{ background:#FFFFFF; }
   .page{ page-break-after:always; }
-  .ch-flow-head{ padding-top:8mm; }
-  .ch-flow-num{ font-family:var(--song); font-size:10pt; letter-spacing:.5em; color:var(--cinnabar); margin-bottom:4mm; }
-  .ch-flow-title{ font-family:var(--song); font-weight:900; font-size:23pt; letter-spacing:.2em; color:var(--ink); margin-bottom:4mm; }
-  .ch-flow-rule{ display:flex; align-items:center; gap:3mm; margin-bottom:6mm; }
+  /* 章首隔页：居中构图，整页读作章回体副扉页而非半空页 */
+  .ch-flow-head{ padding-top:76mm; text-align:center; }
+  .ch-flow-num{ font-family:var(--song); font-size:10pt; letter-spacing:.5em; color:var(--cinnabar); margin-bottom:5mm; }
+  .ch-flow-title{ font-family:var(--song); font-weight:900; font-size:21pt; letter-spacing:.22em; color:var(--ink); margin-bottom:5mm; }
+  .ch-flow-rule{ display:flex; align-items:center; justify-content:center; gap:3mm; margin-bottom:7mm; }
+  .ch-flow-head .ch-gist{ display:inline-block; text-align:justify; max-width:116mm; margin-top:0; }
   .ch-flow-rule i{ width:30mm; height:.5pt; background:var(--rule); }
   .ch-flow-rule b{ width:2.2mm; height:2.2mm; background:var(--cinnabar); transform:rotate(45deg); }
   .readers{ margin-top:2mm; }
   .vtxt.sm.base{ font-size:12.8pt; } .vtxt.sm.other{ font-size:10.8pt; }
   .flow-sec{ break-before:page; }
+  .endpage{ background:linear-gradient(168deg, var(--dark) 0%, var(--dark2) 100%); }
+  .endpage .kicker{ color:#C8B98D; }
+  .endpage .kicker::before{ background:#C8B98D; }
   /* 流式内容之后的固定页分区必须强制换页，否则章首会与上一章拼接/跨页截断 */
   body > .flow-sec ~ .page{ break-before:page; }
   .chapter{ break-before:page; }
@@ -275,7 +284,7 @@
   <div style="margin-top:9mm;">
     <div class="kicker">凡例</div>
     <h3 class="sec">如何使用这本书</h3>
-    <div class="sec-sub">全书八十一章，每章依同一体例编排；本册为第一章样张。</div>
+    <div class="sec-sub">全书八十一章，每章依同一体例编排；本册为第一章样章。</div>
   </div>
   <ul class="fali" style="margin-top:7mm;">
     <li><span class="no">一</span><b>底本与对读。</b>经文以《古逸叢書》据集唐字本景刊<span style="color:var(--ink)">王弼注《老子道德經》</span>为底本，以南宋建阳刊<span style="color:var(--ink)">《音註河上公老子道德經》</span>、马王堆汉墓出土<span style="color:var(--ink)">帛书甲乙本</span>（释文据《長沙馬王堆漢墓簡帛集成》）四本对读。</li>
@@ -320,7 +329,7 @@
     </div>
     <div class="ch-gist"><b>章旨</b>道超乎名言。「无」「有」同出而异名；观道者兼此两观，造乎玄之又玄。</div>
   </div>
-  <div class="folio" style="color:var(--note)">3</div>
+  
 </section>
 <section class="page">
   <div class="rh"><span>道德經三版本對照箋注</span><span>道經 · 第一章</span></div>
@@ -345,7 +354,7 @@
       </div>
     </div>
   </div>
-  <div class="folio">4</div>
+  
 </section>
 <section class="page">
   <div class="rh"><span>道德經三版本對照箋注</span><span>道經 · 第一章</span></div>
@@ -371,7 +380,7 @@
     </div>
   </div>
   <div class="legend"><span><i>〔　〕</i>残缺拟补</span><span><i>（　）</i>通假今字</span><span>句读从《集成》释文</span></div>
-  <div class="folio">5</div>
+  
 </section>
 <section class="page">
   <div class="rh"><span>道德經三版本對照箋注</span><span>道經 · 第一章</span></div>
@@ -407,7 +416,7 @@
       <p>二本经文同作「無名天地之始」「觀其玅」，与帛书「無，名萬物之始也」「觀其眇」正可对勘。</p>
     </div>
   </div>
-  <div class="folio">6</div>
+  
 </section>
 <section class="page">
   <div class="rh"><span>道德經三版本對照箋注</span><span>道經 · 第一章</span></div>
@@ -433,7 +442,7 @@
     </figure>
   </div>
   <div class="plates-remarks">帛书两本皆〈德〉篇在前、〈道〉篇在后，第一章居全卷之末。上二图为两本卷端书影，以见西汉写本形貌；本册帛书释文悉据《長沙馬王堆漢墓簡帛集成》迻录，与卷端朱丝界栏、篆隶笔意相参看。</div>
-  <div class="folio">7</div>
+  
 </section>
 <section class="page">
   <div class="rh"><span>道德經三版本對照箋注</span><span>道經 · 第一章</span></div>
@@ -458,7 +467,7 @@
     <blockquote><b>王弼曰</b>　凡有皆始於無，故未形無名之時，則為萬物之始；及其有形有名之時，則長之育之，亭之毒之，為其母也。</blockquote>
     <blockquote><b>河上公曰</b>　謂經術政教之道也，非自然長生之道也。常道當以無為養神，無事安民。</blockquote>
   </div>
-  <div class="folio">8</div>
+  
 </section>
 <section class="page">
   <div class="rh"><span>道德經三版本對照箋注</span><span>道經 · 第一章</span></div>
@@ -475,7 +484,7 @@
     <p>首章是全书的总纲：道在语言与名相之外，故一开篇便做「否定」——可道的不是常道，可名的不是常名。然而道并非空洞的悬设，它显现为「无」与「有」两面：无名而为天地之始，有名而为万物之母。观道者须兼此两观——观其妙，复观其徼。两者同出而异名，同归于玄；连「玄」也不可执，故曰「玄之又玄」。第四十章「天下萬物生於有，有生於無」，正是此章的展开。</p>
   </div>
   <div class="duanju">附记　句读两读：旧读「無名，天地之始；有名，萬物之母」，以「无名」「有名」连读；新读「無，名萬物之始也；有，名萬物之母也」，以「无」「有」绝句。帛书「也」字出句尾，新读因之而立，两读义各有所见。</div>
-  <div class="folio">9</div>
+  
 </section>
 <section class="page">
   <div class="rh"><span>道德經三版本對照箋注</span><span>道經 · 第一章</span></div>
@@ -500,7 +509,7 @@
     <div class="item"><span class="n">三</span><p><b>妙字异体。</b>帛书作「眇」，王弼古逸本、河上公本、石涛写本并作「玅」，今通行整理本作「妙」——三形一字，经义无别。</p></div>
     <div class="item"><span class="n">四</span><p><b>石涛写本可补证。</b>石涛楷书册本章一作「無名天地之始」「觀其玅」，与刻本系相同，可见清初书家所据仍是通行本系统；其自题「己卯八月」（康熙三十八年，1700），为断代之助。</p></div>
   </div>
-  <div class="folio">10</div>
+  
 </section>
 <section class="page">
   <div class="frame"></div>
@@ -519,7 +528,7 @@
       <p>一九七三年长沙马王堆三号汉墓出土，抄写于西汉初年，皆〈德〉篇在前、〈道〉篇在后，多用借字，句尾多「也」。释文从《長沙馬王堆漢墓簡帛集成》。</p>
     </div>
     <div class="end-mark">第一章终</div>
-    <div class="meta">道德经三版本对照笺注 · 第一章样张<br>十六开本（185×260mm）· 编纂参考：识典古籍 / 中华古籍智慧化服务平台 / 《長沙馬王堆漢墓簡帛集成》</div>
+    <div class="meta">道德经三版本对照笺注 · 第一章样章<br>十六开本（185×260mm）· 编纂参考：识典古籍 / 中华古籍智慧化服务平台 / 《長沙馬王堆漢墓簡帛集成》</div>
   </div>
 </section>
 <section class="page"><div class="ch-flow-head"><div class="ch-flow-num">第 2 章 · 卷一 · 道經</div><h2 class="ch-flow-title">天下皆知美之為美</h2><div class="ch-flow-rule"><i></i><b></b><i></i></div><div class="ch-gist"><b>章旨</b>美丑善恶相待而生；圣人处无为之事，行不言之教，功成弗居。</div></div></section>
@@ -3608,11 +3617,11 @@
 <p class="xiaoan"><b>校按三</b>　今译从王弼本句读；异文红线标出，供覆按。</p>
 </div>
 </section>
-<section class="chapter">
-  <div style="text-align:center; padding-top:40mm;">
+<section class="page endpage">
+  <div style="text-align:center; padding-top:78mm;">
     <div class="kicker" style="justify-content:center">跋</div>
-    <p style="font-size:10.5pt; line-height:2.2; color:var(--ink2); text-align:justify; margin:8mm 4mm 0;">本书以《古逸叢書》景刊王弼本为底，河上公本、马王堆帛书甲乙本对读，古注今译随章系之；异文表由四本字符级比对程序生成，校按规则化缀辑，图版以可核实为度。释文从《長沙馬王堆漢墓簡帛集成》，释义纂辑并参考识典古籍、国家图书馆中华古籍智慧化服务平台等数字古籍库。</p>
-    <div style="margin-top:14mm; font-size:10pt; letter-spacing:.7em; color:var(--cinnabar);">全 書 終</div>
-    <div style="margin-top:10mm; font-size:7.5pt; letter-spacing:.3em; color:var(--note); line-height:2;">道德经三版本对照笺注 · 全书八十一章<br/>十六开本（185×260mm）· 编纂参考：识典古籍 / 中华古籍智慧化服务平台 / 《長沙馬王堆漢墓簡帛集成》</div>
+    <p style="font-size:10.5pt; line-height:2.2; color:#CFC5AC; text-align:justify; margin:8mm 6mm 0;">本书以《古逸叢書》景刊王弼本为底，河上公本、马王堆帛书甲乙本对读，古注今译随章系之；异文表由四本字符级比对程序生成，校按规则化缀辑，图版以可核实为度。释文从《長沙馬王堆漢墓簡帛集成》，释义纂辑并参考识典古籍、国家图书馆中华古籍智慧化服务平台等数字古籍库。</p>
+    <div style="margin-top:14mm; font-size:10pt; letter-spacing:.7em; color:#C8B98D;">全 書 終</div>
+    <div style="margin-top:10mm; font-size:7.5pt; letter-spacing:.3em; color:rgba(200,185,141,.62); line-height:2;">道德经三版本对照笺注 · 全书八十一章<br/>十六开本（185×260mm）· 编纂参考：识典古籍 / 中华古籍智慧化服务平台 / 《長沙馬王堆漢墓簡帛集成》</div>
   </div></section>
 </body></html>
