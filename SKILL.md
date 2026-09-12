@@ -89,6 +89,7 @@ book.html（版式设计系统 + 全部内容，唯一手工源）
   - `pdf_qa.py`（pdf skill 附带：元数据/空白页/溢出/边距）
   - judge 视觉验收：渲染 110dpi PNG 逐页送审；**judge 在 110dpi 下会误判字形细节（如 曰→日、简繁误读），凡涉及字形判读的 fail，先用 220dpi 高清裁切人工复核再改**（已两次误报）。
 - **EPUB**：重排版（reflowable），CSS 全相对单位、图片 `max-width:100%`、脚注 `epub:type="footnote/noteref"`；`epubcheck` 必须零错误。
+- **版式本（FXL，和 PDF 一致）**：重排版在任何阅读器都无法保证与 PDF 同观感（阅读器重排会吃掉版式）；要"和 PDF 一致"须用 EPUB3 Fixed Layout（`rendition:layout=pre-paginated` + 每页 viewport）。做法（`build_qtb_fxl.py`）：每页拆两层——① `add_redact_annot` 抹掉全部文字后渲染的图形层作背景图（卡片/饰线/书影/封面天然保留）；② 文字 span 逐个按 origin/bbox 绝对定位重建（真实文本可选中检索）。注意：Chromium 出片的 PDF 字体是 Type3，PyMuPDF 取不到 font/color 字段——字色用渲染像素反采样+设计色板吸附，字重按字号角色推断，逐字 span（letter-spacing 文本会被拆成单字）无需算字距。字体用 fontTools 按全书用字子集化嵌入（brotli 缺失时先 `pip install brotli`）。
 - **验收循环**：render → judge → fix → 重渲受影响页 → 复审。每轮只重生成受影响页预览，但注意**预览图过期会造成 judge 误报**（改完必须刷新对应 PNG，且确认 judge 读的是新文件）。
 
 ## 6. 已知环境坑
