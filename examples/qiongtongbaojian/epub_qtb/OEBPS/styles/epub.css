@@ -6,10 +6,9 @@ h2.sec{ font-size:1.15em; letter-spacing:.35em; color:#9E2F23; margin:2em 0 1em;
 p{ text-align:justify; margin:.7em 0; text-indent:2em;}
 p.noindent{ text-indent:0; }
 p.yw{ font-size:1.08em; line-height:2.15; letter-spacing:.05em;}
-.xuzhu{ font-size:.85em; color:#4E4738; margin:.3em 0 1em 1.5em; padding-left:1em;
-        border-left:2px solid #C9B98A; text-indent:0;}
-.xuzhu .xtag{ color:#9E2F23; border:1px solid #9E2F23; border-radius:3px;
-              padding:0 .3em; margin-right:.5em; font-size:.85em;}
+.xuzhu{ font-size:.85em; color:#4E4738; margin:.3em 0 1em; text-indent:0;}
+.xuzhu .xtag{ color:#9E2F23; border:1px solid #9E2F23; border-radius:3px; font-weight:700;
+              padding:0 .3em; margin-right:.5em; font-size:1em;}
 .kwcard{ border:1px solid #C9B98A; background:#FBF7EC; padding:.8em 1em; margin:.8em 0; text-indent:0;}
 .kwcard .kt{ font-weight:bold; background:#4E4738; color:#F6EFDD; padding:.05em .4em; margin-right:.5em;}
 .kwcard p{ text-indent:0; margin:.3em 0;}

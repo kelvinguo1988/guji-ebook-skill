@@ -130,6 +130,7 @@ def chapter_html(n):
     return '\n'.join(out)
 
 # ---------------- 组装 ----------------
+SAMPLE = os.environ.get('QTB_SAMPLE')  # 非空 → 只出第一章样章（第1~3节）
 body = []
 # 封面（@page:first 满版）
 body.append('''<section class="cover-page">
@@ -151,8 +152,8 @@ body.append('''<section class="titlepage">
     徐樂吾評注隨文繫之　白話今譯附焉<br>
     術語箋釋　今人按語別為一格
   </div>
-  <div class="sample-tag">全書一百一十三節</div>
-</section>''')
+  <div class="sample-tag">{}</div>
+</section>'''.format('第一章样章 · 甲木總論 正月甲木 二月甲木' if SAMPLE else '全書一百一十三節'))
 # 凡例
 body.append('''<section class="fanli">
   <h2 class="sec">凡例</h2>
@@ -200,21 +201,28 @@ for n in range(2, 114):
 # 卷隔页 + 各节
 ch1_pages = '\n'.join(f'<section class="page">{s}</section>' for s in secs_html[4:11])
 body.append(ch1_pages)
-last_vi = None
-for n in range(2, 114):
-    vi = sec_vol[n]
-    if vi != last_vi:
-        body.append(f'<section class="vol-head"><div class="vt">卷{NUM_CN[vi]} · 論{GANS[vi]}</div>'
-                    f'<div class="vs">{GANS[vi]} · 凡{vol_counts.get(vi, 0)}节</div></section>')
-        last_vi = vi
-    body.append(chapter_html(n))
+if SAMPLE:
+    for n in (2, 3):
+        body.append(chapter_html(n))
+else:
+    last_vi = None
+    for n in range(2, 114):
+        vi = sec_vol[n]
+        if vi != last_vi:
+            body.append(f'<section class="vol-head"><div class="vt">卷{NUM_CN[vi]} · 論{GANS[vi]}</div>'
+                        f'<div class="vs">{GANS[vi]} · 凡{vol_counts.get(vi, 0)}节</div></section>')
+            last_vi = vi
+        body.append(chapter_html(n))
 # 跋
 body.append('''<section class="colophon">
   <div class="kicker" style="justify-content:center">跋</div>
   <p>《窮通寶鑑》原名《欄江網》，一名《造化元鑰》，余春台编次，徐乐吾评注；以十天干配十二月令，专论调候。本书原文与评注以排印整理本为底、参风陵文库藏清写刻本对读；白话、术语笺释与今人按语从排印本辑录，体例详见凡例。</p>
   <div class="end">全 書 終</div>
-  <div class="meta">穷通宝鉴笺注 · 全书一百一十三节<br/>十六开本（185×260mm）<br/>编纂参考：识典古籍 · 中华古籍智慧化服务平台 · 风陵文库藏清写刻本</div>
-</section>''')
+  <div class="meta">{}</div>
+</section>'''.format(
+    '穷通宝鉴笺注 · 第一章样章（甲木总论 · 正月甲木 · 二月甲木）<br/>十六开本（185×260mm）<br/>编纂参考：识典古籍 · 中华古籍智慧化服务平台 · 风陵文库藏清写刻本'
+    if SAMPLE else
+    '穷通宝鉴笺注 · 全书一百一十三节<br/>十六开本（185×260mm）<br/>编纂参考：识典古籍 · 中华古籍智慧化服务平台 · 风陵文库藏清写刻本'))
 
 CSS = '''
 :root{
@@ -225,7 +233,8 @@ CSS = '''
   --kai:"LXGW WenKai","Noto Serif TC",serif;
 }
 *{ margin:0; padding:0; box-sizing:border-box; }
-html,body{ background:var(--paper); }
+/* 纸面用纯白：若整页铺奶油底色，白色页边距会被读成窗口背景，正文视觉上「贴边」 */
+html,body{ background:#FFFFFF; }
 body{ font-family:var(--song); color:var(--ink); font-kerning:normal; }
 
 @page{ size:185mm 260mm; margin:20mm 20mm 18mm; }
@@ -266,8 +275,21 @@ body{ font-family:var(--song); color:var(--ink); font-kerning:normal; }
 /* 通用 */
 h2.sec{ font-family:var(--song); font-weight:700; font-size:13.5pt; letter-spacing:.35em;
   color:var(--ink); margin:9mm 0 3.5mm; break-after:avoid; }
+h3.sec{ font-family:var(--song); font-weight:700; font-size:11.5pt; letter-spacing:.35em;
+  color:var(--ink); margin:8mm 0 3mm; break-after:avoid; }
 p.sec-note{ font-size:8.6pt; color:var(--note); letter-spacing:.1em; margin:0 0 4mm; break-after:avoid; }
 .kicker{ font-family:var(--song); font-size:8pt; letter-spacing:.5em; color:var(--cinnabar); margin-bottom:3mm; }
+
+/* 第一章（甲木总论）碎片段：旧样章遗留结构——每片独立起页、书眉与小节头接管 */
+.page{ break-before:page; }
+.rh{ display:flex; justify-content:space-between; font-size:8pt; letter-spacing:.28em;
+  color:var(--note); margin-bottom:7mm; }
+.sec-sub{ font-size:10.5pt; line-height:1.9; color:var(--ink2); margin:-.5mm 0 4mm; }
+.para{ break-inside:avoid; }
+.para .seal-tag{ display:block; font-family:var(--song); font-size:10.5pt; letter-spacing:.4em;
+  color:var(--ink); margin:2mm 0 1.6mm; }
+.para p.text{ font-size:12pt; line-height:2.25; letter-spacing:.05em; text-align:justify;
+  color:var(--ink); margin-bottom:4mm; }
 .fali li{ list-style:none; position:relative; padding-left:11mm; margin-bottom:5.4mm;
   font-size:10pt; line-height:1.95; text-align:justify; }
 .fali li .no{ position:absolute; left:0; top:.4mm; width:6.4mm; height:6.4mm;
@@ -292,10 +314,9 @@ p.sec-note{ font-size:8.6pt; color:var(--note); letter-spacing:.1em; margin:0 0 
 p.yw{ font-size:12.5pt; line-height:2.3; letter-spacing:.05em; text-align:justify;
   color:var(--ink); margin-bottom:4.5mm; }
 .xuzhu{ font-size:9.8pt; line-height:1.95; color:var(--ink2); text-align:justify;
-  margin:-1mm 0 4.5mm 6mm; padding-left:4mm; border-left:1pt solid var(--rule);
-  break-inside:avoid; }
-.xuzhu .xtag{ display:inline-block; font-family:var(--song); font-size:7.5pt; color:var(--cinnabar);
-  border:.5pt solid var(--cinnabar); border-radius:.8mm; padding:0 1.6mm; margin-right:2mm; }
+  margin:-1mm 0 4.5mm; break-inside:avoid; }
+.xuzhu .xtag{ display:inline-block; font-family:var(--song); font-size:9.2pt; font-weight:700; color:var(--cinnabar);
+  border:.6pt solid var(--cinnabar); border-radius:.8mm; padding:0 1.8mm; margin-right:2.2mm; }
 
 /* 白话 */
 .baihua p{ font-size:10.5pt; line-height:2.1; text-align:justify; color:var(--ink2); margin-bottom:4mm; }
@@ -340,10 +361,11 @@ figcaption .ft i{ font-style:normal; color:var(--cinnabar); margin-right:2mm; }
 .colophon .meta{ margin-top:10mm; font-size:7.5pt; letter-spacing:.3em; color:var(--note); line-height:2; }
 '''
 
+out_name = 'qtb_sample.html' if SAMPLE else 'qtb_full.html'
 html = (f'<!DOCTYPE html>\n<html lang="zh-Hans"><head><meta charset="UTF-8">\n'
         f'<title>窮通寶鑑箋注</title>\n'
         f'<link rel="stylesheet" href="fonts/fullface.css">\n'
         f'<style>{CSS}</style></head>\n<body>\n' + '\n'.join(body) + '\n</body></html>')
-open(os.path.join(ROOT, 'qtb_full.html'), 'w', encoding='utf-8').write(html)
-print('qtb_full.html:', round(os.path.getsize(os.path.join(ROOT, 'qtb_full.html')) / 1024 / 1024, 1), 'MB')
-print('BOOK DONE')
+open(os.path.join(ROOT, out_name), 'w', encoding='utf-8').write(html)
+print(out_name, round(os.path.getsize(os.path.join(ROOT, out_name)) / 1024 / 1024, 1), 'MB')
+print('BOOK DONE' if not SAMPLE else 'SAMPLE DONE')

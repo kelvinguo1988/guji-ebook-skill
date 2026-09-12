@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-Hans"><head><meta charset="UTF-8">
+<title>窮通寶鑑箋注</title>
+<link rel="stylesheet" href="fonts/fullface.css">
+<style>
+:root{
+  --paper:#F8F4E9; --ink:#2C2824; --ink2:#4E4738; --note:#8A8069;
+  --cinnabar:#9E2F23; --dark:#232D3F; --dark2:#141D2B;
+  --rule:#C9B98A; --rule-soft:#DDD3B4; --gold:#B79B5E;
+  --song:"Noto Serif TC","Songti SC",serif;
+  --kai:"LXGW WenKai","Noto Serif TC",serif;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+/* 纸面用纯白：若整页铺奶油底色，白色页边距会被读成窗口背景，正文视觉上「贴边」 */
+html,body{ background:#FFFFFF; }
+body{ font-family:var(--song); color:var(--ink); font-kerning:normal; }
+
+@page{ size:185mm 260mm; margin:20mm 20mm 18mm; }
+@page :first{ margin:0; }
+
+/* 封面（唯一满版页） */
+.cover-page{ width:185mm; height:260mm; position:relative; overflow:hidden;
+  background:linear-gradient(168deg, var(--dark) 0%, var(--dark2) 100%);
+  color:#EDE3C8; page-break-after:always; }
+.cover-page .frame{ position:absolute; inset:7mm; border:.6pt solid rgba(183,155,94,.55);
+  outline:1.4pt double rgba(183,155,94,.28); outline-offset:1.8mm; }
+.cover-page .main-title{ position:absolute; top:20mm; right:24mm; writing-mode:vertical-rl;
+  font-family:var(--kai); font-weight:700; font-size:55pt; letter-spacing:.26em; line-height:1.12; }
+.cover-page .sub-title{ position:absolute; top:28mm; right:86mm; writing-mode:vertical-rl;
+  font-size:14pt; letter-spacing:.55em; color:#C8B98D; }
+.cover-page .editions{ position:absolute; top:24mm; left:26mm; writing-mode:vertical-rl;
+  font-size:9.5pt; letter-spacing:.4em; color:rgba(200,185,141,.85); height:120mm; }
+.cover-page .quote{ position:absolute; bottom:38mm; left:26mm; writing-mode:vertical-rl;
+  font-size:9pt; letter-spacing:.32em; color:rgba(200,185,141,.6); height:72mm; }
+.cover-page .seal{ position:absolute; bottom:24mm; right:24mm; width:16mm; height:16mm;
+  background:var(--cinnabar); color:#F6EBD9; display:flex; align-items:center; justify-content:center;
+  writing-mode:vertical-rl; text-orientation:upright; font-size:8.4pt; letter-spacing:.16em;
+  line-height:1.25; border-radius:1mm; }
+.cover-page .foot{ position:absolute; bottom:11mm; left:0; right:0; text-align:center;
+  font-size:7.5pt; letter-spacing:.5em; color:rgba(200,185,141,.55); }
+
+/* 扉页 */
+.titlepage{ page-break-after:always; text-align:center; padding-top:32mm; }
+.titlepage .big{ writing-mode:vertical-rl; font-family:var(--song); font-weight:900;
+  font-size:38pt; letter-spacing:.32em; height:112mm; display:inline-block; }
+.titlepage .verline{ margin-top:11mm; font-size:12pt; letter-spacing:.42em; color:var(--ink2); }
+.titlepage .rule-orn{ margin:10mm auto 8mm; display:flex; align-items:center; justify-content:center; gap:3mm; }
+.titlepage .rule-orn i{ width:26mm; height:.5pt; background:var(--rule); }
+.titlepage .rule-orn b{ width:2.6mm; height:2.6mm; background:var(--cinnabar); transform:rotate(45deg); }
+.titlepage .note-block{ text-align:center; font-size:9.5pt; line-height:2.15; color:var(--ink2); letter-spacing:.1em; }
+.titlepage .sample-tag{ margin-top:12mm; font-size:8.5pt; letter-spacing:.4em; color:var(--note); }
+
+/* 通用 */
+h2.sec{ font-family:var(--song); font-weight:700; font-size:13.5pt; letter-spacing:.35em;
+  color:var(--ink); margin:9mm 0 3.5mm; break-after:avoid; }
+h3.sec{ font-family:var(--song); font-weight:700; font-size:11.5pt; letter-spacing:.35em;
+  color:var(--ink); margin:8mm 0 3mm; break-after:avoid; }
+p.sec-note{ font-size:8.6pt; color:var(--note); letter-spacing:.1em; margin:0 0 4mm; break-after:avoid; }
+.kicker{ font-family:var(--song); font-size:8pt; letter-spacing:.5em; color:var(--cinnabar); margin-bottom:3mm; }
+
+/* 第一章（甲木总论）碎片段：旧样章遗留结构——每片独立起页、书眉与小节头接管 */
+.page{ break-before:page; }
+.rh{ display:flex; justify-content:space-between; font-size:8pt; letter-spacing:.28em;
+  color:var(--note); margin-bottom:7mm; }
+.sec-sub{ font-size:10.5pt; line-height:1.9; color:var(--ink2); margin:-.5mm 0 4mm; }
+.para{ break-inside:avoid; }
+.para .seal-tag{ display:block; font-family:var(--song); font-size:10.5pt; letter-spacing:.4em;
+  color:var(--ink); margin:2mm 0 1.6mm; }
+.para p.text{ font-size:12pt; line-height:2.25; letter-spacing:.05em; text-align:justify;
+  color:var(--ink); margin-bottom:4mm; }
+.fali li{ list-style:none; position:relative; padding-left:11mm; margin-bottom:5.4mm;
+  font-size:10pt; line-height:1.95; text-align:justify; }
+.fali li .no{ position:absolute; left:0; top:.4mm; width:6.4mm; height:6.4mm;
+  border:.6pt solid var(--cinnabar); color:var(--cinnabar); border-radius:50%;
+  font-family:var(--song); font-size:8pt; display:flex; align-items:center; justify-content:center; }
+.fali b{ font-family:var(--song); color:var(--ink); }
+
+/* 章首块（随原文同页起，不再独占页） */
+.chapter{ break-before:page; }
+.ch-head{ margin-bottom:7mm; }
+.ch-num{ font-family:var(--song); font-size:9.5pt; letter-spacing:.5em; color:var(--cinnabar); margin-bottom:4mm; }
+.ch-title{ font-family:var(--song); font-weight:900; font-size:22pt; letter-spacing:.2em;
+  color:var(--ink); margin-bottom:4mm; line-height:1.4; }
+.ch-rule{ display:flex; align-items:center; gap:3mm; margin-bottom:5mm; }
+.ch-rule i{ width:36mm; height:.5pt; background:var(--rule); }
+.ch-rule b{ width:2.4mm; height:2.4mm; background:var(--cinnabar); transform:rotate(45deg); }
+.ch-gist{ padding:3.6mm 4.6mm; background:rgba(158,47,35,.055); border-left:1pt solid var(--cinnabar);
+  font-size:9.8pt; line-height:1.95; color:var(--ink); text-align:justify; margin-bottom:2mm; }
+.ch-gist b{ font-family:var(--song); font-size:8.5pt; letter-spacing:.35em; color:var(--cinnabar); margin-right:2.4mm; }
+
+/* 原文 */
+p.yw{ font-size:12.5pt; line-height:2.3; letter-spacing:.05em; text-align:justify;
+  color:var(--ink); margin-bottom:4.5mm; }
+.xuzhu{ font-size:9.8pt; line-height:1.95; color:var(--ink2); text-align:justify;
+  margin:-1mm 0 4.5mm; break-inside:avoid; }
+.xuzhu .xtag{ display:inline-block; font-family:var(--song); font-size:9.2pt; font-weight:700; color:var(--cinnabar);
+  border:.6pt solid var(--cinnabar); border-radius:.8mm; padding:0 1.8mm; margin-right:2.2mm; }
+
+/* 白话 */
+.baihua p{ font-size:10.5pt; line-height:2.1; text-align:justify; color:var(--ink2); margin-bottom:4mm; }
+
+/* 术语卡 */
+.kwcards{ display:grid; grid-template-columns:1fr 1fr; gap:4.6mm; margin-bottom:2mm; }
+.kwcard{ border:.6pt solid var(--rule); background:#FBF7EC; padding:4.2mm 4.6mm; break-inside:avoid; }
+.kwcard .kt{ display:inline-block; font-family:var(--song); font-weight:700; font-size:9.5pt;
+  color:#F6EFDD; background:var(--ink2); padding:.4mm 2.6mm; margin-bottom:2mm; letter-spacing:.15em; }
+.kwcard p{ font-size:8.8pt; line-height:1.9; color:var(--ink2); text-align:justify; }
+
+/* 今人按语 */
+.qishi{ border:.7pt solid var(--rule); padding:4.6mm 5.4mm; background:#FBF7EC;
+  break-inside:avoid; margin-bottom:2mm; }
+.qishi .qt{ font-family:var(--song); font-size:9pt; letter-spacing:.42em; color:var(--cinnabar); margin-bottom:2.6mm; }
+.qishi p{ font-size:9.8pt; line-height:2.0; text-align:justify; color:var(--ink2); }
+.qishi .ask{ font-family:var(--kai); font-size:10.5pt; color:var(--cinnabar); }
+
+/* 卷隔页 */
+.vol-head{ break-before:page; text-align:center; padding-top:70mm; }
+.vol-head .vt{ font-family:var(--song); font-weight:900; font-size:30pt; letter-spacing:.55em; color:var(--ink); }
+.vol-head .vs{ margin-top:6mm; font-size:10pt; letter-spacing:.3em; color:var(--note); }
+
+/* 书影 */
+.plate{ text-align:center; break-inside:avoid; margin:6mm 0; }
+.plate img{ max-width:100%; max-height:168mm; width:auto; border:.7pt solid var(--rule); padding:2.4mm; background:#FDFBF4; }
+figcaption{ font-size:8pt; color:var(--note); margin-top:2.2mm; text-align:center; }
+figcaption .ft{ font-family:var(--song); font-weight:700; font-size:9pt; letter-spacing:.18em; color:var(--ink); }
+figcaption .ft i{ font-style:normal; color:var(--cinnabar); margin-right:2mm; }
+
+/* 总目 */
+.toc-block{ break-before:page; }
+.toc-cols{ column-count:2; column-gap:9mm; }
+.toc-item{ font-size:9pt; line-height:1.95; color:var(--ink2); break-inside:avoid; }
+.toc-item b{ font-family:var(--song); color:var(--cinnabar); margin-right:2mm; }
+
+/* 跋 */
+.colophon{ break-before:page; text-align:center; padding-top:40mm; }
+.colophon p{ text-align:justify; font-size:10pt; line-height:2.2; color:var(--ink2);
+  margin:6mm 6mm 0; text-indent:0; }
+.colophon .end{ margin-top:14mm; font-size:10pt; letter-spacing:.7em; color:var(--cinnabar); }
+.colophon .meta{ margin-top:10mm; font-size:7.5pt; letter-spacing:.3em; color:var(--note); line-height:2; }
+</style></head>
+<body>
+<section class="cover-page">
+  <div class="frame"></div>
+  <div class="main-title">窮通寶鑑</div>
+  <div class="sub-title">十干月令調候祕本</div>
+  <div class="editions">原文 · 徐樂吾評注 · 白話通釋 · 清寫刻本書影對讀</div>
+  <div class="quote">得氣之寒　遇暖而發</div>
+  <div class="seal">調候為急</div>
+  <div class="foot">欄江網 · 造化元鑰 · 子部術數類</div>
+</section>
+<section class="titlepage">
+  <div class="big">窮通寶鑑箋注</div>
+  <div class="verline">卷一 · 論甲木 至 卷十 · 論癸水</div>
+  <div class="rule-orn"><i></i><b></b><i></i></div>
+  <div class="note-block">
+    原文以排印整理本為底，參風陵文庫藏清寫刻本<br>
+    徐樂吾評注隨文繫之　白話今譯附焉<br>
+    術語箋釋　今人按語別為一格
+  </div>
+  <div class="sample-tag">第一章样章 · 甲木總論 正月甲木 二月甲木</div>
+</section>
+<section class="fanli">
+  <h2 class="sec">凡例</h2>
+  <ul class="fali">
+    <li><b>一、底本与对读。</b>文字以排印整理本为底，参<b>風陵文庫藏清寫刻本</b>（书影随文）；原书题《欄江網》，一名《造化元鑰》，余春台编次，徐乐吾评注。</li>
+    <li><b>二、编排次第。</b>每节先陈<b>原文</b>（繁体大字，徐乐吾评注以「徐注」随文缩排），继以<b>白话通释</b>、<b>术语笺释</b>与<b>今人按语</b>。</li>
+    <li><b>三、用字体例。</b>原文、评注用繁体字；提要、白话、按语用简体字。命理专名（如「沖」「剋」）保留原字形。</li>
+    <li><b>四、术语笺释。</b>调候、活木死木、斫轮格等专门术语，随节立卡释义；跨节互见者注「详见某节」。</li>
+    <li><b>五、今人按语。</b>排印本所附现代解读别为一格辑录，仅供启发，不代表原书义理。</li>
+  </ul>
+</section>
+<section class="shuying">
+  <h2 class="sec">卷首书影</h2>
+  <p class="sec-note">风陵文库藏清写刻本 · 甲木总论起首叶（论甲木 · 木性腾上而无所止）。</p>
+  <figure class="plate"><img src="assets/qtb_jiamu_leaf.png" alt="穷通宝鉴清写刻本甲木总论起首叶"/>
+  <figcaption><span class="ft"><i>图一</i>《窮通寶鑑》甲木总论起首叶</span>
+  —— 清写刻本 · 风陵文库藏 · 版心题「窮通寶鑑 甲」</figcaption></figure>
+</section>
+<section class="toc-block"><h2 class="sec">总目（1–40）</h2><div class="toc-cols"><p class="toc-item"><b>001</b>甲木总论</p><p class="toc-item"><b>002</b>正月甲木</p><p class="toc-item"><b>003</b>二月甲木</p><p class="toc-item"><b>004</b>三月甲木</p><p class="toc-item"><b>005</b>四月甲木</p><p class="toc-item"><b>006</b>五、六月甲木</p><p class="toc-item"><b>007</b>七月甲木</p><p class="toc-item"><b>008</b>八月甲木</p><p class="toc-item"><b>009</b>九月甲木</p><p class="toc-item"><b>010</b>十月甲木</p><p class="toc-item"><b>011</b>十一月甲木</p><p class="toc-item"><b>012</b>十二月甲木</p><p class="toc-item"><b>013</b>正月乙木</p><p class="toc-item"><b>014</b>二月乙木</p><p class="toc-item"><b>015</b>三月乙木</p><p class="toc-item"><b>016</b>四月乙木</p><p class="toc-item"><b>017</b>五月乙木</p><p class="toc-item"><b>018</b>六月乙木</p><p class="toc-item"><b>019</b>七月乙木</p><p class="toc-item"><b>020</b>八月乙木</p><p class="toc-item"><b>021</b>九月乙木</p><p class="toc-item"><b>022</b>十月乙木</p><p class="toc-item"><b>023</b>十一月乙木</p><p class="toc-item"><b>024</b>十二月乙木</p><p class="toc-item"><b>025</b>正月丙火</p><p class="toc-item"><b>026</b>二月丙火</p><p class="toc-item"><b>027</b>三月丙火</p><p class="toc-item"><b>028</b>四月丙火</p><p class="toc-item"><b>029</b>五月丙火</p><p class="toc-item"><b>030</b>六月丙火</p><p class="toc-item"><b>031</b>七月丙火</p><p class="toc-item"><b>032</b>八月丙火</p><p class="toc-item"><b>033</b>九月丙火</p><p class="toc-item"><b>034</b>十月丙火</p><p class="toc-item"><b>035</b>十一月丙火</p><p class="toc-item"><b>036</b>十二月丙火</p><p class="toc-item"><b>037</b>正月丁火</p><p class="toc-item"><b>038</b>二月丁火</p><p class="toc-item"><b>039</b>三月丁火</p><p class="toc-item"><b>040</b>四月丁火</p></div></section>
+<section class="toc-block"><h2 class="sec">总目（41–80）</h2><div class="toc-cols"><p class="toc-item"><b>041</b>五月丁火</p><p class="toc-item"><b>042</b>六月丁火</p><p class="toc-item"><b>043</b>七月丁火</p><p class="toc-item"><b>044</b>八、九月丁火</p><p class="toc-item"><b>045</b>十月丁火</p><p class="toc-item"><b>046</b>十一、十二月丁火</p><p class="toc-item"><b>047</b>论土</p><p class="toc-item"><b>048</b>正二月戊土</p><p class="toc-item"><b>049</b>三月戊土</p><p class="toc-item"><b>050</b>四月戊土</p><p class="toc-item"><b>051</b>五月戊土</p><p class="toc-item"><b>052</b>六月戊土</p><p class="toc-item"><b>053</b>七月戊土</p><p class="toc-item"><b>054</b>八月戊土</p><p class="toc-item"><b>055</b>九月戊土</p><p class="toc-item"><b>056</b>十月戊土</p><p class="toc-item"><b>057</b>十一、十二月戊土</p><p class="toc-item"><b>058</b>正月己土</p><p class="toc-item"><b>059</b>二月己土</p><p class="toc-item"><b>060</b>三月己土</p><p class="toc-item"><b>061</b>四五六月己土</p><p class="toc-item"><b>062</b>七八九月己土</p><p class="toc-item"><b>063</b>十十一十二月己土</p><p class="toc-item"><b>064</b>庚金总论</p><p class="toc-item"><b>065</b>正月庚金</p><p class="toc-item"><b>066</b>二月庚金</p><p class="toc-item"><b>067</b>三月庚金</p><p class="toc-item"><b>068</b>四月庚金</p><p class="toc-item"><b>069</b>五月庚金</p><p class="toc-item"><b>070</b>六月庚金</p><p class="toc-item"><b>071</b>七月庚金</p><p class="toc-item"><b>072</b>八月庚金</p><p class="toc-item"><b>073</b>九月庚金</p><p class="toc-item"><b>074</b>十月庚金</p><p class="toc-item"><b>075</b>十一月庚金</p><p class="toc-item"><b>076</b>十二月庚金</p><p class="toc-item"><b>077</b>正月辛金</p><p class="toc-item"><b>078</b>二月辛金</p><p class="toc-item"><b>079</b>三月辛金</p><p class="toc-item"><b>080</b>四月辛金</p></div></section>
+<section class="toc-block"><h2 class="sec">总目（81–113）</h2><div class="toc-cols"><p class="toc-item"><b>081</b>五月辛金</p><p class="toc-item"><b>082</b>六月辛金</p><p class="toc-item"><b>083</b>七月辛金</p><p class="toc-item"><b>084</b>八月辛金</p><p class="toc-item"><b>085</b>九月辛金</p><p class="toc-item"><b>086</b>十月辛金</p><p class="toc-item"><b>087</b>十一月辛金</p><p class="toc-item"><b>088</b>十二月辛金</p><p class="toc-item"><b>089</b>壬水总论</p><p class="toc-item"><b>090</b>正月壬水</p><p class="toc-item"><b>091</b>二月壬水</p><p class="toc-item"><b>092</b>三月壬水</p><p class="toc-item"><b>093</b>四月壬水</p><p class="toc-item"><b>094</b>五月壬水</p><p class="toc-item"><b>095</b>六月壬水</p><p class="toc-item"><b>096</b>七月壬水</p><p class="toc-item"><b>097</b>八月壬水</p><p class="toc-item"><b>098</b>九月壬水</p><p class="toc-item"><b>099</b>十月壬水</p><p class="toc-item"><b>100</b>十一月壬水</p><p class="toc-item"><b>101</b>十二月壬水</p><p class="toc-item"><b>102</b>正月癸水</p><p class="toc-item"><b>103</b>二月癸水</p><p class="toc-item"><b>104</b>三月癸水</p><p class="toc-item"><b>105</b>四月癸水</p><p class="toc-item"><b>106</b>五月癸水</p><p class="toc-item"><b>107</b>六月癸水</p><p class="toc-item"><b>108</b>七月癸水</p><p class="toc-item"><b>109</b>八月癸水</p><p class="toc-item"><b>110</b>九月癸水</p><p class="toc-item"><b>111</b>十月癸水</p><p class="toc-item"><b>112</b>十一月癸水</p><p class="toc-item"><b>113</b>十二月癸水</p></div></section>
+<section class="page">
+  <div class="rh"><span>窮通寶鑑箋注</span><span>卷一 · 論甲木</span></div>
+  <div class="ch-num">第 一 章</div>
+  <div class="ch-title">甲 木 总 论</div>
+  <div class="ch-rule"><i></i><b></b><i></i></div>
+  <div class="ch-gist"><b>章旨</b>木性腾上，须金裁成、土培水济；活木死木之分，为全书调候取用之总纲。</div>
+  <div class="ch-meta">本章为卷一（论甲木）之总纲，论木之通性与四季喜忌；其后「正月甲木」至「十二月甲木」十一章，皆就此纲而分疏。</div>
+</section>
+<section class="page">
+  <div class="rh"><span>窮通寶鑑箋注</span><span>卷一 · 論甲木</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker">原文</div>
+    <h3 class="sec">甲木总论 · 总纲</h3>
+    <div class="sec-sub">底本文字移录，参清写刻本覆核。总纲为总说，原书无注；徐乐吾评注自「正月甲木」起随文附见。</div>
+  </div>
+  <div class="yuanwen" style="margin-top:6mm;">
+    <div class="para">
+      <span class="seal-tag">总纲</span>
+      <p class="text">木性腾上而无所止，氣重則欲金任使。有金則有惟高惟斂之德。仍愛土重，則根蟠深固，土少則有枝茂根危之患。木賴水生，少則滋潤，多則漂流。甲戌、乙亥，木之源；甲寅、乙卯，木之鄉；甲辰、乙巳，木之生，皆活木也。甲申、乙酉，木受克；甲午、乙未，木自死；甲子、乙丑，金克木，皆死木也。生木得火而秀，丙丁相同；死木得金而造，庚辛必利。生木見金自傷，死木得火自焚。無風自止，其勢亂也。遇水返化其源，其勢盡也。金木相等，格謂斫輪。若向秋生，反為傷斧，是秋生忌金重也。</p>
+    </div>
+  </div>
+</section>
+<section class="page">
+  <div class="rh"><span>窮通寶鑑箋注</span><span>卷一 · 論甲木</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker">原文</div>
+    <h3 class="sec">甲木总论 · 四时（上）</h3>
+    <div class="sec-sub">春木喜火温暖水滋扶；夏木忌火旺而需水滋。</div>
+  </div>
+  <div class="yuanwen" style="margin-top:5mm;">
+    <div class="para"><span class="seal-tag season">春</span>
+      <p class="text">木生於春，餘寒猶存。喜火溫暖，則無盤屈之患；藉水資扶，而有舒暢之美。春初不宜水盛，陰濃則根損枝枯；春木陽氣煩燥，無水則葉槁根枯。是以水火二物，既濟方佳。土多而損力，土薄則財豐。忌逢金重傷殘克伐，一生不閑。設使木旺，得金則良，終生獲福。</p></div>
+    <div class="para" style="margin-top:9mm"><span class="seal-tag season">夏</span>
+      <p class="text">夏月之木，根幹葉燥，盤而且直，屈而能伸。欲得水盛而成滋潤之力，誠不可少；切忌火旺而招焚化之憂，故以為凶。土宜在薄，不可厚重，厚則反為災咎。惡金在多，不可欠缺，缺則不能琢削。重重見木，徒以成林；迭迭逢華，終無結果。</p></div>
+  </div>
+</section>
+<section class="page">
+  <div class="rh"><span>窮通寶鑑箋注</span><span>卷一 · 論甲木</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker">原文</div>
+    <h3 class="sec">甲木总论 · 四时（下）</h3>
+    <div class="sec-sub">秋木欲刚金修削；冬木归根复命，只宜生旺。</div>
+  </div>
+  <div class="yuanwen" style="margin-top:5mm;">
+    <div class="para"><span class="seal-tag season">秋</span>
+      <p class="text">秋月之木，氣漸淒涼，形漸凋敗。初秋之時，火氣未除，尤喜水土以相滋；中秋之令，果以成實，欲得剛金而修削。霜降後不宜水盛，水盛則木漂；寒露節又喜火炎，火炎則木實。木多有多材之美，土厚無自任之能。</p></div>
+    <div class="para" style="margin-top:9mm"><span class="seal-tag season">冬</span>
+      <p class="text">冬月之木，盤屈在地，欲土多而培養。惡水盛而忘形，金總多不能克伐。火重見溫暖有功。歸根復命之時，木病安能輔助。須忌死絕之地，只宜生旺之方。</p></div>
+  </div>
+</section>
+<section class="page">
+  <div class="rh"><span>窮通寶鑑箋注</span><span>卷一 · 論甲木</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker">今译</div>
+    <h3 class="sec">白话通释</h3>
+    <div class="sec-sub">释文据排印整理本，个别语词酌改。</div>
+  </div>
+  <div class="baihua" style="margin-top:5mm;">
+    <p><b class="seg">总纲</b>　木的本性向上生长、无有止境。木气过旺时，需要金来驾驭约束，有金则木能内敛高洁；木喜土厚，土深则根系盘固，土少则枝茂根危；木依赖水滋养，水少则润泽，水多则漂流失根。甲戌、乙亥、甲寅、乙卯、甲辰、乙巳六种组合，木气有源、有乡、有生，皆为「活木」；甲申、乙酉受金克，甲午、乙未木气自绝，甲子、乙丑遭金压制，皆为「死木」。活木遇火则秀发华美，死木遇金则可雕琢成器；活木逢金则自伤，死木逢火则自焚。金木势均力敌，称「斫轮格」（轮匠执斧斫木之喻，象征金木平衡成器）。秋季所生之人最忌金重，重金反成伤斧。</p>
+    <p><b class="seg">春</b>　春木余寒未散，喜火温暖以除盘曲之患，借水滋扶以得舒畅之美。初春水盛则阴重伤根，但全无水则叶槁根枯——水火两者须「既济」（阴阳相互补益调和）方佳。土多耗木之力，土薄则财丰。木旺得金，终生获福。</p>
+    <p><b class="seg">夏</b>　夏木根干燥烈，最需水盛滋润，最忌火旺焚化。土宜薄，金不可缺，木多成林却终无结果。</p>
+    <p><b class="seg">秋</b>　秋木气渐凄凉，初秋喜水土滋养，中秋需刚金修削，霜降后忌水盛漂流，寒露节喜火炎以实木气。</p>
+    <p><b class="seg">冬</b>　冬木盘曲收缩于地，需土多培根，忌水盛失形，喜火温暖，此乃「归根复命」（回归本源完成生命循环）之时，木已衰病，须处生旺之地，忌入死绝之方。</p>
+  </div>
+</section>
+<section class="page">
+  <div class="rh"><span>窮通寶鑑箋注</span><span>卷一 · 論甲木</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker">术语</div>
+    <h3 class="sec">本章术语笺释</h3>
+    <div class="sec-sub">命理专门语词，随章立卡；跨章互见者注明。</div>
+  </div>
+  <div class="kwcards" style="margin-top:5mm;">
+    <div class="kwcard"><span class="kt">活木与死木</span>
+      <p>以天干地支组合判断木气盛衰：甲寅、乙卯等木气有根有源为<b>活木</b>；甲午、甲申等气绝受克为<b>死木</b>。活木死木之分，决定喜火喜金之相反取用。</p></div>
+    <div class="kwcard"><span class="kt">斫轮格</span>
+      <p>金木势力相当时形成的命格，比喻良匠操斧雕木——金克有度，则木成大器。此格忌秋生金重，反成伤斧。</p></div>
+    <div class="kwcard"><span class="kt">既济</span>
+      <p>源自《周易》第六十三卦，指阴阳相互补益平衡。此处指水火调和、共同滋养木气的理想状态：春木赖火取暖、赖水滋润，二者不可偏废。</p></div>
+    <div class="kwcard"><span class="kt">归根复命</span>
+      <p>道家概念，出自《老子》「万物并作，吾以观复」。指事物回归本源；冬月木气潜藏收敛，正是归根复命之象。</p></div>
+    <div class="kwcard"><span class="kt">死绝之地</span>
+      <p>五行十二长生中「死」「绝」两位，代表气运衰竭之阶段，为行运最忌之处。反义为「生旺之方」。</p></div>
+    <div class="kwcard"><span class="kt">调候</span>
+      <p>调节命局寒暖燥湿。日主须借助适宜的气候条件方能发挥本气——此为《穷通宝鉴》全书立论之根本，详见各月令章。</p></div>
+  </div>
+</section>
+<section class="page">
+  <div class="rh"><span>窮通寶鑑箋注</span><span>卷一 · 論甲木</span></div>
+  <div style="margin-top:7mm;">
+    <div class="kicker">按语</div>
+    <h3 class="sec">今人按语</h3>
+    <div class="sec-sub">排印整理本所附现代解读，别为一格辑录，仅供启发。</div>
+  </div>
+  <div class="qishi" style="margin-top:6mm;">
+    <div class="qt">现代启示 · 人境匹配</div>
+    <p>对甲木的论述，本质上是一套关于「环境适配性」的古典观察框架。古人将木气的盛衰与四季气候挂钩，试图建立「主体状态与外部条件最优匹配」的判断逻辑——这与现代行为科学中「人境匹配」（Person–Environment Fit）理论有相通之处。</p>
+    <p>春木需火温、夏木需水润、秋木需金雕、冬木需土培，揭示的核心逻辑是：同样的资质，在不同环境条件下，结果可以截然相反。更值得玩味的是「活木得金则伤，死木得金则成器」——这一观察提醒我们，判断某种外力是「助力」还是「阻力」，永远不能脱离主体当下的状态与处境。</p>
+    <p class="ask">你现在视为阻碍的那些压力，是否恰恰是让你成器的那把刀？</p>
+  </div>
+  <div class="note" style="margin-top:6mm;">按语为排印本编者所加，非原书文字；其以现代理论比附古义，读者参观可也。</div>
+</section>
+<section class="chapter">
+<div class="ch-open">
+<div class="ch-head">
+<div class="ch-num">第 2 节 · 卷一 · 論甲</div>
+<h2 class="ch-title">正月甲木</h2>
+<div class="ch-rule"><i></i><b></b><i></i></div>
+<div class="ch-gist"><b>提要</b>正月（寅月，约阳历二月）出生、以甲木（阳木）为日主的人，正值初春余寒未退之际。</div>
+</div>
+<h3 class="sec">原文</h3>
+<p class="sec-note">繁体移录；「徐注」为徐乐吾评注，随文附见。</p>
+<p class="yw">正月甲木，初春尚有餘寒，得丙癸逢，富貴雙全。癸藏丙透，名寒木向陽，主大富貴。倘風水不及，亦不失儒林俊秀。如無丙癸，平常人也。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>初春甲木與臘月同，寒木向陽，非丙不暖，立春之後，三陽開泰，更須癸爲助，雖丙癸並言，以丙以重，故云癸藏丙透，主大富貴，人但知木能生火，不知初春甲木，實藉丙火以生，丙火者，陽和之氣也，春回大地，氣轉陽和，萬木自然發生，至於癸水，只要地支不太枯燥，如有醜等字，便爲已足，正不必多也，丙癸並透，名爲不晴不雨，正好養花之天，（見下正月乙木節）甲木氣未壯者，亦適用之。</div>
+<p class="yw">正月甲木以水火既濟爲正軌，餘皆變局，但丙癸透幹，不可相併，須中有間隔，使丙癸不相礙。或癸藏丙透，亦是不相礙，蓋水火既濟，爲配合上之需要，水旺用火，火多用水，非水火併用也。丙透癸藏，支有印相生，而以丙火食神爲用神，寒木向榮，有調候之用，更能泄木之秀，爲木火通明之象也。</p>
+<p class="yw">正二月甲木，素無取從財從殺從化之理。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>正二月甲木，月令祿旺，自無從化之理。</div>
+<p class="yw">或一派庚辛，主一生勞苦，克子刑妻，再支會金局，非貧即夭。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>此言官殺太旺而無制，正月木方萌芽生機蓬勃，不宜裁抑，故不宜用金，月令臨官，雖支會金局，乾透庚辛，不能從煞。故金多無火，非貧即夭，木被金傷，殘疾夭折，與下文正二月支成金局節同看。</div>
+<p class="yw">春木用金，總非上格，金多無制，非貧即夭。</p>
+<p class="yw">如無丙丁，一派壬癸，又無戊己制之，名水泛木浮，死無棺槨。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>此言印綬太旺也，春木當旺，毋勞印生。陰濃溼重，反損生機，故春木見金，用印化煞者下格，上文丙癸並透者，以丙火爲主，兼一點癸水，調和既濟，故主富貴，若一派壬癸，無戊己制之，則水泛木浮，即有戊己爲制，而無丙丁出幹，亦非上格也，如一派戊己，支會金局，爲財多身弱，富屋貧人，終身勞苦，妻晚子遲。</div>
+<p class="yw">如一派戊己，支會金局，爲財多身弱，富屋貧人，終生勞苦，妻晚子遲。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>承上文正月無取從化之理。前言一派庚辛，不能從煞。此言一派戊己，即使支會金局，月垣寅木受傷，亦不能從財也。初春木嫩，無力克土，總論雲：上多則損力，土薄則財豐，若見金局，或庚辛，水氣更弱，然月令寅宮，爲甲木臨官之地，即被衝動，不能消滅時令當旺之氣，只作財多身弱論也。以上初春，專指雨水前而言。</div>
+<p class="yw">或無庚金，有丁透，亦屬文星，爲木火通明之象，又名傷官生財格，主聰明雅秀。一見癸水傷丁，但作厚道迂儒。或柱中多癸，滋助木神，傷滅丁火，其人奸雄梟險，曹操之徒，言清行濁，笑裏藏刀。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>上言丙火，此言丁火。正月甲木，喜丙丁爲用，無丙而有丁透，亦屬文星，木火通明。甲無庚不靈，故無庚用丁，雖同爲木火通明，貴氣較遜，聰明雅秀，文人學士之流也，食神傷官一也，但不可癸丁並透，並透則傷。用神不可損傷，一見癸水，傷滅丁火，僅爲厚道迂儒，功名富貴，皆非其份。癸水僅須一二點，藏支爲潤，則免傷陽氣燥渴，若柱中多癸，丁火之炎自滅。丁火與丙火不同，丙爲太陽之火，只要丙癸相隔，不能傷丙。丁爲爐竈之火，木溼何能有焰，然雖不發炎，其用自在，發爲性情，爲陰柔奸險之徒也。春月木火，無庚辛金間雜，則清純取貴。</div>
+<p class="yw">或一庚一戊出幹，號曰財煞相生，運行金水，可許科甲，雖無陰騭風水，亦不失儒林藝士，若庚申戊寅甲寅丙寅一行金水運，發進士，或甲午日，庚午時，此人必富貴，但要好運相扶，不宜剋制庚丁。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>上文言無金而貴，此言木旺見金，財滋弱煞格，亦可取貴也。七煞不可無制，身旺煞輕，而原局制重，運宜煞印。春木當旺，庚金衰弱，身旺煞輕，煞化爲官，宜財生煞，不宜印化，如庚申一造，寅中甲丙戊並透，用申中壬水，泄金生木，原局有丙火泄木之秀，故行金水運，發進士以原命三寅藏丙，丙火出幹，陽壯水渴，水爲配合之需要也。甲午日庚午時，意義相同，最宜溼土生金之運，論運，須隨宜配合，可見一斑。火旺水輕木燥，亦要金水運助之，不宜制了庚丁。金輕，忌食傷克去庚金，喜水運，用丁制煞，不宜剋制丁火，不宜見子衝去午中丁火也，運程配合得宜，必然富貴。此非喜庚金爲用，但原局見庚金，而有丙丁爲制，亦可取貴耳，與下文支成木局，得庚爲貴，意義不同。凡中等格局，皆須運歲相扶，否則不能大發也。（坊本此人必貴，抄本此人必富，究之富貴等耳）。</div>
+<p class="yw">或支成金局，多透庚辛，此又不吉，號曰木被金傷，若無丙丁破金，必主殘疾。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>承上文，木多金少，用財生煞，名財煞相生，金重用丁火制之，名傷官駕煞，若支成金局，又透庚辛，又透庚辛，日主必弱，煞旺無制，月令臨官，又無從煞之理，木被金傷，必爲殘疾夭折之命，下格同上一派庚辛節。</div>
+<p class="yw">或支成火局，泄氣太過，性不愚怯，但常有災病纏身。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>正月甲木，不能缺火，木火傷官，本主聰明穎，見上木火通明節，但支成火局，泄露太過，必須支有癸水滋木，方配得中和，否則，火旺木燥，無水滋潤，偏枯之局，必主疾病，即使木旺宜泄，亦嫌氣不中和，貴多就武。春深陽壯木渴，若支有癸水，配得中和，木火兩旺，亦成美格。</div>
+<p class="yw">支成木局，有庚萬貴，無庚，男命鰥獨僧道，女命孤寡，見二庚出幹，大富大貴。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>正月甲木，支成木局，四柱不見庚辛，大都爲曲直仁壽格。如不成格，而生於雨水後，木旺以用庚剋制爲上，用丁火泄秀爲次，則以得庚爲貴，所謂見兩庚出幹，大富貴者，即總論重見生旺必爲庚金斬鑿，可成棟樑是也。用辛則否，以庚能劈甲，辛金力簿，無啄鑿之用也，木盛無金，其人必是勤喫懶做，而無作爲造就之人。特春木用金，不能缺火，原局有制，行財煞運必鐐，與上文煞輕制重，宜煞印者不同也。</div>
+<p class="yw">支成水局，成透則貴，無戊制之，水多木泛，不止貧賤，且死無棺木。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>三春之木，正值當旺之時，何勞印生，四柱陽壯木渴，則宜一二點水爲配合，見陰濃溼重，木反被損，故支成水局，必須戊土出幹爲救，更須丙火暄之，方成貴格。支成水局，而無戊土製之，則水泛木浮，印多必以財爲救，有救則貴，無救則貧。與初春無丙丁，一派壬癸節同看。</div>
+<p class="yw">總之，正二月甲木，有庚戊者上命，如有丁透，大富大貴之命，蓋非戊庚金失母故也，或木多無庚而用丁，名木喜南而軟弱。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>總結上文，初春氣寒，以丙癸爲上命，春深木老，以庚戊爲上命，或用庚戊丁，上上之命，用財滋煞，用煞而身弱，以印化煞，不如身煞兩強，以食傷制煞之爲貴，故以丁透爲上上之命也。金氣至春而休囚，無戊，則庚金力薄，不能劈甲，故用庚不離戊土也，何以不言木火通明，蓋木喜南而軟弱，格雖貴，不過文學之士，木氣泄弱故也。</div>
+<p class="yw">凡三春甲木，用庚者，土爲妻，金爲子。用丁者，木爲妻，火爲子。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>用庚者，煞爲用也，財爲妻，官煞爲子，用丁者，傷官爲用也，比劫爲妻，食傷爲子，言三春者，不分初仲，正二三月，同此看法也。</div>
+<p class="yw">戊寅甲寅甲辰乙亥孝廉</p>
+<div class="xuzhu"><span class="xtag">徐注</span>按此造寅辰夾卯，亥暗會卯木，旺而不成格，以寅中丙火生財爲用，支有亥水，辰藏癸水，氣象中和，惜丙火不透，年月空亡，故僅小貴耳。</div>
+<p class="yw">甲申丙寅甲寅庚午茂才</p>
+<div class="xuzhu"><span class="xtag">徐注</span>按此造庚金出幹，無財相生，則庚金無力，大運雙順行南方，不過茂才而止。</div>
+<p class="yw">三春甲木總論春月之木，漸有生長之象。初春猶有餘寒，當以火溫暖，則有舒暢之美，水多變克，有損精神。重見生旺，必用庚金斷鑿，可成楝梁。春末陽壯水渴，藉水資扶，則花繁葉茂。初春無火，增之以水，則陰濃氣弱，根損枝枯，不能華秀。春末失水，增之以火，則陽氣太盛，燥渴相加，枝枯葉幹，亦不華秀。是以水火二物，要得時相濟爲美。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>三春甲木看法，分爲三節，一初春，雨水之前，尚有餘寒，丙癸並用，以丙火爲主要，二仲春，雨水之後，穀雨之前，重見生旺，必用庚金，清明後，雖屬三月，土木當旺，乙木司令，與二月同看，惟陽刃一格，爲二月所獨有，附於仲春後，三月墓春，穀雨後，土旺用事，丙火將旺，陽壯木渴，木氣已竭，非藉水滋扶不可，此三春用法之別也。</div>
+<h3 class="sec">白话通释</h3>
+<p>正月（寅月，约阳历二月）出生、以甲木（阳木）为日主的人，正值初春余寒未退之际。此时甲木最喜同时得到丙火（阳光，象征温暖）与癸水（雨露，象征滋润）的配合——丙火暖身，癸水养根，两者得济，可成富贵双全之命。若癸水藏于地支、丙火透出天干，称为「寒木向阳」，主大富贵；即便风水根基稍弱，也不失为文雅俊秀之人。若丙癸俱无，则只是普通人而已。</p>
+<p>甲木在初春如嫩芽初发，最忌庚辛金（刀斧之象）过多而无制，否则一生劳苦、体弱多病；也忌壬癸水泛滥而无戊己土（堤岸）约束，会导致「水泛木浮」，根基尽失；若财星（戊己土）过旺而自身力薄，则是「富屋贫人」，终身为财奔波。</p>
+<p>若无庚金，有丁火（炉灶之火）透干，属木火通明之象，主聪明雅秀，但最怕癸水伤丁。多癸灭丁，此人虽有才智，却阴险机巧，书中以曹操为例，言其「笑里藏刀」。</p>
+<p>月令木旺时，若能一庚一戊同时出干，财官相生，行金水运可成科甲功名。支成木局而得庚，可大富大贵；无庚则终身难有大成就。总结而言：初春重丙癸，春深重庚戊，若再得丁透，则为最上等之命。</p>
+<p></p>
+<h3 class="sec">术语笺释</h3><div class="kwcards">
+<div class="kwcard"><span class="kt">寒木向阳</span><p>初春甲木如寒冬过后的树木，得丙火（太阳）照耀才能舒展生长，比喻命局需要温暖之气激活生机。</p></div>
+<div class="kwcard"><span class="kt">水火既济</span><p>水与火相互调节、各得其位，象征命局阴阳平衡，是甲木最理想的配合状态。</p></div>
+<div class="kwcard"><span class="kt">木火通明</span><p>甲木生丁火或丙火，木性之灵秀借火气透发出来，象征才华横溢、文思清明。</p></div>
+<div class="kwcard"><span class="kt">水泛木浮</span><p>水（印星）过旺而无土制，根基被淹、树木漂浮，比喻命局资源泛滥反成害，基础不稳。</p></div>
+<div class="kwcard"><span class="kt">财煞相生</span><p>财星（土）生助官煞（金），形成良性循环，是命局有力量且能被运用的结构之一。</p></div>
+</div>
+<h3 class="sec">今人按语</h3><div class="qishi">
+<p>对正月甲木的分析，本质上是一套关于「资源匹配度」的系统性观察。古人用「寒木向阳」描述的，正是现代心理学中的「最优唤醒理论」——一个人在资源不足时需要外部激励，但激励过剩同样有害，如「水泛木浮」所示。过多的庇护（水）会削弱根系，过重的压力（金）会摧折枝干，而最佳状态永远在两种力量的动态平衡之间。</p>
+<p>书中对丁火与癸水关系的描述同样耐人寻味：小小一点水润（癸藏）是滋养，多了却是「奸雄枭险」的成因——古人已观察到，过度压抑一个人的光明面（丁火），会激发其阴暗的适应策略。这与现代「阴影心理学」对人格扭曲成因的解释颇为暗合。</p>
+<p class="ask">值得思考的是：你生命中的「丙火」是什么——那个让你真正舒展、而非仅仅维持生存的核心温暖来自何处？</p>
+</div>
+</section>
+<section class="chapter">
+<div class="ch-open">
+<div class="ch-head">
+<div class="ch-num">第 3 节 · 卷一 · 論甲</div>
+<h2 class="ch-title">二月甲木</h2>
+<div class="ch-rule"><i></i><b></b><i></i></div>
+<div class="ch-gist"><b>提要</b>二月（农历二月，约阳历三月）甲木（天干阳木，象征参天大树）生于春深，木气旺盛。</div>
+</div>
+<h3 class="sec">原文</h3>
+<p class="sec-note">繁体移录；「徐注」为徐乐吾评注，随文附见。</p>
+<p class="yw">或二月甲木，庚金得所者，名陽刃架煞，可許異途小貴，若武職便顯，但要財資煞，柱中逢財，英雄獨壓萬人，若見癸水，困了財殺，主爲光棍，重刃必定遭兇，煞重無兇，但性格橫暴，正二月甲木，無從財化土之格。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>上文春深木老，以庚戊爲上命，二月甲木，即是春深木老，二月甲木，特正月以丁火制煞，爲上上之命。正二月甲木，一例同推，已見上文，獨煞刃一格，爲正月所無，故另文說明之.得所者，地支通根得祿也。煞刃格，宜武不宜文，故云武職便顯，文職不過異途小貴耳。而二月庚金，不須丁火制之，蓋二月陽刃駕煞，煞刃暗合有情，庚金休囚無氣，故必須有財資煞，方爲煞刃兩停，無財刃旺煞弱，不過異途小貴。凡煞刃格，不宜見食傷制煞，行身旺之運，則假煞爲權，如乙亥己卯甲申乙亥，蕭耀南命造是也，一見癸水，泄煞之氣，便失制刃之意，又要財資煞，並不要煞重，獨煞爲權。若重重庚金而刃輕，同正月一派庚辛節，木被傷矣，重刃者，地支重見卯木也，無煞制之，必定遭兇，煞重不爲兇，以刃旺秉令也。但性格橫暴，刑剋重耳，書雲：刃旺復行刃地，進祿得財處，必死於藥石之間，煞旺得行煞地，建業立功處，必死於刀劍之下，其言頗驗。二月甲木，與正月雨水後甲木，用法略同，所不同者，即煞刃一格耳。</div>
+<p class="yw">書曰：木旺宜火之光輝，秋闈可試，木向春生，處世安然有壽，日主無依，卻喜運行財地。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>二月木旺，無庚克之，則用火泄之，爲木火通明格，同上木火文星節，秀氣發越，故云秋闈可試。木主仁，仁者壽，支成木局，不須春生，多主仁壽，故云處世有壽，喜行財地者。食傷生財也，行財地則富，食傷泄旺木之秀，木火通明，人必穎異，故云秋闈可試也。月談賦雲：木火傷官終顯達。春木喜火，宜其貴也。四柱無庚丁可用，爲身旺無依，運行財地，雖不劫耗，比較爲吉，蓋正二月間，四柱雖不見火，亦有闇火之用，食傷生財，自有可取，不得已之用法，下格也。</div>
+<p class="yw">甲午丁卯甲寅丁卯乏庚，富而不貴，運入西支方，大凶，幸兩幹不雜，木火通明，爲人清雅，子多而賢。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>丁火爲用，乏庚不貴，雖木火通明，惜四柱不藏印，故富而不貴，不過文人學士，爲人清雅而已，初運戊辰己巳財地，泄火之氣，爲吉，運至西南，辛未壬申癸酉，傷克用神，自無幸矣。若柱中藏一點癸水運入南離，亦不爲兇矣。</div>
+<p class="yw">己未丁卯甲戌庚午科甲之命，蓋庚丁兩透，進拔定然，雖風水不及，不失榮華，但爲人色重招殃，兄弟無力。</p>
+<div class="xuzhu"><span class="xtag">徐注</span>庚丁兩透，制過七煞，庚金生春月絕地，本宜財星，不宜火制，加以陽壯木渴，無水潤澤，午戌會局，庚金無力，不能制劫，故兄弟無力，尤幸運行北方，不失榮華，甲戌，庚午，交互值桃花紅豔煞，己土財星來合，宜乎色重招殃矣。</div>
+<p class="yw">癸未乙卯甲子己巳</p>
+<div class="xuzhu"><span class="xtag">徐注</span>嶽武穆命：劫財陽刃，行辛亥運，辛酉年，衝合陽刃，坐囹圄亡身。</div>
+<p class="yw">戊寅乙卯甲午甲戌</p>
+<div class="xuzhu"><span class="xtag">徐注</span>清世祖（順治）命，明崇禎十一年正月三十日戌時。寅午戌會局，火旺木焚，虎馬犬鄉，甲來成滅是也，四柱無滴水解炎，只能用成土泄火氣，巳運遜國，不知所終。</div>
+<p class="yw">乙亥己卯甲申乙亥</p>
+<div class="xuzhu"><span class="xtag">徐注</span>蕭耀南巡帥命，光緒元年二月十六日亥時。陽刃合煞，制刃得力，行乙亥甲運，全省最高官階，集於一身，將入戌運，病逝三春甲木總論春月之木，漸有生長之象。初春猶有餘寒，當以火溫暖，則有舒暢之美，水多變克，有損精神。重見生旺，必用庚金斷鑿，可成楝梁。春末陽壯水渴，藉水資扶，則花繁葉茂。初春無火，增之以水，則陰濃氣弱，根損枝枯，不能華秀。春末失水，增之以火，則陽氣太盛，燥渴相加，枝枯葉幹，亦不華秀。是以水火二物，要得時相濟爲美。</div>
+<div class="xuzhu"><span class="xtag">徐注</span>三春甲木看法，分爲三節，一初春，雨水之前，尚有餘寒，丙癸並用，以丙火爲主要，二仲春，雨水之後，穀雨之前，重見生旺，必用庚金，清明後，雖屬三月，土木當旺，乙木司令，與二月同看，惟陽刃一格，爲二月所獨有，附於仲春後，三月墓春，穀雨後，土旺用事，丙火將旺，陽壯木渴，木氣已竭，非藉水滋扶不可，此三春用法之別也。</div>
+<h3 class="sec">白话通释</h3>
+<p>二月（农历二月，约阳历三月）甲木（天干阳木，象征参天大树）生于春深，木气旺盛。若命局中庚金（七煞，象征斧凿之力）位置得当，形成「阳刃架煞」格（月令卯刃与七煞相互制衡的格局），走武职可显达，文职亦可获异途小贵。此格关键在于财星资助七煞——有财则英雄气概无可比拟，无财则刃强煞弱，仅止于小贵；若见癸水泄散煞气，则命途坎坷；地支重见卯木（重刃）而无煞制约，必遭凶险；煞虽重而不为凶，但此人性情横暴，刑克较重。</p>
+<p>若无庚金可用，则以丁火泄木为佳，形成「木火通明格」，主聪颖颖异，可登科举；支成木局者，木主仁，多主仁厚长寿。四柱无庚丁可用时，宜走财运以泄旺木，属下格但仍有可取之处。</p>
+<p>三春甲木总论：初春尚寒，以火为先；仲春木旺，需庚金断凿；春末阳壮，须水滋润。水火相济，因时制宜，方成良命。</p>
+<p></p>
+<h3 class="sec">术语笺释</h3><div class="kwcards">
+<div class="kwcard"><span class="kt">阳刃架煞</span><p>月令卯木为阳刃，庚金为七煞，两者对峙制衡，以煞驾驭刃气的格局</p></div>
+<div class="kwcard"><span class="kt">财资煞</span><p>财星生扶七煞，使煞有根基可用，煞刃格方能两停成立</p></div>
+<div class="kwcard"><span class="kt">木火通明</span><p>甲木旺盛逢丁火泄秀，主聪明颖异、文章华美，利于科举仕途</p></div>
+<div class="kwcard"><span class="kt">重刃</span><p>地支多见卯木，刃气过旺，无煞制约则凶险丛生</p></div>
+<div class="kwcard"><span class="kt">三春用法</span><p>初春用火、仲春用庚、春末用水，同为甲木因月令不同而用神各异</p></div>
+</div>
+<h3 class="sec">今人按语</h3><div class="qishi">
+<p>「阳刃架煞」的核心逻辑是：强者需要对手，力量需要约束。这与现代心理学的「最优阻力理论」高度吻合——适度的阻力与压力，才能激发潜能，无制约的顺境反而催生横暴与失控。徐乐吾反复强调「财资煞」，财星作为中间媒介，使对立的力量得以联结，这颇似谈判学中的「利益联结」原则：真正稳定的格局，需要共同的利益纽带，而非单纯的力量对比。三春甲木因时制宜、水火相济的总论，则提醒我们：同一个人在不同人生阶段，所需的滋养方式截然不同，昨日的助力，可能正是今日的阻碍。</p>
+<p class="ask">你现在面对的阻力，究竟是在「凿你成材」，还是在「折断你的根」？</p>
+</div>
+</section>
+<section class="colophon">
+  <div class="kicker" style="justify-content:center">跋</div>
+  <p>《窮通寶鑑》原名《欄江網》，一名《造化元鑰》，余春台编次，徐乐吾评注；以十天干配十二月令，专论调候。本书原文与评注以排印整理本为底、参风陵文库藏清写刻本对读；白话、术语笺释与今人按语从排印本辑录，体例详见凡例。</p>
+  <div class="end">全 書 終</div>
+  <div class="meta">穷通宝鉴笺注 · 第一章样章（甲木总论 · 正月甲木 · 二月甲木）<br/>十六开本（185×260mm）<br/>编纂参考：识典古籍 · 中华古籍智慧化服务平台 · 风陵文库藏清写刻本</div>
+</section>
+</body></html>
