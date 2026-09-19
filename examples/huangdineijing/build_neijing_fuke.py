@@ -39,7 +39,8 @@ NOTE_RED_BOOKS = ['太素', '甲乙經', '甲乙', '九卷', '鍼經', '靈樞�
                   '氣交變大論', '五運行', '本病論', '刺法論', '老子', '淮南子', '莊子',
                   '尚書', '易經', '白虎通', '爾雅', '說文', '漢書', '史記']
 
-KAI = os.path.join(ROOT, 'fonts', 'LXGWWenKai-Medium.ttf')
+# 主字体：齊伋體 combo（与 vRain 完全一致，明代凌閔刻本抠字重建的明体）
+KAI = os.path.join(ROOT, 'fonts', 'qiji-combo.ttf')
 FONT = _fitz.Font(fontfile=KAI)
 
 def tlen(ch, size):

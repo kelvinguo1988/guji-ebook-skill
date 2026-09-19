@@ -31,7 +31,7 @@ book.html（版式设计系统 + 全部内容，唯一手工源）
   2. **注双行平衡式**：注段整段缓冲后排版——右小列 ceil(n/2) 字、左小列 floor(n/2) 字，占 ceil(n/2) 个大字行；当前列放不下则整列起排；**注毕经文同列续排**（切勿注毕强制换列，会产生半空断叶）。流式逐字分配左右小列是错误的（读序需右列全部→左列全部）。
   3. **句读朱圈**：用带标点的整理录文（如殆知阁）与复刻正文流做 difflib 全局对齐（容异体/异文），句读处画朱圈——还原原书句读而无需人工标点。
   4. **版刻特征还原**：墨钉（实察记录的未刻字位画墨块）、篇题墨圈○、朱圈叶次等逐项入参数表。
-  5. **字体**：LXGW WenKai（开源楷体）近似刻本欧楷；`fitz.Font(fontfile=…).text_length` 测宽（`get_text_length` 不认自定义字体）。
+  5. **字体（已鉴定 vRain 正主）**：vRain 主字体 = **齊伋體 qiji-combo.ttf**（font1，与其 repo fonts/ 内文件同源——经 MD5 比对与 [LingDong-/qiji-font](https://github.com/LingDong-/qiji-font) release 0.0.4 完全一致；font2/3=HanaMinA/B 花園明朝补 CJK 扩展区）。齊伋體是令東（Lingdong Huang）从明代凌閔刻本扫描页以半自动 CV+OCR 逐字抠取重建的明体（致敬明代出版家閔齊伋；作者声明字体正名为「令東齊伋體」），combo 版 = 主字形 4569 字 + 生僻字 fallback 合并 19665 字形（FontForge 合成，name 表被洗为 QIJIC v0.0.1）。复刻本直接用 `fonts/qiji-combo.ttf` 即与 vRain 同字体效果；`fitz.Font(fontfile=…).text_length` 测宽（`get_text_length` 不认自定义字体）。
   6. vRain 本体（Perl）依赖 PDF::Builder/Image::Magick 全套 CPAN 模块，本机未装则自研；其"文本标记系统"（【】双行注、$换半叶等）的**参数化思想**是复刻引擎设计参照。
   7. **对齐 vRain Example 的对页版式**（judge 对照验收 9.5/10）：一页 = 左右两半叶对页 + 中央书口（上下黑大鱼尾 + 黑底白字书名章 + 汉字页码）；宣纸做旧纹理背景（numpy 噪声+纤维线+边缘晕影，一次生成复用）；粗外框(2.6pt)+细内框；正文活字感 = fill+stroke 描边加粗（`render_mode=2, border_width≈0.075`，过重会糊成墨团）；注中引用书名朱红字（书名词典逐词染色）；框外右上书眉竖排书名 + 藏书印（朱文方框 2×2 字）。
   8. **越界检查必做**：注双行排版在 `row+tr ≥ ROWS` 时必须先换列再放字，且 put_big 应在放置前检查（放后检查会让满列后的首字落在框外 row=ROWS）；程序遍历 cells 断言 `row<ROWS and col<COLS`。末叶孤字属刻本自然收尾，judge 按豁免评判。
