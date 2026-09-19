@@ -15,17 +15,30 @@ from content_nj import TITLES
 BOOK = json.load(open(os.path.join(ROOT, 'book_data.json'), encoding='utf-8'))
 
 # ---------- 行款参数（元刻实测） ----------
-PAGE_W, PAGE_H = 178, 268          # mm，半叶比例放大
-BOX_W, BOX_H = 124, 205            # 版框：宽124 × 高205（元刻框宽×框高）
+# 对页（spread）几何：一页 = 左右两半叶 + 中央书口
+HALF_W = 118                       # 半叶版框宽 mm（元刻124 缩以容书口）
+BOX_H = 205                        # 版框高
+GUTTER = 13                        # 中央书口宽
+SIDE_M = 15                        # 左右外边距
+PAGE_W = HALF_W*2 + GUTTER + SIDE_M*2   # ≈279mm
+PAGE_H = 266                       # 上30 下31
+BOX_W = HALF_W                     # 兼容旧名
+
 COLS, ROWS = 13, 23                # 十三行，行二十三字
 MARGIN_X = (PAGE_W - BOX_W) / 2
 MARGIN_TOP, MARGIN_BOT = 30, 33    # 天头/地头（地头含版心）
 COL_W = BOX_W / COLS
 ROW_H = BOX_H / ROWS
-BIG = COL_W * 0.78 * 72 / 25.4     # 大字 pt（≈23pt）
-SMALL = BIG * 0.52                 # 小字（双行注）
+BIG = COL_W * 0.815 * 72 / 25.4     # 大字 pt
+STROKE_W = 0.075                   # 描边加粗（木活字风）
+SMALL = BIG * 0.58                 # 小字（双行注）
 
 import fitz as _fitz
+NOTE_RED_BOOKS = ['太素', '甲乙經', '甲乙', '九卷', '鍼經', '靈樞經', '靈樞', '脈經',
+                  '全元起', '楊上善', '皇甫士安', '呂廣', '越人', '天元玉冊',
+                  '氣交變大論', '五運行', '本病論', '刺法論', '老子', '淮南子', '莊子',
+                  '尚書', '易經', '白虎通', '爾雅', '說文', '漢書', '史記']
+
 KAI = os.path.join(ROOT, 'fonts', 'LXGWWenKai-Medium.ttf')
 FONT = _fitz.Font(fontfile=KAI)
 
@@ -110,16 +123,33 @@ def typeset_pian(n, vol_label, pian_title, stream_items, marks):
 
     def put_big(ch):
         nonlocal col, row
-        leaves[-1].cells.append((col, row, 'big', ch))
-        row += 1
         if row >= ROWS:
             next_col()
+        leaves[-1].cells.append((col, row, 'big', ch, False))
+        row += 1
 
     def put_note(text):
         """注段双行小字：左右小列平衡（右列 ceil(n/2) 字、左列 floor(n/2) 字），
         占 ceil(n/2) 个大字行；当前列放不下则整列起排。注毕经文同列续排。"""
         nonlocal col, row
         chars = [ch for ch in text if ch.strip()]
+        full = ''.join(chars)
+        # 书名染红：在拼接文本上匹配词典，映射回字符位
+        red_flags = [False] * len(chars)
+        pos = 0
+        for k, ch in enumerate(chars):
+            if not ch.strip():
+                red_flags[k] = red_flags[k-1] if k else False
+        # 重建带位置映射的扫描：逐词查找
+        joined = ''.join(chars)
+        for w in NOTE_RED_BOOKS:
+            start = 0
+            while True:
+                i = joined.find(w, start)
+                if i < 0: break
+                for k in range(i, i + len(w)):
+                    red_flags[k] = True
+                start = i + 1
         n = len(chars)
         if n == 0:
             return
@@ -135,13 +165,15 @@ def typeset_pian(n, vol_label, pian_title, stream_items, marks):
             # 放置：take 个字 → 右小列 tr 字 + 左小列 take-tr 字
             for k, ch in enumerate(chars[:take]):
                 if k < tr:
-                    leaves[-1].cells.append((col, row + k, 'r', ch))
+                    leaves[-1].cells.append((col, row + k, 'r', ch, red_flags[k]))
                 else:
-                    leaves[-1].cells.append((col, row + (k - tr), 'l', ch))
+                    leaves[-1].cells.append((col, row + (k - tr), 'l', ch, red_flags[k]))
             row += tr
             n -= take
             chars = chars[take:]
-            if n > 0:
+            if row >= ROWS and (n > 0 or True):
+                next_col()
+            elif n > 0:
                 next_col()
 
     # 篇首：卷端大题 + 题署 + 篇题（各自起列，原书卷端式）
@@ -196,90 +228,142 @@ def typeset_pian(n, vol_label, pian_title, stream_items, marks):
             next_col()   # 卷端题、题署各自起列；篇题后经文连排
     return leaves, mark_positions, gi
 
-# ---------- 渲染 ----------
-def draw_leaf(page, leaf, pian_title, vol_label, folio, marks_main, char_pos_map):
-    import fitz
-    mm = 72 / 25.4
-    W, H = PAGE_W*mm, PAGE_H*mm
-    x0 = MARGIN_X*mm
-    y0 = MARGIN_TOP*mm + 1.6*mm
-    bw, bh = BOX_W*mm, BOX_H*mm
-    # 纸底色（宣纸白）
-    page.draw_rect(fitz.Rect(0, 0, W, H), color=None, fill=(0.993, 0.984, 0.955))
-    # 四周双边：外粗内细
-    page.draw_rect(fitz.Rect(x0, y0, x0+bw, y0+bh), color=(0.15, 0.13, 0.11), width=1.6)
-    page.draw_rect(fitz.Rect(x0+1.2*mm, y0+1.2*mm, x0+bw-1.2*mm, y0+bh-1.2*mm), color=(0.15, 0.13, 0.11), width=0.7)
-    # 界行（13 列 → 12 条内线）
-    for c in range(1, COLS):
-        x = x0 + c*COL_W*mm
-        page.draw_line(fitz.Point(x, y0+1.2*mm), fitz.Point(x, y0+bh-1.2*mm), color=(0.25, 0.22, 0.19), width=0.55)
-    # 版心（地头区域，居中）
-    cx = W/2
-    ban_y = y0 + bh + 3.2*mm
-    # 鱼尾（黑色，朝下）
-    fw = 4.6*mm; fh = 3.0*mm
-    # 黑口：上下象鼻黑带
-    page.draw_rect(fitz.Rect(cx-11*mm, ban_y-2.2*mm, cx+11*mm, ban_y-0.6*mm), color=None, fill=(0.12, 0.10, 0.09))
-    page.draw_rect(fitz.Rect(cx-11*mm, ban_y+fh+0.5*mm, cx+11*mm, ban_y+fh+3.0*mm), color=None, fill=(0.12, 0.10, 0.09))
-    fish = [fitz.Point(cx, ban_y), fitz.Point(cx+fw/2, ban_y+fh), fitz.Point(cx, ban_y+fh*0.62), fitz.Point(cx-fw/2, ban_y+fh)]
-    page.draw_polyline([fish[0], fish[1], fish[2], fish[3], fish[0]], color=(0.1, 0.09, 0.08), width=0.8, fill=(0.1, 0.09, 0.08))
-    # 版心文字：卷次 + 篇名首三字 + 叶次
-    page.insert_font(fontname='kai', fontfile=KAI)
-    # 白口行分列：鱼尾右侧=卷次，左侧=篇名首四字；叶次独立于行末（原书叶次在下鱼尾下）
-    tw = tlen(vol_label, 8.5)
-    page.insert_text((cx + 3*mm, ban_y + fh + 6.2*mm), vol_label, fontname='kai', fontsize=8.5, color=(0.2, 0.18, 0.15))
-    pn = pian_title[:4]
-    tpn = tlen(pn, 8.5)
-    page.insert_text((cx - 3*mm - tpn, ban_y + fh + 6.2*mm), pn, fontname='kai', fontsize=8.5, color=(0.2, 0.18, 0.15))
-    cn = ['〇','一','二','三','四','五','六','七','八','九','十']
-    if folio <= 10: fs = cn[folio]
-    elif folio < 20: fs = '十' + cn[folio-10]
-    elif folio == 20: fs = '二十'
-    else: fs = '二十' + cn[folio-20]
-    fw2 = tlen(fs, 8.5)
-    page.insert_text((cx - 3*mm - tpn - 6*mm - fw2, ban_y + fh + 6.2*mm), fs, fontname='kai', fontsize=8.5, color=(0.62, 0.16, 0.11))
+# ---------- 渲染（对页 spread，仿 vRain Example） ----------
+import fitz
+MM = 72 / 25.4
 
-    page.insert_font(fontname='kai', fontfile=KAI)
-    page.insert_font(fontname='kair', fontfile=KAI_R)
-    CW, RH = COL_W*mm, ROW_H*mm
-    for (col, row, kind, ch) in leaf.cells:
+def draw_text(page, x, y, ch, size, color=(0.13, 0.11, 0.10), bold=True):
+    if bold:
+        page.insert_text((x, y), ch, fontname='kai', fontsize=size, color=color, fill=color,
+                         render_mode=2, border_width=STROKE_W)
+    else:
+        page.insert_text((x, y), ch, fontname='kai', fontsize=size, color=color, fill=color)
+
+def draw_halfleaf(page, leaf, x0, y0, marks_main, maps, folio, pian_title, vol_label, side):
+    """半叶：粗外框+细内框+界行+文字。side: 'r'|'l'"""
+    bw, bh = BOX_W*MM, BOX_H*MM
+    # 四周双边：外粗内细
+    page.draw_rect(fitz.Rect(x0, y0, x0+bw, y0+bh), color=(0.10, 0.09, 0.08), width=2.6)
+    page.draw_rect(fitz.Rect(x0+1.6*MM, y0+1.6*MM, x0+bw-1.6*MM, y0+bh-1.6*MM),
+                   color=(0.10, 0.09, 0.08), width=0.9)
+    # 界行
+    for c in range(1, COLS):
+        x = x0 + c*COL_W*MM
+        page.draw_line(fitz.Point(x, y0+1.6*MM), fitz.Point(x, y0+bh-1.6*MM),
+                       color=(0.22, 0.20, 0.17), width=0.7)
+    CW, RH = COL_W*MM, ROW_H*MM
+    for (col, row, kind, ch, red) in leaf.cells:
         if ch == '■':
             x = x0 + (COLS-1-col)*CW + CW/2
             y = y0 + row*RH + RH/2
-            page.draw_rect(fitz.Rect(x-CW*0.36, y-RH*0.36, x+CW*0.36, y+RH*0.36),
-                           color=None, fill=(0.12, 0.10, 0.09))
-            continue
-        if ch == '■':
-            x = x0 + (COLS-1-col)*CW + CW/2
-            y = y0 + row*RH + RH/2
-            page.draw_rect(fitz.Rect(x-CW*0.36, y-RH*0.36, x+CW*0.36, y+RH*0.36),
+            page.draw_rect(fitz.Rect(x-CW*0.38, y-RH*0.36, x+CW*0.38, y+RH*0.36),
                            color=None, fill=(0.12, 0.10, 0.09))
             continue
         if ch == '○':
-            # 墨圈：画圈
             x = x0 + (COLS-1-col)*CW + CW/2
             y = y0 + row*RH + RH/2
-            r = min(CW, RH)*0.30
-            page.draw_circle(fitz.Point(x, y), r, color=(0.2, 0.18, 0.15), width=1.0)
+            r = min(CW, RH)*0.34
+            page.draw_circle(fitz.Point(x, y), r, color=(0.15, 0.13, 0.11), width=1.3)
             continue
         if kind == 'big':
             x = x0 + (COLS-1-col)*CW + CW/2
             y = y0 + row*RH + RH/2
             size = BIG
+            color = (0.13, 0.11, 0.10)
         else:
             side_off = -CW*0.24 if kind == 'r' else CW*0.24
             x = x0 + (COLS-1-col)*CW + CW/2 + side_off
             y = y0 + row*RH + RH/2
             size = SMALL
+            color = (0.62, 0.14, 0.10) if red else (0.30, 0.27, 0.24)
         tw = tlen(ch, size)
-        ty = y + size*0.36
-        page.insert_text((x - tw/2, ty), ch, fontname='kai', fontsize=size, color=(0.13, 0.11, 0.10))
-        # 朱圈句读：大字且在句读位置 → 圈在字格左下
+        draw_text(page, x - tw/2, y + size*0.36, ch, size, color, bold=(kind == 'big'))
         if kind == 'big':
-            gi = char_pos_map.get((col, row))
+            gi = maps.get((col, row))
             if gi is not None and gi in marks_main:
                 page.draw_circle(fitz.Point(x - CW*0.33, y + RH*0.33), min(CW,RH)*0.13,
                                  color=(0.62, 0.16, 0.11), width=0.8)
+
+def draw_shuyin(page, x, y, text4):
+    """仿古藏书印：朱文方框+四字（2×2）"""
+    mm = MM
+    side = 13*mm
+    page.draw_rect(fitz.Rect(x, y, x+side, y+side), color=(0.70, 0.15, 0.10), width=1.6)
+    page.draw_rect(fitz.Rect(x+0.8*mm, y+0.8*mm, x+side-0.8*mm, y+side-0.8*mm),
+                   color=(0.70, 0.15, 0.10), width=0.7)
+    order = [0, 2, 1, 3]   # 右上→右下→左上→左下（印章读序）
+    cell = side/2
+    for i, ch in enumerate(text4):
+        cx = x + (1 if order[i] in (0, 2) else 0)*cell + cell/2
+        cy = y + (0 if order[i] in (0, 1) else 1)*cell + cell/2
+        size = 4.6*mm*0.72
+        tw = tlen(ch, size)
+        page.insert_text((cx - tw/2, cy + size*0.36), ch, fontname='kai', fontsize=size,
+                         color=(0.70, 0.15, 0.10), fill=(0.70, 0.15, 0.10))
+
+def render_spread(doc, lf_r, lf_l, folio, pian_title, vol_label, marks_main, maps_r, maps_l):
+    page = doc.new_page(width=PAGE_W*MM, height=PAGE_H*MM)
+    # 宣纸背景
+    page.insert_image(fitz.Rect(0, 0, PAGE_W*MM, PAGE_H*MM),
+                      filename=os.path.join(ROOT, 'assets', 'paper_bg.png'),
+                      keep_proportion=False)
+    y0 = 30*MM
+    x_r = SIDE_M*MM + HALF_W*MM + GUTTER/2*MM      # 右半叶框左缘
+    x_l = SIDE_M*MM                                 # 左半叶框左缘
+    # 书口（版心）大鱼尾 + 黑底书名 + 页码
+    cx0 = (SIDE_M + HALF_W)*MM
+    cx1 = cx0 + GUTTER*MM
+    cx = (cx0 + cx1) / 2
+    fy = 9.2*MM
+    fh = 7.6*MM
+    fw = GUTTER*MM*0.92
+    for ybase in (fy, PAGE_H*MM - fy - fh):
+        fish = [fitz.Point(cx, ybase), fitz.Point(cx+fw/2, ybase+fh),
+                fitz.Point(cx, ybase+fh*0.60), fitz.Point(cx-fw/2, ybase+fh)]
+        page.draw_polyline([fish[0], fish[1], fish[2], fish[3], fish[0]],
+                           color=(0.10, 0.09, 0.08), width=1.2, fill=(0.10, 0.09, 0.08))
+    # 版心中央黑底白字书名章
+    tag_w, tag_h = GUTTER*MM*0.98, 46*MM
+    ty0 = PAGE_H*MM/2 - tag_h/2
+    page.draw_rect(fitz.Rect(cx-tag_w/2, ty0, cx+tag_w/2, ty0+tag_h),
+                   color=None, fill=(0.10, 0.09, 0.08))
+    tag_txt = f'{vol_label}'
+    page.insert_font(fontname='kai', fontfile=KAI)
+    # 竖排逐字
+    size = 5.6*MM*0.66
+    chars = list(vol_label)
+    th = len(chars)*(size*1.42)
+    cy = PAGE_H*MM/2 - th/2 + size
+    for ch in chars:
+        page.insert_text((cx - tlen(ch, size)/2, cy), ch, fontname='kai', fontsize=size,
+                         color=(0.94, 0.90, 0.80), fill=(0.94, 0.90, 0.80))
+        cy += size*1.42
+    # 页码（下鱼尾上方）
+    cn = ['〇','一','二','三','四','五','六','七','八','九','十']
+    if folio <= 10: fs = cn[folio]
+    elif folio < 20: fs = '十' + cn[folio-10]
+    elif folio == 20: fs = '二十'
+    else: fs = '二十' + cn[folio-20]
+    fsz = 5.4*MM*0.62
+    page.insert_text((cx - tlen(fs, fsz)/2, PAGE_H*MM - fy - fh - 2.4*MM), fs,
+                     fontname='kai', fontsize=fsz, color=(0.15, 0.13, 0.11), fill=(0.15, 0.13, 0.11))
+    # 书眉：框外右上竖排书名（仅右叶侧）
+    head = '黃帝內經素問'
+    hsz = 4.2*MM*0.62
+    hx = PAGE_W*MM - 10*MM
+    hy = 12*MM
+    for ch in head:
+        page.insert_text((hx - tlen(ch, hsz)/2, hy), ch, fontname='kai', fontsize=hsz,
+                         color=(0.25, 0.22, 0.19), fill=(0.25, 0.22, 0.19))
+        hy += hsz*1.35
+    # 藏书印：框外顶部（书口右上）
+    draw_shuyin(page, cx1 + 7*MM, 4.5*MM, '繭齋藏書')
+    # 两半叶
+    if lf_r is not None:
+        draw_halfleaf(page, lf_r, x_r, y0, marks_main, maps_r, folio, pian_title, vol_label, 'r')
+    if lf_l is not None:
+        draw_halfleaf(page, lf_l, x_l, y0, marks_main, maps_l, folio, pian_title, vol_label, 'l')
+    return page
 
 def main():
     n = int(sys.argv[1]) if len(sys.argv) > 1 else 1
@@ -300,20 +384,25 @@ def main():
     gi = 0
     for li, lf in enumerate(leaves):
         m = {}
-        for (col, row, kind, ch) in lf.cells:
+        for (col, row, kind, ch, _red) in lf.cells:
             if kind == 'big' and ch != '○':
                 m[(col, row)] = gi
                 gi += 1
         maps_per_leaf.append(m)
 
-    import fitz
     doc = fitz.open()
-    for li, lf in enumerate(leaves):
-        page = doc.new_page(width=PAGE_W*72/25.4, height=PAGE_H*72/25.4)
-        draw_leaf(page, lf, pian_title, vol_label, li+1, mark_positions, maps_per_leaf[li])
-    out = os.path.join(ROOT, f'复刻-上古天真論篇第一.pdf') if n == 1 else os.path.join(ROOT, f'复刻-{pian_title}.pdf')
+    spreads = []
+    for li in range(0, len(leaves), 2):
+        rf = leaves[li]
+        lf2 = leaves[li+1] if li+1 < len(leaves) else None
+        spreads.append((rf, lf2, li+1))
+    for lf_r, lf_l, folio in spreads:
+        maps_r = maps_per_leaf[folio-1]
+        maps_l = maps_per_leaf[folio] if folio < len(leaves) else {}
+        render_spread(doc, lf_r, lf_l, folio, pian_title, vol_label, mark_positions, maps_r, maps_l)
+    out = os.path.join(ROOT, '复刻-上古天真論篇第一.pdf') if n == 1 else os.path.join(ROOT, f'复刻-{pian_title}.pdf')
     doc.save(out, garbage=4, deflate=True)
-    print(f'{out}: {len(leaves)} 叶, 大字 {gi}, 句读 {len(mark_positions)} 处')
+    print(f'{out}: {len(leaves)} 叶 / {len(spreads)} 对页, 大字 {gi}, 句读 {len(mark_positions)} 处')
 
 if __name__ == '__main__':
     main()
