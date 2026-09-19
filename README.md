@@ -38,6 +38,41 @@ examples/
 └── */assets/                 ← 书影/卷端叶/宣纸底图（公有领域图版）
 ```
 
+## 安装到 Agent（Claude Code / Claude.ai / ZCode / 其他 Agent Skills 运行时）
+
+本仓库即标准 Agent Skill 包（`SKILL.md` + `scripts/` + `examples/`）。按你的 agent 选择一种安装方式：
+
+```bash
+# 方式一：Claude Code / ZCode / 兼容 .agents 约定的 agent —— 整仓克隆为个人技能
+git clone --depth 1 https://github.com/kelvinguo1988/guji-ebook-skill.git ~/.claude/skills/guji-ebook
+# ZCode 用户目录为 ~/.agents/skills/guji-ebook；项目级安装则放 <项目>/.claude/skills/ 或 .agents/skills/
+
+# 方式二：claude.ai 网页版 —— 打包上传（Settings → Capabilities → Skills）
+git clone --depth 1 https://github.com/kelvinguo1988/guji-ebook-skill.git
+cd guji-ebook-skill && zip -r guji-ebook.skill guji-ebook-skill -x "*.epub" && cd ..
+# 在 claude.ai 技能页上传 guji-ebook.skill（排除大文件 EPUB 减小体积）
+
+# 方式三：任意其他 agent —— 克隆到任意目录，把 SKILL.md 内容（或路径）注入系统提示/技能索引
+git clone --depth 1 https://github.com/kelvinguo1988/guji-ebook-skill.git /path/to/skills/guji-ebook
+```
+
+安装后**首次使用前**，让 agent 执行「按 guji-ebook SKILL.md 的环境依赖一节装依赖、下字体」（pip 三包 + Edge/Chrome + 思源字体；做复刻本再补齊伋體一条命令，均见下文）。
+
+## Agent 内如何调用：说清「整理」还是「复刻」，skill 自动选 A 或 B
+
+SKILL.md 的 description 已写入两类任务的触发词，frontmatter 之外的 `§0.1 任务分诊` 表会指挥 agent 按意图分流——**你只需用自然语言说需求**：
+
+| 你这样说 | agent 自动执行 |
+|---|---|
+| 「帮我把《XXX》扫描本**整理**成电子书，要有原文、注释、白话和多版本**对读**」 | **品类 A 整理本**：录文/书影 → book_data → 章旨白话术语 → 印刷级 PDF + EPUB（+FXL 版式本） |
+| 「把《XXX》做成**直排复刻**，刻本风格、像 vRain 那种原貌书叶」 | **品类 B 复刻本**：行款参数化 → 逐字落格 → 直排对页复刻 PDF |
+| 「**两种都做**，整理本给我读、复刻本收藏」 | A、B 串行（共享同一份 book_data.json，先出 A 样章、再出 B 一页样本） |
+| 只说「做本古籍电子书」未指明风格 | 按 §0.1 视为品类 A，并在方案里说明可随时追加品类 B |
+
+标准流程是**样章先行**：无论 A/B，agent 会先交付第一章样章（A：PDF+EPUB；B：一页对页样本）供确认，确认后才扩全书——避免全书返工。
+
+若 agent 未主动分流，直接补充一句「按 SKILL.md §0.1 分诊：这次要品类 A/B」即可。
+
 ## 环境依赖
 
 ```bash
