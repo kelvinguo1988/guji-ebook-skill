@@ -15,23 +15,30 @@ from content_nj import TITLES
 BOOK = json.load(open(os.path.join(ROOT, 'book_data.json'), encoding='utf-8'))
 
 # ---------- 行款参数（元刻实测） ----------
-# 对页（spread）几何：一页 = 左右两半叶 + 中央书口
-HALF_W = 118                       # 半叶版框宽 mm（元刻124 缩以容书口）
-BOX_H = 205                        # 版框高
-GUTTER = 13                        # 中央书口宽
-SIDE_M = 15                        # 左右外边距
-PAGE_W = HALF_W*2 + GUTTER + SIDE_M*2   # ≈279mm
-PAGE_H = 266                       # 上30 下31
-BOX_W = HALF_W                     # 兼容旧名
+# 对页几何：1:1 采用 vRain 24 开 cfg 像素几何（2480×1860 @240dpi → 262×197mm）
+PX = 240/25.4                       # px → mm 换算（240dpi）
+CV_W, CV_H = 2480, 1860             # vRain 画布
+M_TOP, M_BOT = 200, 50              # margins_top/bottom
+M_SIDE = 50                         # margins_left/right
+LEAF_COL = 12                       # 每半叶列数（leaf_col=24 两半叶）
+ROWS = 20                           # 每列字数（010.png 样张款：12 列×20 字大字密排）
+GUTTER = 120                        # leaf_center_width 书口 px
+COL_W = (CV_W - 2*M_SIDE - GUTTER) / 2 / LEAF_COL / PX   # 半叶列宽 mm ≈9.95
+ROW_H = (CV_H - M_TOP - M_BOT) / ROWS / PX              # 行距 mm ≈5.7（密排：行距<字号）
+PAGE_W, PAGE_H = CV_W/PX, CV_H/PX   # ≈262×197mm
+HALF_W = (CV_W - 2*M_SIDE - GUTTER)/2 / PX
+BOX_W = HALF_W
+MARGIN_X = M_SIDE/PX
+MARGIN_TOP = M_TOP/PX
+MARGIN_BOT = M_BOT/PX
+BOX_H = (CV_H - M_TOP - M_BOT)/PX
 
-COLS, ROWS = 13, 23                # 十三行，行二十三字
-MARGIN_X = (PAGE_W - BOX_W) / 2
-MARGIN_TOP, MARGIN_BOT = 30, 33    # 天头/地头（地头含版心）
-COL_W = BOX_W / COLS
-ROW_H = BOX_H / ROWS
-BIG = COL_W * 0.815 * 72 / 25.4     # 大字 pt
-STROKE_W = 0.075                   # 描边加粗（木活字风）
-SMALL = BIG * 0.58                 # 小字（双行注）
+COLS = LEAF_COL                    # 排版列数 = 渲染列数（12）
+PXP = 72.0/240                      # px → pt（1px@240dpi = 0.3pt）
+BIG = 107*PXP                       # 正文 107px → 32.1pt（墨迹 0.75em≈80px≈行距，样张密排）
+SMALL = 45*PXP                      # 批注 45px → 13.5pt
+STROKE_W = 1.0                      # 大字浓黑描边（vRain fallback_bold=1.2pt 同思路）
+STROKE_S = 0.25
 
 import fitz as _fitz
 NOTE_RED_BOOKS = ['太素', '甲乙經', '甲乙', '九卷', '鍼經', '靈樞經', '靈樞', '脈經',
@@ -40,7 +47,7 @@ NOTE_RED_BOOKS = ['太素', '甲乙經', '甲乙', '九卷', '鍼經', '靈樞�
                   '尚書', '易經', '白虎通', '爾雅', '說文', '漢書', '史記']
 
 # 主字体：齊伋體 combo（与 vRain 完全一致，明代凌閔刻本抠字重建的明体）
-KAI = os.path.join(ROOT, 'fonts', 'qiji-combo.ttf')
+KAI = os.environ.get('FK_FONT', os.path.join(ROOT, 'fonts', 'qiji-combo.ttf'))
 FONT = _fitz.Font(fontfile=KAI)
 
 def tlen(ch, size):
@@ -229,142 +236,153 @@ def typeset_pian(n, vol_label, pian_title, stream_items, marks):
             next_col()   # 卷端题、题署各自起列；篇题后经文连排
     return leaves, mark_positions, gi
 
-# ---------- 渲染（对页 spread，仿 vRain Example） ----------
+# ---------- 渲染：vRain 24 开几何 1:1（canvas.pl + 24 cfg 参数） ----------
 import fitz
-MM = 72 / 25.4
+PXT = 72.0/240                      # px → pt（@240dpi）
+def px(v): return v * PXT           # px → pt
 
-def draw_text(page, x, y, ch, size, color=(0.13, 0.11, 0.10), bold=True):
-    if bold:
-        page.insert_text((x, y), ch, fontname='kai', fontsize=size, color=color, fill=color,
-                         render_mode=2, border_width=STROKE_W)
-    else:
-        page.insert_text((x, y), ch, fontname='kai', fontsize=size, color=color, fill=color)
+INK = (0.08, 0.07, 0.065)
+RED = (0.66, 0.14, 0.10)
+WHITE = (0.97, 0.94, 0.87)
 
-def draw_halfleaf(page, leaf, x0, y0, marks_main, maps, folio, pian_title, vol_label, side):
-    """半叶：粗外框+细内框+界行+文字。side: 'r'|'l'"""
-    bw, bh = BOX_W*MM, BOX_H*MM
-    # 四周双边：外粗内细
-    page.draw_rect(fitz.Rect(x0, y0, x0+bw, y0+bh), color=(0.10, 0.09, 0.08), width=2.6)
-    page.draw_rect(fitz.Rect(x0+1.6*MM, y0+1.6*MM, x0+bw-1.6*MM, y0+bh-1.6*MM),
-                   color=(0.10, 0.09, 0.08), width=0.9)
-    # 界行
-    for c in range(1, COLS):
-        x = x0 + c*COL_W*MM
-        page.draw_line(fitz.Point(x, y0+1.6*MM), fitz.Point(x, y0+bh-1.6*MM),
-                       color=(0.22, 0.20, 0.17), width=0.7)
-    CW, RH = COL_W*MM, ROW_H*MM
+def draw_halfleaf(page, leaf, x0, y0, marks_main, maps, side):
+    """半叶：外框 10px、内线 1px、界行；x0/y0 以 pt 计（半叶框左上角）"""
+    bw, bh = px(HALF_W*PX), px(BOX_H*PX)
+    bw, bh = px(1130), px(1610)     # 半叶框 1130×1610px
+    page.draw_rect(fitz.Rect(x0, y0, x0+bw, y0+bh), color=INK, width=px(10))
+    page.draw_rect(fitz.Rect(x0+px(6), y0+px(6), x0+bw-px(6), y0+bh-px(6)),
+                   color=INK, width=px(1))
+    # 界行（12 列 → 11 条内线）
+    colw = px(1130/LEAF_COL)
+    for c in range(1, LEAF_COL):
+        x = x0 + c*colw
+        page.draw_line(fitz.Point(x, y0+px(6)), fitz.Point(x, y0+bh-px(6)),
+                       color=INK, width=px(1))
+    CW = px(1130/LEAF_COL)
+    RH = px(1610/ROWS)
     for (col, row, kind, ch, red) in leaf.cells:
         if ch == '■':
-            x = x0 + (COLS-1-col)*CW + CW/2
+            x = x0 + (LEAF_COL-1-col)*CW + CW/2
             y = y0 + row*RH + RH/2
-            page.draw_rect(fitz.Rect(x-CW*0.38, y-RH*0.36, x+CW*0.38, y+RH*0.36),
-                           color=None, fill=(0.12, 0.10, 0.09))
+            page.draw_rect(fitz.Rect(x-CW*0.33, y-RH*0.34, x+CW*0.33, y+RH*0.34),
+                           color=None, fill=INK)
             continue
         if ch == '○':
-            x = x0 + (COLS-1-col)*CW + CW/2
+            x = x0 + (LEAF_COL-1-col)*CW + CW/2
             y = y0 + row*RH + RH/2
-            r = min(CW, RH)*0.34
-            page.draw_circle(fitz.Point(x, y), r, color=(0.15, 0.13, 0.11), width=1.3)
+            page.draw_circle(fitz.Point(x, y), min(CW, RH)*0.38, color=INK, width=px(2))
             continue
         if kind == 'big':
-            x = x0 + (COLS-1-col)*CW + CW/2
+            x = x0 + (LEAF_COL-1-col)*CW + CW/2
             y = y0 + row*RH + RH/2
             size = BIG
-            color = (0.13, 0.11, 0.10)
         else:
-            side_off = -CW*0.24 if kind == 'r' else CW*0.24
-            x = x0 + (COLS-1-col)*CW + CW/2 + side_off
+            side_off = -CW*0.25 if kind == 'r' else CW*0.25
+            x = x0 + (LEAF_COL-1-col)*CW + CW/2 + side_off
             y = y0 + row*RH + RH/2
             size = SMALL
-            color = (0.62, 0.14, 0.10) if red else (0.30, 0.27, 0.24)
-        tw = tlen(ch, size)
-        draw_text(page, x - tw/2, y + size*0.36, ch, size, color, bold=(kind == 'big'))
+        if kind != 'big' and red:
+            # 红底白字出处签
+            page.draw_rect(fitz.Rect(x-CW*0.22, y-RH*0.42, x+CW*0.22, y+RH*0.42),
+                           color=None, fill=RED)
+            tw = tlen(ch, size)
+            draw_text(page, x-tw/2, y+size*0.36, ch, size, WHITE)
+        else:
+            tw = tlen(ch, size)
+            draw_text(page, x-tw/2, y+size*0.36, ch, size, INK)
         if kind == 'big':
             gi = maps.get((col, row))
             if gi is not None and gi in marks_main:
-                page.draw_circle(fitz.Point(x - CW*0.33, y + RH*0.33), min(CW,RH)*0.13,
-                                 color=(0.62, 0.16, 0.11), width=0.8)
+                page.draw_circle(fitz.Point(x - CW*0.34, y + RH*0.34), min(CW,RH)*0.14,
+                                 color=RED, width=px(1.5))
 
-def draw_shuyin(page, x, y, text4):
-    """仿古藏书印：朱文方框+四字（2×2）"""
-    mm = MM
-    side = 13*mm
-    page.draw_rect(fitz.Rect(x, y, x+side, y+side), color=(0.70, 0.15, 0.10), width=1.6)
-    page.draw_rect(fitz.Rect(x+0.8*mm, y+0.8*mm, x+side-0.8*mm, y+side-0.8*mm),
-                   color=(0.70, 0.15, 0.10), width=0.7)
-    order = [0, 2, 1, 3]   # 右上→右下→左上→左下（印章读序）
-    cell = side/2
-    for i, ch in enumerate(text4):
-        cx = x + (1 if order[i] in (0, 2) else 0)*cell + cell/2
-        cy = y + (0 if order[i] in (0, 1) else 1)*cell + cell/2
-        size = 4.6*mm*0.72
-        tw = tlen(ch, size)
-        page.insert_text((cx - tw/2, cy + size*0.36), ch, fontname='kai', fontsize=size,
-                         color=(0.70, 0.15, 0.10), fill=(0.70, 0.15, 0.10))
+def draw_text(page, x, y, ch, size, color=INK, bold=False):
+    page.insert_text((x, y), ch, fontname='kai', fontsize=size, color=color, fill=color)
+
+def draw_fishtail(page, cx, fy, rect_h, tri_h, flip=False):
+    """vRain 鱼尾五边形：书口宽顶线 + 两侧下垂 rect_h+tri_h + 中央 V 口 tri_h 深"""
+    lcw = px(GUTTER)
+    y1 = fy + px(rect_h + tri_h)
+    ym = fy + px(rect_h)
+    if not flip:
+        pts = [(cx-lcw/2, fy), (cx+lcw/2, fy), (cx+lcw/2, y1), (cx, ym), (cx-lcw/2, y1)]
+    else:
+        pts = [(cx-lcw/2, y1), (cx+lcw/2, y1), (cx+lcw/2, fy+px(rect_h)),
+               (cx, fy), (cx-lcw/2, fy+px(rect_h))]
+        ym, y1 = fy+px(rect_h), fy
+    # 鱼尾上/下粗分割线（fish_linewidth 15px）
+    lw_y = fy - px(5) if not flip else fy + px(rect_h+tri_h) + px(5)
+    page.draw_line(fitz.Point(cx-lcw/2, lw_y), fitz.Point(cx+lcw/2, lw_y), color=INK, width=px(15))
+    page.draw_polyline([fitz.Point(*p) for p in pts] + [fitz.Point(*pts[0])],
+                       color=INK, width=px(1.5), fill=INK)
 
 def render_spread(doc, lf_r, lf_l, folio, pian_title, vol_label, marks_main, maps_r, maps_l):
-    page = doc.new_page(width=PAGE_W*MM, height=PAGE_H*MM)
-    # 宣纸背景
-    page.insert_image(fitz.Rect(0, 0, PAGE_W*MM, PAGE_H*MM),
-                      filename=os.path.join(ROOT, 'assets', 'paper_bg.png'),
-                      keep_proportion=False)
-    y0 = 30*MM
-    x_r = SIDE_M*MM + HALF_W*MM + GUTTER/2*MM      # 右半叶框左缘
-    x_l = SIDE_M*MM                                 # 左半叶框左缘
-    # 书口（版心）大鱼尾 + 黑底书名 + 页码
-    cx0 = (SIDE_M + HALF_W)*MM
-    cx1 = cx0 + GUTTER*MM
-    cx = (cx0 + cx1) / 2
-    fy = 9.2*MM
-    fh = 7.6*MM
-    fw = GUTTER*MM*0.92
-    for ybase in (fy, PAGE_H*MM - fy - fh):
-        fish = [fitz.Point(cx, ybase), fitz.Point(cx+fw/2, ybase+fh),
-                fitz.Point(cx, ybase+fh*0.60), fitz.Point(cx-fw/2, ybase+fh)]
-        page.draw_polyline([fish[0], fish[1], fish[2], fish[3], fish[0]],
-                           color=(0.10, 0.09, 0.08), width=1.2, fill=(0.10, 0.09, 0.08))
-    # 版心中央黑底白字书名章
-    tag_w, tag_h = GUTTER*MM*0.98, 46*MM
-    ty0 = PAGE_H*MM/2 - tag_h/2
-    page.draw_rect(fitz.Rect(cx-tag_w/2, ty0, cx+tag_w/2, ty0+tag_h),
-                   color=None, fill=(0.10, 0.09, 0.08))
-    tag_txt = f'{vol_label}'
+    page = doc.new_page(width=px(CV_W), height=px(CV_H))
     page.insert_font(fontname='kai', fontfile=KAI)
-    # 竖排逐字
-    size = 5.6*MM*0.66
-    chars = list(vol_label)
-    th = len(chars)*(size*1.42)
-    cy = PAGE_H*MM/2 - th/2 + size
+    # vRain 同款宣纸扫描背景
+    page.insert_image(fitz.Rect(0, 0, px(CV_W), px(CV_H)),
+                      filename=os.path.join(ROOT, 'assets', 'paper_vr.jpg'),
+                      keep_proportion=False)
+    # 两半叶框位置
+    x_r = px(M_SIDE + 1130 + GUTTER)
+    x_l = px(M_SIDE)
+    y0 = px(M_TOP)
+    # 书口：上鱼尾 450、版心书名 1250、页码 540、下鱼尾 1550（cfg 权威值）
+    cx = px(CV_W/2)
+    draw_fishtail(page, cx, px(450), 50, 30, flip=False)
+    draw_fishtail(page, cx, px(1550), 50, 30, flip=True)
+    # 版心书名：竖排墨黑 65px（title_y=1250 起，向上排？vRain y 为基线起点向下）
+    tsize = px(65)
+    chars = list('素問' + vol_label)   # 版心短名（vRain title=书名）
+    cy = px(1250) - len(chars)*tsize*0.9/2 + tsize
     for ch in chars:
-        page.insert_text((cx - tlen(ch, size)/2, cy), ch, fontname='kai', fontsize=size,
-                         color=(0.94, 0.90, 0.80), fill=(0.94, 0.90, 0.80))
-        cy += size*1.42
-    # 页码（下鱼尾上方）
+        page.insert_text((cx - tlen(ch, tsize)/2, cy), ch, fontname='kai', fontsize=tsize,
+                         color=INK, fill=INK)
+        cy += tsize*0.9
+    # 页码（pager_y=540，30px）
     cn = ['〇','一','二','三','四','五','六','七','八','九','十']
     if folio <= 10: fs = cn[folio]
     elif folio < 20: fs = '十' + cn[folio-10]
     elif folio == 20: fs = '二十'
     else: fs = '二十' + cn[folio-20]
-    fsz = 5.4*MM*0.62
-    page.insert_text((cx - tlen(fs, fsz)/2, PAGE_H*MM - fy - fh - 2.4*MM), fs,
-                     fontname='kai', fontsize=fsz, color=(0.15, 0.13, 0.11), fill=(0.15, 0.13, 0.11))
-    # 书眉：框外右上竖排书名（仅右叶侧）
-    head = '黃帝內經素問'
-    hsz = 4.2*MM*0.62
-    hx = PAGE_W*MM - 10*MM
-    hy = 12*MM
-    for ch in head:
-        page.insert_text((hx - tlen(ch, hsz)/2, hy), ch, fontname='kai', fontsize=hsz,
-                         color=(0.25, 0.22, 0.19), fill=(0.25, 0.22, 0.19))
-        hy += hsz*1.35
-    # 藏书印：框外顶部（书口右上）
-    draw_shuyin(page, cx1 + 7*MM, 4.5*MM, '繭齋藏書')
-    # 两半叶
+    psz = px(30)
+    page.insert_text((cx - tlen(fs, psz)/2, px(540) + psz), fs,
+                     fontname='kai', fontsize=psz, color=INK, fill=INK)
+    # 书房名 logo（底部 y=1680，40px 朱色——仿 cfg logo_position）
+    lsz = px(40)
+    ltxt = '繭齋藏書'
+    ly = px(1680)
+    for ch in ltxt:
+        page.insert_text((cx - tlen(ch, lsz)/2, ly), ch, fontname='kai', fontsize=lsz,
+                         color=RED, fill=RED)
+        ly += lsz*1.1
+    # 藏书印：右上（样张位置）
+    draw_shuyin(page, px(CV_W - 320), px(60), '繭齋藏書')
+    # 书眉（框外右上竖排书名，样张右缘）
+    hsz = px(30)
+    hy = px(60)
+    for ch in '黃帝內經素問':
+        page.insert_text((px(CV_W - 70) - tlen(ch, hsz)/2, hy), ch, fontname='kai', fontsize=hsz,
+                         color=(0.35, 0.32, 0.28), fill=(0.35, 0.32, 0.28))
+        hy += hsz*1.3
     if lf_r is not None:
-        draw_halfleaf(page, lf_r, x_r, y0, marks_main, maps_r, folio, pian_title, vol_label, 'r')
+        draw_halfleaf(page, lf_r, x_r, y0, marks_main, maps_r, 'r')
     if lf_l is not None:
-        draw_halfleaf(page, lf_l, x_l, y0, marks_main, maps_l, folio, pian_title, vol_label, 'l')
+        draw_halfleaf(page, lf_l, x_l, y0, marks_main, maps_l, 'l')
     return page
+
+def draw_shuyin(page, x, y, text4):
+    side = px(150)
+    page.draw_rect(fitz.Rect(x, y, x+side, y+side), color=RED, width=px(6))
+    order = [0, 2, 1, 3]
+    cell = side/2
+    for i, ch in enumerate(text4):
+        ccx = x + (1 if order[i] in (0, 2) else 0)*cell + cell/2
+        ccy = y + (0 if order[i] in (0, 1) else 1)*cell + cell/2
+        size = px(52)
+        tw = tlen(ch, size)
+        page.insert_text((ccx - tw/2, ccy + size*0.36), ch, fontname='kai', fontsize=size,
+                         color=RED, fill=RED)
 
 def main():
     n = int(sys.argv[1]) if len(sys.argv) > 1 else 1
