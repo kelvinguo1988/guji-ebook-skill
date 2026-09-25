@@ -81,16 +81,16 @@ p.fu{ font-size:12.5pt; line-height:2.3; letter-spacing:.05em; text-align:justif
 .kwcard p{ font-size:8.7pt; line-height:1.88; color:var(--ink2); text-align:justify; }
 
 /* 原书叶对照（本样章特色组件）：扫描叶图 + 对应原文区间标注 */
-.leafmap{ break-inside:avoid; margin:5mm 0 6mm; border:.7pt solid var(--rule); background:#FBF7EC; padding:4.6mm 5.2mm; }
+/* 叶图按原叶比例完整显示：宽度定 58mm、高度随图（0.576 比例 ≈100mm），一帧约半页，绝不裁切 */
+.leafmap{ margin:5mm 0 6mm; border:.7pt solid var(--rule); background:#FBF7EC; padding:4.6mm 5.2mm; }
 .leafmap .lm-t{ font-family:var(--song); font-size:9pt; letter-spacing:.35em; color:var(--cinnabar); margin-bottom:3mm; }
-.leafmap .lm-item{ display:grid; grid-template-columns:52mm 1fr; gap:5mm; margin-bottom:4mm; break-inside:avoid; }
-.leafmap .ph{ height:66mm; border:.7pt solid var(--rule); background:#FDFBF4; display:flex;
-  align-items:center; justify-content:center; flex-direction:column; gap:2mm; }
-.leafmap .ph .hole{ font-size:8.5pt; color:var(--note); letter-spacing:.15em; text-align:center; line-height:1.9; }
-.leafmap .ph img{ max-width:100%; max-height:100%; object-fit:contain; }
-.leafmap .lm-meta{ font-size:9pt; line-height:2.0; color:var(--ink2); text-align:justify; }
+.leafmap .lm-item{ display:grid; grid-template-columns:58mm 1fr; gap:6mm; margin-bottom:5mm; break-inside:avoid; }
+.leafmap .ph{ width:58mm; border:.7pt solid var(--rule); background:#FDFBF4; padding:1.6mm; }
+.leafmap .ph img{ display:block; width:100%; height:auto; }
+.leafmap .lm-meta{ font-size:9pt; line-height:2.0; color:var(--ink2); text-align:justify; padding-top:2mm; }
 .leafmap .lm-meta b{ font-family:var(--song); color:var(--ink); }
 .leafmap .lm-meta .rng{ color:var(--cinnabar); }
+.leafmap .lm-src{ display:block; margin-top:2mm; font-size:7.8pt; color:var(--note); letter-spacing:.08em; line-height:1.9; text-align:justify; }
 
 .endpage{ page:full; break-before:page; text-align:center; padding-top:74mm;
   width:185mm; height:260mm;
@@ -193,20 +193,20 @@ p.fu{ font-size:12.5pt; line-height:2.3; letter-spacing:.05em; text-align:justif
 <div class="kwcard"><span class="kt">马头带剑</span><p>擎羊居午宫守命的格局，古诀以为镇卫边疆之贵将——以煞成格的典型例子。</p></div>
 </div>
 <h2 class="sec">原书叶对照</h2>
-<p class="sec-note">本篇对应原书叶逐一列置，四叶齐备，无一缺省。</p>
+<p class="sec-note">本篇对应原书叶逐一列置，四叶齐备、整叶完整，无一缺省。</p>
 <div class="leafmap"><div class="lm-t">卷首 · 太微赋 · 叶位表</div>
 <div class="lm-item"><div class="ph"><img src="assets/zw_leaf1.jpg"/></div>
       <div class="lm-meta"><b>叶一</b>　对应原文区间：<span class="rng">卷端题署（全书扉叶）</span><br/>
-      版面特征：大题「陳希夷先生著 · 紫微斗數全書」，下镌「南陽堂較梓」；本刊本卷首无罗序<br/>来源：南阳堂刊本（日本公文书馆藏 · 书格数字化）</div></div>
+      版面特征：大题「陳希夷先生著 · 紫微斗數全書」，下镌「南陽堂較梓」；本刊本卷首无罗序</div></div>
 <div class="lm-item"><div class="ph"><img src="assets/zw_leaf2.jpg"/></div>
       <div class="lm-meta"><b>叶二</b>　对应原文区间：<span class="rng">卷端大题与太微赋正文起首</span><br/>
-      版面特征：版心题「卷一」；叶端重刊大题「新鍥希夷陳先生紫微斗數全書」，次「太微賦」篇题，「斗數至玄至微」起<br/>来源：南阳堂刊本（日本公文书馆藏 · 书格数字化）</div></div>
+      版面特征：版心题「卷一」；叶端重刊大题「新鍥希夷陳先生紫微斗數全書」，次「太微賦」篇题，「斗數至玄至微」起</div></div>
 <div class="lm-item"><div class="ph"><img src="assets/zw_leaf3.jpg"/></div>
       <div class="lm-meta"><b>叶三</b>　对应原文区间：<span class="rng">太微赋正文续、例曰前段</span><br/>
-      版面特征：「帝星動則列宿奔馳」至例曰诸格前半；版心仍「卷一」<br/>来源：南阳堂刊本（日本公文书馆藏 · 书格数字化）</div></div>
+      版面特征：「帝星動則列宿奔馳」至例曰诸格前半；版心仍「卷一」</div></div>
 <div class="lm-item"><div class="ph"><img src="assets/zw_leaf4.jpg"/></div>
       <div class="lm-meta"><b>叶四</b>　对应原文区间：<span class="rng">例曰后段</span><br/>
-      版面特征：例曰诸格局口诀至本篇末；次叶版心转「附批命活套」<br/>来源：南阳堂刊本（日本公文书馆藏 · 书格数字化）</div></div>
+      版面特征：例曰诸格局口诀至本篇末；次叶版心转「附批命活套」<span class="lm-src">叶图来源：南阳堂刊本（明代 · 日本公文书馆藏 · 书格数字化），全册统一，各叶不再重注；多版本比对时各本来源另行标注。</span></div></div>
 </div>
 <section class="endpage">
   <div class="kicker" style="justify-content:center">样章附记</div>
