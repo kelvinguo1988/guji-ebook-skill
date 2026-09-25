@@ -5,7 +5,7 @@
 · 版式对齐 vRain（实测 010.png + canvas/*.cfg + canvas.pl）：
   - 单一粗外框(10px)+细内框(1px)围全对页，书口双细线 120px 居中
   - 上/下鱼尾=实心垂带五边形（rect50+tri30）贴版框，书口大题书名+页码
-  - 版框 y440..1810（上留 440px 天头置书眉+藏书印），界栏细线通高
+  - 版框 y245..1615（上下天头/地脚对称 245px；书眉+藏书印居右margin带），界栏细线通高
   - 句读圈一律朱砂色 #874434（用户定稿），位 x+.42em,y+.45em，末行 clamp 不压栏线
   - 注文体系：平衡式双小列（右ceil/左floor），朱色 #874434、0.75×正文，书名号→左侧黑侧线
   - 卷首封面叶：右半嵌卷端原叶书影（含南阳堂诸藏印），左半白叶
@@ -25,8 +25,8 @@ def px(v): return v*PXP
 CV_W, CV_H = 2480, 1860
 GUT_CX = CV_W/2                    # 1240
 LCW = 120                          # 书口宽
-FR_X0, FR_X1 = 375, 2105           # 版框左右（半叶 805px×10 列 = 列宽 80.5）
-FR_Y0, FR_Y1 = 440, 1810           # 版框上下（天头 440 置书眉/印章，同 010.png）
+FR_X0, FR_X1 = 150, 2300           # 版框左右（再放大：半叶 1015px×10 列 = 列宽 101.5）
+FR_Y0, FR_Y1 = 100, 1760           # 版框上下（再放大：框高 1660，上下边距 85/85 含外框线）
 HALF_W = (FR_X1-FR_X0-LCW)/2       # 805
 LEAF_COL = 10                      # 半叶 10 行（列）
 ROWS = 23                          # 行 23 字（南阳堂叶面实测）
@@ -35,12 +35,12 @@ ROW_H = (FR_Y1-FR_Y0)/ROWS         # 59.57
 OUT_W, OUT_H = 10, 1               # 外框粗线 / 内框细线 px
 INK = (0.08, 0.07, 0.065)
 RED = (0.53, 0.27, 0.20)           # vRain 圈注色 #874434
-BIG = 72*PXP                       # 正文 72px ≈ 0.95×行高·密排
-DATI = 76*PXP                      # 卷端大题（16 字均布全列·行距 1.4375 行；84 会压框）
-PIANTI = 78*PXP                    # 篇题（行距 1.5 行）
-BJ = 62*PXP                        # 牌记
-SMALL = 52*PXP                     # 篇题下署
-NOTE = 36*PXP                      # 双行小注：半列宽 40.25px 内 ≤0.94×列宽（vRain 注/列比例换算）
+BIG = 89*PXP                       # 正文 72px ≈ 0.95×行高·密排
+DATI = 95*PXP                      # 卷端大题（16 字均布全列·行距 1.4375 行；84 会压框）
+PIANTI = 96*PXP                    # 篇题（行距 1.5 行）
+BJ = 77*PXP                        # 牌记
+SMALL = 65*PXP                     # 篇题下署
+NOTE = 46.5*PXP                      # 双行小注：半列宽 40.25px 内 ≤0.94×列宽（vRain 注/列比例换算）
 STROKE_W = 1.0
 WHITE = (0.97, 0.94, 0.87)
 
@@ -253,23 +253,26 @@ def page_chrome(doc):
         page.draw_line(fitz.Point(px(gx), px(FR_Y0)), fitz.Point(px(gx), px(FR_Y1)), color=INK, width=px(OUT_H))
     # 鱼尾：实心垂带五边形（rect 50 + tri 30），上贴版框顶、下贴版框底（对鱼尾）
     l, r = GUT_CX-LCW/2, GUT_CX+LCW/2
-    page.draw_line(fitz.Point(px(l), px(445)), fitz.Point(px(r), px(445)), color=INK, width=px(1))
+    page.draw_line(fitz.Point(px(l), px(105)), fitz.Point(px(r), px(105)), color=INK, width=px(1))
     page.draw_polyline([fitz.Point(px(p[0]), px(p[1])) for p in
-                        [(l,450),(r,450),(r,530),(GUT_CX,500),(l,530),(l,450)]], color=INK, width=0, fill=INK)
+                        [(l,110),(r,110),(r,190),(GUT_CX,150),(l,190),(l,110)]], color=INK, width=0, fill=INK)
     page.draw_polyline([fitz.Point(px(p[0]), px(p[1])) for p in
-                        [(l,1800),(r,1800),(r,1720),(GUT_CX,1750),(l,1720),(l,1800)]], color=INK, width=0, fill=INK)
+                        [(l,1750),(r,1750),(r,1670),(GUT_CX,1710),(l,1670),(l,1750)]], color=INK, width=0, fill=INK)
     # 书口题名
-    tsize = 70*PXP
-    cy = px(850) + tsize*0.36
+    tsize = 86*PXP
+    cy = px(652) + tsize*0.36
     for ch in '紫微斗數全書':
         put_char(page, px(GUT_CX), cy, ch, tsize, INK)
-        cy += px(77.5)
+        cy += px(94)
     # 天头右上：藏书印 + 书眉竖排书名
-    draw_shuyin(page, px(2252), px(66), px(104), px(312))   # 长条形鉴藏章（vYinn 式，用户定稿）
-    hy = px(90)
+    draw_shuyin(page, px(20), px(1470), px(104), px(312))   # 长条形鉴藏章（vYinn 式）置左下角（用户定稿）
+    hy, msz, mcol = px(110), 46*PXP, (0.30, 0.27, 0.24)
     for ch in '紫微斗數全書':
-        put_char(page, px(2400), hy, ch, 34*PXP, (0.35, 0.32, 0.28))
-        hy += px(56)
+        tw = tlen(ch, msz)
+        for dx, dy in ((0, 0), (2.2*PXP, 0), (0, 2.2*PXP), (2.2*PXP, 2.2*PXP)):
+            page.insert_text((px(2400)-tw/2+dx, hy+msz*0.36+dy), ch, fontname='kai',
+                             fontsize=msz, color=mcol, fill=mcol)
+        hy += px(74)
     return page
 
 CN_NUM = ['〇','一','二','三','四','五','六','七','八','九','十',
@@ -277,7 +280,7 @@ CN_NUM = ['〇','一','二','三','四','五','六','七','八','九','十',
 
 def render_pair_page(doc, leaf, folio, marks, src=None, cap=None):
     """一一对应对页（用户定稿）：左半=原书叶截图、右半=对应复刻叶；无扫描则左半留白叶（画界栏）
-    叶图按原叶比例整叶完整（宽≤半叶区-60、高≤1230），题注居中于图下"""
+    叶图按原叶比例整叶完整（宽≤半叶区-60、高≤1520），题注居中于图下"""
     page = page_chrome(doc)
     # 右半：复刻叶（界栏 + 正文）
     for c in range(1, LEAF_COL):
@@ -285,15 +288,15 @@ def render_pair_page(doc, leaf, folio, marks, src=None, cap=None):
         page.draw_line(fitz.Point(px(x), px(FR_Y0)), fitz.Point(px(x), px(FR_Y1)), color=INK, width=px(OUT_H))
     draw_halfleaf(page, leaf, FR_X1, marks)
     fs = CN_NUM[folio] if folio < len(CN_NUM) else str(folio)
-    put_char(page, px(GUT_CX), px(1560), fs, 34*PXP, INK)
+    put_char(page, px(GUT_CX), px(1510), fs, 41*PXP, INK)
     # 左半：原书叶截图或白叶
     cx_l = (FR_X0 + (GUT_CX - LCW/2)) / 2
     if src:
         im = Image.open(os.path.join(ROOT, 'assets', src))
-        sc = min((HALF_W-60)/im.width, 1230/im.height)
+        sc = min((HALF_W-60)/im.width, 1520/im.height)
         w, h = im.width*sc, im.height*sc
         x = cx_l - w/2
-        y = FR_Y0 + 40 + (1230-h)/2
+        y = FR_Y0 + 40 + (1520-h)/2
         page.insert_image(fitz.Rect(px(x), px(y), px(x+w), px(y+h)),
                           filename=os.path.join(ROOT, 'assets', src))
         page.draw_rect(fitz.Rect(px(x), px(y), px(x+w), px(y+h)), color=INK, width=px(2))
@@ -320,10 +323,10 @@ def render_spread(doc, lf_r, lf_l, folio, marks, cover=False):
             page.draw_line(fitz.Point(px(x), px(FR_Y0)), fitz.Point(px(x), px(FR_Y1)), color=INK, width=px(OUT_H))
     if folio is not None:
         fs = CN_NUM[folio] if folio < len(CN_NUM) else str(folio)
-        put_char(page, px(GUT_CX), px(1560), fs, 34*PXP, INK)
+        put_char(page, px(GUT_CX), px(1510), fs, 41*PXP, INK)
     if cover:
         # 封面叶：右半嵌卷端书影（原叶扫描裁框，含诸家藏印）——vRain 天头/卷端嵌真叶书影的做法
-        iw, ih = 690, int(690*1340/875)
+        iw, ih = 900, int(900*1340/875)
         ix = ((GUT_CX+LCW/2) + FR_X1)/2 - iw/2      # 书影置右半（前片惯例）
         iy = (FR_Y0 + FR_Y1)/2 - ih/2
         page.insert_image(fitz.Rect(px(ix), px(iy), px(ix+iw), px(iy+ih)),
