@@ -38,14 +38,32 @@ examples/
 └── */assets/                 ← 书影/卷端叶/宣纸底图（公有领域图版）
 ```
 
-## 安装到 Agent（Claude Code / Claude.ai / ZCode / 其他 Agent Skills 运行时）
+## 安装到 Agent（含国内主流 agent 兼容性）
+
+本仓库即标准 Agent Skill 包（`SKILL.md` + `scripts/` + `examples/`）。管线全部是 **Python CLI 脚本**，不绑定任何 agent 运行时——只要 agent 能读写文件、执行 shell 命令，就能完整使用。
+
+### 国内主流 agent 兼容性
+
+| Agent | 支持方式 | 安装/调用 |
+|---|---|---|
+| **ZCode（智谱）** | ✅ 原生（Agent Skills 目录，本仓库已实测安装） | `ln -sfn <仓库路径> ~/.agents/skills/guji-ebook`，新会话即自动加载；或项目级放 `.agents/skills/` |
+| **Claude Code / claude.ai** | ✅ 原生（Agent Skills 规范发起者） | 克隆到 `~/.claude/skills/guji-ebook`；claude.ai 打包 zip 上传 |
+| **通义灵码 / 文心快码 / Trae / Qoder / CodeBuddy 等 IDE 助手** | 🔧 规则注入（各家 rules 机制名不同，做法通用） | 克隆到项目内，在 rules/智能体规则里写一句：「古籍制作任务先读 `.agents/skills/guji-ebook/SKILL.md` 并按 §0.1 分诊执行」 |
+| **Cline / Roo Code / Cursor 等海外 coding agent** | 🔧 规则注入（同上） | 同上 |
+| **Coze / Dify 等工作流平台** | ⚠️ 无文件执行环境，不能原生装 | 把 SKILL.md 导入知识库作规范文档；将两个 build 脚本封装为插件/代码节点调用 |
+
+> 判断标准很简单：agent 有没有「工作目录 + shell 执行权」。有 → 三档①②；纯对话/编排平台 → 三档③。
+
+### 安装命令
 
 本仓库即标准 Agent Skill 包（`SKILL.md` + `scripts/` + `examples/`）。按你的 agent 选择一种安装方式：
 
 ```bash
-# 方式一：Claude Code / ZCode / 兼容 .agents 约定的 agent —— 整仓克隆为个人技能
-git clone --depth 1 https://github.com/kelvinguo1988/guji-ebook-skill.git ~/.claude/skills/guji-ebook
-# ZCode 用户目录为 ~/.agents/skills/guji-ebook；项目级安装则放 <项目>/.claude/skills/ 或 .agents/skills/
+# 方式一：ZCode / Claude Code / 兼容 .agents 约定的 agent —— 整仓克隆为个人技能
+git clone --depth 1 https://github.com/kelvinguo1988/guji-ebook-skill.git ~/.agents/skills/guji-ebook   # ZCode（实测）
+# Claude Code 为 ~/.claude/skills/guji-ebook；项目级安装放 <项目>/.agents/skills/ 或 .claude/skills/
+# 已克隆本仓库？直接软链，仓库 git pull 后技能同步更新：
+ln -sfn "$(pwd)" ~/.agents/skills/guji-ebook
 
 # 方式二：claude.ai 网页版 —— 打包上传（Settings → Capabilities → Skills）
 git clone --depth 1 https://github.com/kelvinguo1988/guji-ebook-skill.git
