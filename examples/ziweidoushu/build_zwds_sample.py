@@ -90,16 +90,19 @@ p.fu{ font-size:12.5pt; line-height:2.3; letter-spacing:.05em; text-align:justif
 .kwcard p{ font-size:8.7pt; line-height:1.88; color:var(--ink2); text-align:justify; }
 
 /* 原书叶对照（本样章特色组件）：扫描叶图 + 对应原文区间标注 */
-/* 叶图按原叶比例完整显示：宽度定 58mm、高度随图（0.576 比例 ≈100mm），一帧约半页，绝不裁切 */
-.leafmap{ margin:5mm 0 6mm; border:.7pt solid var(--rule); background:#FBF7EC; padding:4.6mm 5.2mm; }
-.leafmap .lm-t{ font-family:var(--song); font-size:9pt; letter-spacing:.35em; color:var(--cinnabar); margin-bottom:3mm; }
-.leafmap .lm-item{ display:grid; grid-template-columns:58mm 1fr; gap:6mm; margin-bottom:5mm; break-inside:avoid; }
-.leafmap .ph{ width:58mm; border:.7pt solid var(--rule); background:#FDFBF4; padding:1.6mm; }
-.leafmap .ph img{ display:block; width:100%; height:auto; }
-.leafmap .lm-meta{ font-size:9pt; line-height:2.0; color:var(--ink2); text-align:justify; padding-top:2mm; }
-.leafmap .lm-meta b{ font-family:var(--song); color:var(--ink); }
-.leafmap .lm-meta .rng{ color:var(--cinnabar); }
-.leafmap .lm-src{ display:block; margin-top:2mm; font-size:7.8pt; color:var(--note); letter-spacing:.08em; line-height:1.9; text-align:justify; }
+/* 原书叶对照：固定页设计（SKILL.md §4——固定分区禁止流式赌分页）
+   版心宽 145mm；每页两帧并排（帧宽 62mm×2 + gap 6mm = 130mm）；
+   帧高 = 图 58mm 宽 ×(1562/900) ≈ 100.7mm + 题注 ≈26mm = 127mm，页心高 223mm，双帧纵向余量充足 */
+.leafpage{ break-before:page; page-break-after:always; padding-top:2mm; }
+.leafpage h2.sec{ margin-top:4mm; }
+.leafrow{ display:grid; grid-template-columns:62mm 62mm; gap:6mm; justify-content:center; margin-bottom:7mm; }
+.lframe{ break-inside:avoid; }
+.lframe .ph{ width:62mm; border:.7pt solid var(--rule); background:#FDFBF4; padding:1.6mm; }
+.lframe .ph img{ display:block; width:100%; height:auto; }
+.lframe .lmeta{ margin-top:2.6mm; font-size:8.8pt; line-height:1.95; color:var(--ink2); text-align:justify; }
+.lframe .lmeta b{ font-family:var(--song); font-size:9.2pt; color:var(--ink); }
+.lframe .lmeta .rng{ color:var(--cinnabar); }
+.lframe .lmeta .lsrc{ display:block; margin-top:1.6mm; font-size:7.6pt; color:var(--note); line-height:1.8; }
 
 .endpage{ page:full; break-before:page; text-align:center; padding-top:74mm;
   width:185mm; height:260mm;
@@ -188,21 +191,27 @@ for kt, kv in [
 ]:
     body.append(f'<div class="kwcard"><span class="kt">{esc(kt)}</span><p>{esc(kv)}</p></div>')
 body.append('</div>')
-# 原书叶对照（特色组件）
-lm = ['<h2 class="sec">原书叶对照</h2>',
-      '<p class="sec-note">本篇对应原书叶逐一列置，四叶齐备、整叶完整，无一缺省。</p>',
-      '<div class="leafmap"><div class="lm-t">卷首 · 太微赋 · 叶位表</div>']
-src_note = ('<span class="lm-src">叶图来源：南阳堂刊本（明代 · 日本公文书馆藏 · 书格数字化），'
-            '全册统一，各叶不再重注；多版本比对时各本来源另行标注。</span>')
-for li, L in enumerate(LEAF_MAP):
+# 原书叶对照（特色组件）：固定页设计——每页两帧并排，尺寸预算固定，绝不裁切
+def leaf_frame(L, src_note=''):
     inner = (f'<img src="assets/{L["src"]}"/>' if L['src'] else
-             '<div class="hole">待补扫描叶<br/>（识典 SDZJ0170 对应叶）</div>')
-    tail = src_note if li == len(LEAF_MAP) - 1 else ''
-    lm.append(f'''<div class="lm-item"><div class="ph">{inner}</div>
-      <div class="lm-meta"><b>{esc(L['leaf'])}</b>　对应原文区间：<span class="rng">{esc(L['range'])}</span><br/>
-      版面特征：{esc(L['mark'])}{tail}</div></div>''')
-lm.append('</div>')
-body.append('\n'.join(lm))
+             '<div class="ph" style="height:100mm;display:flex;align-items:center;justify-content:center">'
+             '<div style="font-size:8.5pt;color:var(--note);letter-spacing:.15em">待补扫描叶</div></div>')
+    return (f'<div class="lframe"><div class="ph">{inner}</div>'
+            f'<div class="lmeta"><b>{esc(L["leaf"])}</b>　<span class="rng">{esc(L["range"])}</span><br/>'
+            f'版面特征：{esc(L["mark"])}{src_note}</div></div>')
+
+src_note = ('<span class="lsrc">叶图来源：南阳堂刊本（明代 · 日本公文书馆藏 · 书格数字化），'
+            '全册统一，各叶不再重注；多版本比对时各本来源另行标注。</span>')
+# 固定页一：标题 + 叶一 + 叶二
+body.append(f'''<section class="leafpage">
+  <h2 class="sec">原书叶对照</h2>
+  <p class="sec-note">本篇对应原书叶逐一列置，四叶齐备、整叶完整，无一缺省。</p>
+  <div class="leafrow">{leaf_frame(LEAF_MAP[0])}{leaf_frame(LEAF_MAP[1])}</div>
+</section>''')
+# 固定页二：叶三 + 叶四（末帧带来源注）
+body.append(f'''<section class="leafpage">
+  <div class="leafrow">{leaf_frame(LEAF_MAP[2])}{leaf_frame(LEAF_MAP[3], src_note)}</div>
+</section>''')
 # 跋
 body.append('''<section class="endpage">
   <div class="kicker" style="justify-content:center">样章附记</div>
