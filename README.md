@@ -48,9 +48,13 @@ examples/
 |---|---|---|
 | **ZCode（智谱）** | ✅ 原生（Agent Skills 目录，本仓库已实测安装） | `ln -sfn <仓库路径> ~/.agents/skills/guji-ebook`，新会话即自动加载；或项目级放 `.agents/skills/` |
 | **Claude Code / claude.ai** | ✅ 原生（Agent Skills 规范发起者） | 克隆到 `~/.claude/skills/guji-ebook`；claude.ai 打包 zip 上传 |
-| **通义灵码 / 文心快码 / Trae / Qoder / CodeBuddy 等 IDE 助手** | 🔧 规则注入（各家 rules 机制名不同，做法通用） | 克隆到项目内，在 rules/智能体规则里写一句：「古籍制作任务先读 `.agents/skills/guji-ebook/SKILL.md` 并按 §0.1 分诊执行」 |
+| **通义灵码 / 文心快码 / Trae / CodeBuddy 等 IDE 助手** | 🔧 规则注入（各家 rules 机制名不同，做法通用） | 克隆到项目内，在 rules/智能体规则里写一句：「古籍制作任务先读 `.agents/skills/guji-ebook/SKILL.md` 并按 §0.1 分诊执行」 |
+| **Qoder（阿里）** | 🔧 规则注入（有 `.qoder/rules/` 项目规则机制；是否原生加载 SKILL.md 目录以官方文档为准） | `git clone --depth 1 <仓库> .agents/skills/guji-ebook`，然后在 `.qoder/rules/guji-ebook.md` 写：「涉及古籍整理/复刻任务时，先读 .agents/skills/guji-ebook/SKILL.md，按 §0.1 分诊选品类 A/B 并执行对应脚本」 |
+| **WorkBuddy** | ⚠️ 机制以官方文档为准（若支持自定义规则/指令 → 同 Qoder 做法；若为纯对话助手 → 同第三档知识库替代） | 通用判断法见下节 |
 | **Cline / Roo Code / Cursor 等海外 coding agent** | 🔧 规则注入（同上） | 同上 |
 | **Coze / Dify 等工作流平台** | ⚠️ 无文件执行环境，不能原生装 | 把 SKILL.md 导入知识库作规范文档；将两个 build 脚本封装为插件/代码节点调用 |
+
+> **拿到任何新 agent（如 WorkBuddy），两分钟判断能不能用**：① 它的会话能否读写你的项目文件并执行终端命令？能 → 走「规则注入」档（克隆仓库 + 规则里指路 SKILL.md，即可完整使用两条管线）；② 只能聊天/编排 → 走「知识库替代」档（SKILL.md 作规范文档 + 脚本封装插件）。管线全是 Python CLI，无 agent 专有依赖。
 
 > 判断标准很简单：agent 有没有「工作目录 + shell 执行权」。有 → 三档①②；纯对话/编排平台 → 三档③。
 
