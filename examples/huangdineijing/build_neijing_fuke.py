@@ -91,20 +91,21 @@ def load_punct_index():
     return out
 
 def align_marks(main_stream, dz_stream, dz_marks):
-    """把殆知阁句读位置对齐到复刻正文流：difflib 全局对齐（容异体/异文）"""
-    import difflib
-    sm = difflib.SequenceMatcher(None, main_stream, dz_stream, autojunk=False)
-    dz2main = {}
-    for tag, i1, i2, j1, j2 in sm.get_opcodes():
-        if tag == 'equal':
-            for k in range(i2 - i1):
-                dz2main[j1 + k] = i1 + k
+    """句读对齐（快速版）：逐句锚定——句末前 12 字为 key 顺序 find（C 层），防雪崩。
+    替代 difflib（长流 O(n²) 曾致全本 40 分钟）。"""
     out = set()
-    for mpos in dz_marks:
-        for back in range(0, 4):
-            if mpos - 1 - back in dz2main:
-                out.add(dz2main[mpos - 1 - back])
-                break
+    i = 0
+    for mpos in sorted(dz_marks):
+        if mpos < 1 or mpos > len(dz_stream):
+            continue
+        key = dz_stream[max(0, mpos-12):mpos]
+        if len(key) < 4:
+            continue
+        p = main_stream.find(key, i)
+        if p < 0:
+            continue
+        out.add(p + len(key) - 1)
+        i = p + 1
     return out
 
 # ---------- 排版核心 ----------
@@ -356,14 +357,14 @@ def render_spread(doc, lf_r, lf_l, folio, pian_title, vol_label, marks_main, map
                      fontname='kai', fontsize=psz, color=INK, fill=INK)
     # 书房名 logo（底部 y=1680，40px 朱色——仿 cfg logo_position）
     lsz = px(40)
-    ltxt = '繭齋藏書'
+    ltxt = '郭仲和藏書'
     ly = px(1680)
     for ch in ltxt:
         page.insert_text((cx - tlen(ch, lsz)/2, ly), ch, fontname='kai', fontsize=lsz,
                          color=RED, fill=RED)
         ly += lsz*1.1
     # 藏书印：右上（样张位置）
-    draw_shuyin(page, px(CV_W - 320), px(60), '繭齋藏書')
+    draw_shuyin(page, px(20), px(1470), px(104), px(312))   # 长条鉴藏章「郭仲和藏書」置左下角（用户定稿）
     # 书眉（框外右上竖排书名，样张右缘）
     hsz = px(30)
     hy = px(60)
@@ -377,18 +378,10 @@ def render_spread(doc, lf_r, lf_l, folio, pian_title, vol_label, marks_main, map
         draw_halfleaf(page, lf_l, x_l, y0, marks_main, maps_l, 'l')
     return page
 
-def draw_shuyin(page, x, y, text4):
-    side = px(150)
-    page.draw_rect(fitz.Rect(x, y, x+side, y+side), color=RED, width=px(6))
-    order = [0, 2, 1, 3]
-    cell = side/2
-    for i, ch in enumerate(text4):
-        ccx = x + (1 if order[i] in (0, 2) else 0)*cell + cell/2
-        ccy = y + (0 if order[i] in (0, 1) else 1)*cell + cell/2
-        size = px(52)
-        tw = tlen(ch, size)
-        page.insert_text((ccx - tw/2, ccy + size*0.36), ch, fontname='kai', fontsize=size,
-                         color=RED, fill=RED)
+SEAL_PNG = os.path.join(ROOT, 'assets', 'seal_gzh.png')   # 朱文古玺「郭仲和藏書」（make_seal.py 合成，用户定稿）
+
+def draw_shuyin(page, x, y, w, h):
+    page.insert_image(fitz.Rect(x, y, x + w, y + h), filename=SEAL_PNG)
 
 VOLS = {1:(1,7),2:(8,16),3:(17,20),4:(21,30),5:(31,38),6:(39,45),7:(46,55),
         8:(56,61),9:(62,67),10:(68,70),11:(71,74),12:(75,81)}
