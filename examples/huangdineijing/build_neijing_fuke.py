@@ -316,6 +316,16 @@ def draw_fishtail(page, cx, fy, rect_h, tri_h, flip=False):
     page.draw_polyline([fitz.Point(*p) for p in pts] + [fitz.Point(*pts[0])],
                        color=INK, width=px(1.5), fill=INK)
 
+def cnum(n):
+    cn = ['〇','一','二','三','四','五','六','七','八','九']
+    if n < 10: return cn[n]
+    if n >= 100:
+        h, rest = n//100, n % 100
+        return cn[h] + '百' + (('零' + cnum(rest)) if 0 < rest < 10 else (cnum(rest) if rest else ''))
+    t, ones = n//10, n % 10
+    tens = {1:'十',2:'二十',3:'三十',4:'四十',5:'五十',6:'六十',7:'七十',8:'八十',9:'九十'}[t]
+    return tens + (cn[ones] if ones else '')
+
 def render_spread(doc, lf_r, lf_l, folio, pian_title, vol_label, marks_main, maps_r, maps_l):
     page = doc.new_page(width=px(CV_W), height=px(CV_H))
     page.insert_font(fontname='kai', fontfile=KAI)
@@ -340,11 +350,7 @@ def render_spread(doc, lf_r, lf_l, folio, pian_title, vol_label, marks_main, map
                          color=INK, fill=INK)
         cy += tsize*0.9
     # 页码（pager_y=540，30px）
-    cn = ['〇','一','二','三','四','五','六','七','八','九','十']
-    if folio <= 10: fs = cn[folio]
-    elif folio < 20: fs = '十' + cn[folio-10]
-    elif folio == 20: fs = '二十'
-    else: fs = '二十' + cn[folio-20]
+    fs = cnum(folio)
     psz = px(30)
     page.insert_text((cx - tlen(fs, psz)/2, px(540) + psz), fs,
                      fontname='kai', fontsize=psz, color=INK, fill=INK)
@@ -384,44 +390,51 @@ def draw_shuyin(page, x, y, text4):
         page.insert_text((ccx - tw/2, ccy + size*0.36), ch, fontname='kai', fontsize=size,
                          color=RED, fill=RED)
 
+VOLS = {1:(1,7),2:(8,16),3:(17,20),4:(21,30),5:(31,38),6:(39,45),7:(46,55),
+        8:(56,61),9:(62,67),10:(68,70),11:(71,74),12:(75,81)}
+CN = ['一','二','三','四','五','六','七','八','九','十','十一','十二']
+
 def main():
-    n = int(sys.argv[1]) if len(sys.argv) > 1 else 1
-    e = BOOK[str(n)]
-    vol = next(v for v, (a, b) in [(v, (a, b)) for v, (a, b) in
-        {1:(1,7),2:(8,16),3:(17,20),4:(21,30),5:(31,38),6:(39,45),7:(46,55),
-         8:(56,61),9:(62,67),10:(68,70),11:(71,74),12:(75,81)}.items() if a <= n <= b])
-    vol_label = f'卷之{["一","二","三","四","五","六","七","八","九","十","十一","十二"][vol-1]}'
-    pian_title = e['title']
+    all_mode = os.environ.get('FK_ALL') == '1'
     punct = load_punct_index()
-    marks = punct.get(n, ('', set()))
-    items = [(k, t.strip()) for pp in e['paras'] for k, t in pp if t.strip()]
-    leaves, mark_positions, big_total = typeset_pian(
-        n, vol_label, pian_title, items, marks)
-
-    # 大字格位 → 全局大字编号（跳过○，与句读对齐同体系）
-    maps_per_leaf = []
-    gi = 0
-    for li, lf in enumerate(leaves):
-        m = {}
-        for (col, row, kind, ch, _red) in lf.cells:
-            if kind == 'big' and ch != '○':
-                m[(col, row)] = gi
-                gi += 1
-        maps_per_leaf.append(m)
-
     doc = fitz.open()
-    spreads = []
-    for li in range(0, len(leaves), 2):
-        rf = leaves[li]
-        lf2 = leaves[li+1] if li+1 < len(leaves) else None
-        spreads.append((rf, lf2, li+1))
-    for lf_r, lf_l, folio in spreads:
-        maps_r = maps_per_leaf[folio-1]
-        maps_l = maps_per_leaf[folio] if folio < len(leaves) else {}
-        render_spread(doc, lf_r, lf_l, folio, pian_title, vol_label, mark_positions, maps_r, maps_l)
-    out = os.path.join(ROOT, '复刻-上古天真論篇第一.pdf') if n == 1 else os.path.join(ROOT, f'复刻-{pian_title}.pdf')
+    folio = 0            # 全书叶序（跨篇连续）
+    total_big = 0
+    for n in ([1] if not all_mode else range(1, 82)):
+        e = BOOK[str(n)]
+        vol = next(v for v, (a, b) in VOLS.items() if a <= n <= b)
+        vol_label = f'卷之{CN[vol-1]}'
+        pian_title = e['title']
+        marks = punct.get(n, ('', set()))
+        items = [(k, t.strip()) for pp in e['paras'] for k, t in pp if t.strip()]
+        leaves, mark_positions, big_total = typeset_pian(
+            n, vol_label, pian_title, items, marks)
+
+        maps_per_leaf = []
+        gi = 0
+        for lf in leaves:
+            m = {}
+            for (col, row, kind, ch, _red) in lf.cells:
+                if kind == 'big' and ch != '○':
+                    m[(col, row)] = gi
+                    gi += 1
+            maps_per_leaf.append(m)
+
+        for li in range(0, len(leaves), 2):
+            lf_r = leaves[li]
+            lf_l = leaves[li+1] if li+1 < len(leaves) else None
+            folio += 1
+            maps_r = maps_per_leaf[li]
+            maps_l = maps_per_leaf[li+1] if li+1 < len(leaves) else {}
+            render_spread(doc, lf_r, lf_l, folio, pian_title, vol_label, mark_positions, maps_r, maps_l)
+        total_big += big_total
+        print(f'  篇{n:02d} {pian_title}: {len(leaves)}叶', flush=True)
+    if all_mode:
+        out = os.path.join(ROOT, '素問復刻-全本.pdf')
+    else:
+        out = os.path.join(ROOT, '复刻-上古天真論篇第一.pdf') if n == 1 else os.path.join(ROOT, f'复刻-{pian_title}.pdf')
     doc.save(out, garbage=4, deflate=True)
-    print(f'{out}: {len(leaves)} 叶 / {len(spreads)} 对页, 大字 {gi}, 句读 {len(mark_positions)} 处')
+    print(f'{out}: {folio} 对页, 大字 {total_big}')
 
 if __name__ == '__main__':
     main()
