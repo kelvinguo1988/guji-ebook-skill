@@ -15,3 +15,7 @@ __pycache__/
 # 书影裁切中间原图
 **/assets/*_full.png
 **/assets/shitao_p5.png
+
+**/assets/full/
+**/assets/full_embed/
+**/epub_full_build/

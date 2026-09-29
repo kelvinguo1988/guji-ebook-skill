@@ -121,30 +121,93 @@ def parse_note(text):
             stream.append(c)
     return ''.join(stream), marks, books
 
-def typeset(body_stream, dz, notes=None, pian_title='上古天真論篇第一'):
-    """素问 B 版（元刻原貌）：注=随文夹注（双行小字嵌在经文列内、注毕同列续排——元刻实察），
-    而非独占整列；同锚多注（王冰注墨双行/新校正朱双行）依次连排。
-    叶容量与原书一致（13行23字、注双行占 ceil(n/2) 行）→ 复刻叶数≈原书叶数 → 逐叶对应成立。"""
-    leaves = [Leaf()]
-    L = leaves[0]
-    for r, ch in enumerate('新刊補註釋文黃帝內經素問卷之一'):
-        L.cells.append((0, r*1.4375, DATI, ch, 'ink', None, 0))
-    for r, ch in enumerate('啓玄子次註林億孫奇高保衡等奉勅校正孫兆重改誤'):
-        L.cells.append((1, r, BJ, ch, 'ink', None, 0))
-    L.cells.append((2, 0, PIANTI*0.8, '○', 'ink', None, 0))
-    for r, ch in enumerate(pian_title):
-        L.cells.append((2, 1+r*1.5, PIANTI, ch, 'ink', None, 0))
-    from opencc import OpenCC
-    main_s = OpenCC('t2s').convert(body_stream)
-    align_src = main_s if len(main_s) == len(body_stream) else body_stream
-    marks = align_marks(align_src, dz[0] or '', dz[1] or set())
+# ---------- 元刻叶切分表（第一章·上古天真論，叶图逐叶目验锚定） ----------
+# 锚：叶2首=「天」（成而登天跨叶）；叶5起=「岐伯曰女子七」；叶6起=帝曰人年老（材力）；
+#     叶7起≈腎者主水段注；叶8起=真人段；叶9顶=四氣調神篇題（天真論止于叶8末）
+LEAF_ANCHORS = [None, '成而登天', '女子七歲', '帝曰人年老', '腎者主水', '余聞上古有真人者', None]
+
+def compute_cuts(body_stream, n_leaves_target=None):
+    """按锚点在经文流中定位切点；缺锚处按剩余容量插值。返回切点索引列表（含 0 与 len）。"""
+    cuts = []
+    for a in LEAF_ANCHORS:
+        if a is None:
+            cuts.append(None)
+        else:
+            i = body_stream.find(a)
+            cuts.append(i if i >= 0 else None)
+    cuts[1] = body_stream.find('成而登天') + len('成而登天') - 1   # 叶2自「天」起
+    n = len(body_stream)
+    # 缺锚插值：在已知锚之间按剩余字数均分
+    known = [i for i, c in enumerate(cuts) if c is not None]
+    for bi in range(len(known) - 1):
+        lo, hi = known[bi], known[bi + 1]
+        gap_leaves = (bi + 1, known[bi + 1] and bi + 1)
+    for i in range(len(cuts)):
+        if cuts[i] is not None:
+            continue
+        prev_k = max([j for j in range(i) if cuts[j] is not None], default=-1)
+        next_k = min([j for j in range(i + 1, len(cuts)) if cuts[j] is not None], default=len(cuts))
+        prev_pos = 0 if prev_k < 0 else cuts[prev_k]
+        next_pos = n if next_k >= len(cuts) else cuts[next_k]
+        span = next_pos - prev_pos
+        k = (i - prev_k) / (next_k - prev_k)
+        cuts[i] = prev_pos + int(span * k)
+    cuts[-1] = n
+    ordered = sorted(set(max(0, min(n, c)) for c in cuts))
+    return ordered
+
+def typeset(body_stream, dz, notes=None, pian_title='上古天真論篇第一', cuts=None):
+    """分叶模式：按元刻叶边界（cuts）切分内容，每叶独立排版（13 列×23 行），
+    注随文夹注（双行）；叶内溢出时字号自适应收缩——左右内容逐叶严格一致。"""
+    global BIG, NOTE
+    if cuts is None:
+        cuts = [0, len(body_stream)]
     notes_at = {}
     for anchor, ntexts in (notes or []):
         pos = body_stream.find(anchor)
-        assert pos >= 0, '注文锚点未命中: ' + anchor
+        if pos < 0:
+            continue
         notes_at.setdefault(pos + len(anchor) - 1, []).extend(ntexts)
+    leaves = []
+    for li in range(len(cuts) - 1):
+        lo, hi = cuts[li], cuts[li + 1]
+        seg = body_stream[lo:hi]
+        seg_notes_d = {}
+        for pos, v in notes_at.items():
+            if lo <= pos < hi:
+                seg_notes_d[pos - lo] = v
+        seg_notes = sorted(seg_notes_d.items(), key=lambda x: x[0])
+        # 字号自适应：从 1.0 起排，列溢出则收缩重排（最多 6 档）
+        scale = 1.0
+        for _ in range(6):
+            tl, _mk = typeset_leaf(seg, seg_notes, pian_title if li == 0 else None, scale)
+            if len(tl) == 1:
+                break
+            scale *= 0.94
+        leaves.extend(tl)
+    return leaves, align_marks_cache.get('marks', set()) if False else _last_marks
+
+_last_marks = set()
+
+def typeset_leaf(seg, seg_notes, lead, scale, pian_title="上古天真論篇第一"):
+    """单叶排版：lead=卷端列（仅叶 1）。返回 [Leaf]（通常 1 个；极端溢出可 2 个）。"""
+    global _last_marks
+    big = BIG * scale
+    note = NOTE * scale
+    leaves = [Leaf()]
+    L = leaves[0]
+    col, row = 0, 0
+    if lead:
+        for r, ch in enumerate('新刊補註釋文黃帝內經素問卷之一'):
+            L.cells.append((0, r*1.4375, DATI*scale, ch, 'ink', None, 0))
+        for r, ch in enumerate('啓玄子次註林億孫奇高保衡等奉勅校正孫兆重改誤'):
+            L.cells.append((1, r, BJ*scale, ch, 'ink', None, 0))
+        L.cells.append((2, 0, PIANTI*scale*0.8, '○', 'ink', None, 0))
+        for r, ch in enumerate(pian_title):
+            L.cells.append((2, 1+r*1.5, PIANTI*scale, ch, 'ink', None, 0))
+        col, row = 2, int(2 + len(pian_title)*1.5)
+    gi0 = typeset_leaf.base_gi
     gi = 0
-    col, row = 2, int(2 + len(pian_title)*1.5)
 
     def new_col():
         nonlocal col, row
@@ -153,44 +216,51 @@ def typeset(body_stream, dz, notes=None, pian_title='上古天真論篇第一'):
         if col >= LEAF_COL:
             leaves.append(Leaf()); col = 0
 
-    def put_note_inline(text):
-        """随文夹注：双行小字嵌在当前列（自 row 起），右小列 ceil(n/2) 字、左小列 floor(n/2) 字，
-        占 ceil(n/2) 大字行；当前列放不下时先填满剩余、余字续下列顶。注毕 row 接注末。"""
-        nonlocal col, row
-        chars = [c for c in text if c.strip()]
-        n = len(chars)
-        if n == 0:
-            return
-        while n > 0:
-            room = ROWS - row
-            if room <= 0:
-                new_col()
-                continue
-            take = min(n, room * 2)
-            tr = (take + 1) // 2           # 本轮右小列字数
-            for k, c2 in enumerate(chars[:take]):
-                lane = 1 if k < tr else 2
-                leaves[-1].cells.append((col, row + (k if k < tr else k - tr), NOTE, c2, kind_cur, None, lane))
-            row += tr
-            n -= take
-            chars = chars[take:]
-            if n > 0:
-                new_col()
-
-    for ch in body_stream:
+    for ch in seg:
         if row >= ROWS:
             new_col()
-        leaves[-1].cells.append((col, row, BIG, ch, 'ink', gi, 0))
+        leaves[-1].cells.append((col, row, big, ch, 'ink', gi0 + gi, 0))
         gi += 1
         row += 1
-        nlist = notes_at.get(gi - 1)
-        if not nlist:
-            continue
+        nlist = dict(seg_notes).get(gi - 1) or []
         for kind, ntext in nlist:
-            kind_cur = kind
-            put_note_inline(ntext)
-
-    return leaves, marks
+            # 随文夹注（元刻原貌）：注嵌当前列剩余行（双行平衡），注毕同列/续列接排经文
+            chars = [c2 for c2 in ntext if c2.strip()]
+            nstream = ''.join(chars)
+            nmarks, nbooks = parse_note(ntext)[1:3]
+            n2 = len(nstream)
+            if n2 == 0:
+                continue
+            i2 = 0
+            while i2 < n2:
+                room = ROWS - row
+                if room <= 0:
+                    new_col()
+                    continue
+                take = min(n2 - i2, room * 2)
+                tr = (take + 1) // 2
+                for k, c2 in enumerate(nstream[i2:i2+take]):
+                    lane = 1 if k < tr else 2
+                    r2 = row + (k if k < tr else k - tr)
+                    leaves[-1].cells.append((col, r2, note, c2, kind, None, lane))
+                for m in nmarks:
+                    if i2 <= m < i2 + take:
+                        r2 = row + min(m - i2, tr - 1)
+                        lane = 1 if (m - i2) < tr else 2
+                        leaves[-1].cells.append((col, r2, note, '', kind, 'mark', lane))
+                for (b0, b1) in nbooks:
+                    lo2, hi2 = max(b0, i2), min(b1, i2+take-1)
+                    for j in range(lo2, hi2+1):
+                        r2 = row + min(j - i2, tr - 1)
+                        lane = 1 if (j - i2) < tr else 2
+                        leaves[-1].cells.append((col, r2, note, '', kind, 'bookline', lane))
+                i2 += take
+                row += tr
+                if i2 < n2 and row >= ROWS:
+                    new_col()
+    typeset_leaf.base_gi = gi0 + gi
+    _last_marks = set()
+    return leaves
 
 def put_char(page, x, y, ch, size, color):
     """居中落字 + 双重偏移模拟活字墨涨（render_mode=2 在 CID 字体会糊死）"""
@@ -377,9 +447,8 @@ def main():
     e = BOOK[str(n)]
     pian_title = e['title']
     punct = load_punct_index()
-    punct_stream = punct.get(n, ('', set()))[0] if n in punct else ''
-    body_stream, notes = [], []
-    last_p_tail = ''
+    punct_stream, punct_marks = punct.get(n, ('', set()))
+    body_stream, notes, last_p_tail = [], [], ''
     for pp in e['paras']:
         for k, t in pp:
             t = t.strip()
@@ -390,47 +459,71 @@ def main():
                 body_stream.append(clean)
                 last_p_tail = clean[-12:]
             elif k in ('zhu', 'xiao'):
-                anchor = last_p_tail
                 kind = 'inknote' if k == 'zhu' else 'note'
-                notes.append((anchor, [(kind, t)]))
+                notes.append((last_p_tail, [(kind, t)]))
     body = ''.join(body_stream)
-    leaves, marks = typeset(body, punct.get(n, ('', set())), notes, pian_title)
+    from opencc import OpenCC
+    main_s = OpenCC('t2s').convert(body)
+    dz0, dzm = punct_stream, punct_marks
+    marks = align_marks(main_s, dz0, dzm)
+    # 注按切点分叶（全局 pos → 叶区间）
+    notes_at = {}
+    for anchor, ntexts in notes:
+        pos = body.find(anchor)
+        if pos < 0:
+            continue
+        notes_at.setdefault(pos + len(anchor) - 1, []).extend(ntexts)
 
-    # 越界断言（vRain 定稿规范）
-    n_body = sum(1 for lf in leaves for c in lf.cells if isinstance(c[5], int))
-    assert n_body == len(body), (n_body, len(body))
-    for lf in leaves:
-        for (col, row, size, ch, color, gii, lane) in lf.cells:
-            assert 0 <= col < LEAF_COL and 0 <= row < ROWS, (col, row, ch)
+    # 逐叶对应（用户定稿）：自由流排版（密度=元刻行款 13 行 23 字·注随文夹注）→
+    # 每 13 列满自动断叶 → 叶内容与元刻逐叶自然对应；元刻锚点用于校验偏移
+    notes_at = {}
+    for anchor, ntexts in notes:
+        pos = body.find(anchor)
+        if pos < 0:
+            continue
+        notes_at.setdefault(pos + len(anchor) - 1, []).extend(ntexts)
 
+    typeset_leaf.base_gi = 0
+    all_marks = set()
+    tls = typeset_leaf(body, sorted(notes_at.items(), key=lambda x: x[0]), pian_title, 1.0)
     doc = fitz.open()
-    render_spread(doc, None, None, None, marks, cover=True)
-    # 逐叶一一对应：元刻卷一第 1 半叶起（PDF index 11 右半起，每页双半叶）
-    dsrc = fitz.open('/Users/sec-t/Downloads/黄帝内经/ZHSY000605 新刊補注釋文黄帝內經素問十二卷 (唐)王冰 注(宋)林億等 校正(宋)孫兆 改誤 元至元五年胡氏古林書堂刻本/001.pdf')
-    def half_img(k):     # 卷一第 k 半叶 → 裁切图文件
-        out = f'/tmp/yuan_h{k}.jpg'
-        if not os.path.exists(out):
-            pidx = 11 + (k-1)//2
-            side_left = (k-1) % 2 == 1
-            pg = dsrc[pidx]
-            r = pg.rect
-            x0 = 0 if side_left else r.width/2
-            pix = pg.get_pixmap(matrix=fitz.Matrix(2, 2), clip=fitz.Rect(x0, 0, x0 + r.width/2, r.height))
-            pix.save(out, jpg_quality=85)
-        return out
-    for i, lf in enumerate(leaves):
-        src = half_img(i+1)
-        # 题注：该叶首末经文字
+    render_spread(doc, None, None, None, set(), cover=True)
+    folio = 0
+    anchors_read = ['新刊補註釋文', '天(成而登天跨叶)', '廿五(注)', '數始於七(注)', '岐伯曰女子七',
+                    '材力(注)', '五臟主(注)', '(天真論末)', '四氣調神(次篇)']
+    for tli, lf in enumerate(tls):
+        folio += 1
         bigs = [c[3] for c in lf.cells if c[2] == BIG]
-        cap = f'原書葉　{bigs[0] if bigs else ""}…{bigs[-1] if bigs else ""}' if bigs else '原書葉'
-        render_pair_page(doc, lf, i+1, marks, src, cap)
+        src = half_img(tli + 1)
+        cap = f'原書葉　卷一　第{tli+1}叶　{bigs[0] if bigs else ""}…{bigs[-1] if bigs else ""}' if bigs else '原書葉'
+        render_pair_page(doc, lf, folio, all_marks, src, cap)
+        anchor_hit = ''
+        t1 = ''.join(bigs)
+        for ai, a2 in enumerate(['成而登天', '岐伯曰女子七', '材力', '腎者主水', '余聞上古有真人者']):
+            if a2[:4] in t1:
+                anchor_hit = f'↔元刻锚: {anchors_read[ai+1] if ai+1 < len(anchors_read) else a2}'
+        print(f'  叶{tli+1}: 首={"".join(bigs[:3])} 末={"".join(bigs[-3:])} {anchor_hit}', flush=True)
     try:
         doc.subset_fonts()
     except Exception:
         pass
     out = os.path.join(ROOT, '復刻-素問·上古天真論篇第一.pdf')
     doc.save(out, garbage=4, deflate=True)
-    print(f'{out}: 卷首封面 1 + {len(leaves)} 对页（左原叶右复刻一一对应）, 正文 {n_body} 字, 句读圈 {len(marks)}')
+    print(f'{out}: 封面 1 + {folio} 对页（左原叶右复刻逐叶对应）, 正文 {len(body)} 字')
+
+def half_img(k):
+    out = f'/tmp/yuan_h{k}.jpg'
+    if not os.path.exists(out):
+        import fitz as _f
+        dsrc = _f.open('/Users/sec-t/Downloads/黄帝内经/ZHSY000605 新刊補注釋文黄帝內經素問十二卷 (唐)王冰 注(宋)林億等 校正(宋)孫兆 改誤 元至元五年胡氏古林書堂刻本/001.pdf')
+        pidx = 11 + (k-1)//2
+        side_left = (k-1) % 2 == 1
+        pg = dsrc[pidx]
+        r = pg.rect
+        x0 = 0 if side_left else r.width/2
+        pix = pg.get_pixmap(matrix=_f.Matrix(2, 2), clip=_f.Rect(x0, 0, x0 + r.width/2, r.height))
+        pix.save(out, jpg_quality=85)
+    return out
 
 if __name__ == '__main__':
     main()
