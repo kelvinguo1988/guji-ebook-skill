@@ -21,7 +21,7 @@ LCW = 120                          # 书口宽
 FR_X0, FR_X1 = 150, 2300           # 版框左右（再放大：半叶 1015px×10 列 = 列宽 101.5）
 FR_Y0, FR_Y1 = 100, 1760           # 版框上下（再放大：框高 1660，上下边距 85/85 含外框线）
 HALF_W = (FR_X1-FR_X0-LCW)/2       # 805
-LEAF_COL = 10                      # 半叶 10 行（列）
+LEAF_COL = 13                      # 半叶 13 行（元刻素问著录：每半叶十三行）
 ROWS = 23                          # 行 23 字（南阳堂叶面实测）
 COL_W = HALF_W/LEAF_COL            # 80.5
 ROW_H = (FR_Y1-FR_Y0)/ROWS         # 59.57
@@ -121,10 +121,10 @@ def parse_note(text):
             stream.append(c)
     return ''.join(stream), marks, books
 
-def typeset(body_stream, dz=(None, set()), notes=None, pian_title='上古天真論篇第一'):
-    """素问卷端（元刻实察）：col0 大题 DATI、col1 题署 BJ 满列、col2 ○+篇题（PIANTI）后正文接排；
-    注=锚点触发、同锚多注连排（王冰注 inknote 墨双行 / 新校正 note 朱双行），
-    每注独占双行列段（右小列满→左小列→溢出续列），注毕同列续排。"""
+def typeset(body_stream, dz, notes=None, pian_title='上古天真論篇第一'):
+    """素问 B 版（元刻原貌）：注=随文夹注（双行小字嵌在经文列内、注毕同列续排——元刻实察），
+    而非独占整列；同锚多注（王冰注墨双行/新校正朱双行）依次连排。
+    叶容量与原书一致（13行23字、注双行占 ceil(n/2) 行）→ 复刻叶数≈原书叶数 → 逐叶对应成立。"""
     leaves = [Leaf()]
     L = leaves[0]
     for r, ch in enumerate('新刊補註釋文黃帝內經素問卷之一'):
@@ -135,12 +135,9 @@ def typeset(body_stream, dz=(None, set()), notes=None, pian_title='上古天真�
     for r, ch in enumerate(pian_title):
         L.cells.append((2, 1+r*1.5, PIANTI, ch, 'ink', None, 0))
     from opencc import OpenCC
-    _t2s = OpenCC('t2s')
-    main_s = _t2s.convert(body_stream)
-    if len(main_s) == len(body_stream) and dz[0]:
-        marks = align_marks(main_s, dz[0], dz[1])
-    else:
-        marks = set()
+    main_s = OpenCC('t2s').convert(body_stream)
+    align_src = main_s if len(main_s) == len(body_stream) else body_stream
+    marks = align_marks(align_src, dz[0] or '', dz[1] or set())
     notes_at = {}
     for anchor, ntexts in (notes or []):
         pos = body_stream.find(anchor)
@@ -156,6 +153,30 @@ def typeset(body_stream, dz=(None, set()), notes=None, pian_title='上古天真�
         if col >= LEAF_COL:
             leaves.append(Leaf()); col = 0
 
+    def put_note_inline(text):
+        """随文夹注：双行小字嵌在当前列（自 row 起），右小列 ceil(n/2) 字、左小列 floor(n/2) 字，
+        占 ceil(n/2) 大字行；当前列放不下时先填满剩余、余字续下列顶。注毕 row 接注末。"""
+        nonlocal col, row
+        chars = [c for c in text if c.strip()]
+        n = len(chars)
+        if n == 0:
+            return
+        while n > 0:
+            room = ROWS - row
+            if room <= 0:
+                new_col()
+                continue
+            take = min(n, room * 2)
+            tr = (take + 1) // 2           # 本轮右小列字数
+            for k, c2 in enumerate(chars[:take]):
+                lane = 1 if k < tr else 2
+                leaves[-1].cells.append((col, row + (k if k < tr else k - tr), NOTE, c2, kind_cur, None, lane))
+            row += tr
+            n -= take
+            chars = chars[take:]
+            if n > 0:
+                new_col()
+
     for ch in body_stream:
         if row >= ROWS:
             new_col()
@@ -165,32 +186,10 @@ def typeset(body_stream, dz=(None, set()), notes=None, pian_title='上古天真�
         nlist = notes_at.get(gi - 1)
         if not nlist:
             continue
-        col += 1
-        row = 0
-        if col >= LEAF_COL:
-            leaves.append(Leaf()); col = 0
         for kind, ntext in nlist:
-            nstream, nmarks, nbooks = parse_note(ntext)
-            i2 = 0
-            while i2 < len(nstream):
-                for lane in (1, 2):
-                    seg = nstream[i2:i2+ROWS]
-                    if not seg:
-                        break
-                    for k, c2 in enumerate(seg):
-                        leaves[-1].cells.append((col, k, NOTE, c2, kind, None, lane))
-                    for m in nmarks:
-                        if i2 <= m < i2 + len(seg):
-                            leaves[-1].cells.append((col, m-i2, NOTE, '', kind, 'mark', lane))
-                    for (b0, b1) in nbooks:
-                        lo, hi = max(b0, i2), min(b1, i2+len(seg)-1)
-                        for j in range(lo, hi+1):
-                            leaves[-1].cells.append((col, j-i2, NOTE, '', kind, 'bookline', lane))
-                    i2 += len(seg)
-                col += 1
-                if col >= LEAF_COL:
-                    leaves.append(Leaf()); col = 0
-        row = 0
+            kind_cur = kind
+            put_note_inline(ntext)
+
     return leaves, marks
 
 def put_char(page, x, y, ch, size, color):
