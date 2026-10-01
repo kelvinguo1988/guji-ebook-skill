@@ -59,6 +59,8 @@ def load_punct_index():
         if '十' in cn:
             a, b2 = cn.split('十', 1)
             return dd.get(a, 0)*10 + (dd.get(b2, 0) if b2 else 0)
+        if cn.startswith('二十'): return 20 + dd.get(cn[2:], 0)
+        if cn.startswith('三十'): return 30 + dd.get(cn[2:], 0)
         return 0
     for pp in paras:
         m = re.match(r'^([\u4e00-\u9fff（）]{2,14}篇第[一二三四五六七八九十百零]+)$', pp)
@@ -80,32 +82,27 @@ def load_punct_index():
     return out
 
 
-def align_marks(main_stream, punct_stream):
-    marks = set()
-    n = 0
-    for c in punct_stream:
-        if '\u4e00' <= c <= '\u9fff':
-            n += 1
-        elif c in '。？！；，、':   # 句点+读点皆圈（旧刻圈点密度≈每列3-6处）
-            marks.add(n)
-    dz2main = {}
-    sm = difflib.SequenceMatcher(None, main_stream, ''.join(c for c in punct_stream if '\u4e00' <= c <= '\u9fff'), autojunk=False)
-    for tag, i1, i2, j1, j2 in sm.get_opcodes():
-        if tag == 'equal':
-            for k in range(i2-i1):
-                dz2main[j1+k] = i1+k
+def align_marks(main_stream, dz_stream, dz_marks):
+    """句读对齐（定稿38a24be快速版）：逐句锚定——句末前 12 字为 key 顺序 find（C 层），
+    顺序推进防雪崩。dz_stream=汉字流、dz_marks=句末缝隙集合。
+    （并行会话曾改为 difflib+逗号重扫版：源流已被滤成纯汉字、标点恒扫不到 → 句读圈 0 回归）"""
     out = set()
-    for m in marks:
-        for back in range(4):
-            if m-1-back in dz2main:
-                out.add(dz2main[m-1-back]); break
+    i = 0
+    for mpos in sorted(dz_marks):
+        if mpos < 1 or mpos > len(dz_stream):
+            continue
+        key = dz_stream[max(0, mpos-12):mpos]
+        if len(key) < 4:
+            continue
+        p = main_stream.find(key, i)
+        if p < 0:
+            continue
+        out.add(p + len(key) - 1)
+        i = p + 1
     return out
 
 # ---------- 排版：卷端固定列 + 正文流 + 平衡式双行朱注 ----------
-class Leaf:
-    def __init__(self): self.cells = []   # (col,row,size,ch,color,gi,lane)  color: ink/red/note; lane: 0整列/1右小列/2左小列
-
-COLORMAP = {'ink': INK, 'red': RED, 'note': RED}
+# （Leaf/COLORMAP 唯一定义在 brush_circle 之后；此处曾有并行会话重复块，已清）
 
 def parse_note(text):
     """注文串 → (字符流, 句读圈位集合, 书名线区间)；注内标点不占字位，圈随注色"""
@@ -187,6 +184,8 @@ def draw_halfleaf(page, leaf, right_edge, marks):
             if gi == 'mark':
                 cy = min(y + size*0.45, px(FR_Y1) - size*0.18 - px(9))
                 brush_circle(page, x + size*0.42, cy, size*0.17, RED, int(col*131 + row*17))
+            elif gi == 'inkcircle':
+                page.draw_circle(fitz.Point(x, y + size*0.06), size*0.40, color=INK, width=px(4.5))
             elif gi == 'bookline':
                 lx = x - size*0.55
                 page.draw_line(fitz.Point(lx, y-px(ROW_H*0.5)), fitz.Point(lx, y+px(ROW_H*0.5)),
@@ -303,74 +302,139 @@ def main():
                 body.append(clean)
                 tail = clean[-12:]
             elif k in ('zhu', 'xiao'):
-                kind = 'inknote' if k == 'zhu' else 'note'
-                notes.append((tail, [(kind, t)]))
+                kind = 'note'    # 用户定稿：王冰注/新校正均朱双行，与黑色正文区分
+                # 连续 zhu 之间无正文=同一条注文被录文拆行（集成本核对证实）→ 合并为一双行连注；
+                # 新校正自成一节：合并后按「 新校正」前空格切块
+                if k == 'zhu' and notes and notes[-1][0] == tail and notes[-1][2] == 'zhu':
+                    lt = notes[-1][1][-1][1]
+                    notes[-1][1][-1] = (kind, lt + t)
+                else:
+                    notes.append((tail, [(kind, t)], k))
+            else:
+                continue
+    notes = [(tl, [(kind, part)
+                   for kind, tx in nt
+                   for part in re.split(r'\s+(?=新校)', tx) if part.strip()], src)
+             for tl, nt, src in notes]
     body_stream = ''.join(body)
     main_s = t2s(body_stream)
     if len(main_s) != len(body_stream):
         main_s = body_stream
-    marks = align_marks(main_s, punct_stream)
+    marks = align_marks(main_s, punct_stream, dz_marks)
 
-    # 元刻 8 叶边界：锚点（逐叶目验）+ 缺锚插值
-    # 元刻 8 叶末句锚（逐叶目验，公文书馆藏元刻卷一）——切点=每叶末字之后
-    # 元刻叶界（逐叶首列实察）——切点=各叶首句之前
-    END_CUTS = [
-        body_stream.find('成而登天') + 2,          # 叶1止「成而登」；叶2首=「天」
-        body_stream.find('度百嵗乃去') + 5,        # 叶2止；叶3起=度百嵗段注末
-        body_stream.find('虚无真氣從之'),                  # 叶3止；叶4起=恬惔段注/经文
-        body_stream.find('岐伯曰女子七嵗'),        # 叶4止；叶5起=岐伯曰女子七歲
-        body_stream.find('形壞而無子也'),          # 叶5止；叶6起=形壞而無子也
-        body_stream.find('乃能冩') + 3,            # 叶6止；叶7起=真人段中
-        body_stream.find('此其道生') + 4,          # 叶7止；叶8起=圣人段注
-        len(body_stream)]
-    cuts = [0] + END_CUTS
-    assert all(cuts[i] < cuts[i+1] for i in range(len(cuts)-1)), cuts
-    print('叶切分点:', cuts)
+    # ---------- 元刻逐列锚定（yuan_leaf_anchors.json·目验建表） ----------
+    # 叶界与列槽首字全部取自锚定表：复刻第 k 槽首大字 == 元刻第 k 槽首大字
+    VAR = str.maketrans('歳眞蓋寫', '嵗真葢冩')
+    cstream = body_stream.translate(VAR)
+    def afind(key, frm):
+        key = key.translate(VAR)
+        for n in (len(key), 4, 2, 1):
+            p = cstream.find(key[:n], frm)
+            if p >= 0: return p
+        return -1
+    ANCH = json.load(open(os.path.join(ROOT, 'yuan_leaf_anchors.json'), encoding='utf-8'))['leaves']
     notes_at = {}
-    for anchor, ntexts in notes:
-        pos = body_stream.find(anchor)
-        if pos < 0: continue
-        notes_at.setdefault(pos + len(anchor) - 1, []).extend(ntexts)
-    cuts.append(len(body_stream))
+    for anchor, ntexts, _src in notes:
+        pos = body_stream.find(anchor) if anchor else -1
+        if not anchor:
+            notes_at.setdefault(-1, []).extend(ntexts)   # 正文前之注=篇题下注
+        elif pos >= 0:
+            notes_at.setdefault(pos + len(anchor) - 1, []).extend(ntexts)
+    # 解析锚 → 全局位置；叶界=每叶首个大字锚
+    cursor, leaf_slots, starts = 0, [], [0]
+    for ent in ANCH:
+        sl = []
+        for s in ent['slots']:
+            if s is None: sl.append(None)
+            elif s == 'F': sl.append('F')
+            else:
+                p = afind(s, cursor)
+                if p < 0:
+                    print(f'  !! 叶{ent["leaf"]} 锚「{s}」未命中 → 自由排')
+                    sl.append('F')
+                else:
+                    sl.append(p); cursor = p + 1
+        leaf_slots.append((ent['leaf'], sl))
+        first = next((x for x in sl if isinstance(x, int)), None)
+        if first is not None and first not in starts:
+            starts.append(first)
+    cuts = sorted(set(starts)) + [len(body_stream)]
     assert all(cuts[i] < cuts[i+1] for i in range(len(cuts)-1)), cuts
-    print('叶切分点:', cuts)
-    notes_at = {}
-    for anchor, ntexts in notes:
-        pos = body_stream.find(anchor)
-        if pos < 0: continue
-        notes_at.setdefault(pos + len(anchor) - 1, []).extend(ntexts)
+    print('叶界(锚定):', cuts)
 
-    # 分叶排版（每叶独立，注随文、字号自适应）
-    all_marks = marks
+    # ---------- 分叶排版（列锚驱动，注宽预估+溢出续列，行高/行距自适应） ----------
+    notes_file = os.path.join(ROOT, 'yuan_leaf1_notes.json')
+    lead1 = {'pian': pian_title,
+             'pre_notes': '', 'title_note': ''}
+    if os.path.exists(notes_file):
+        j = json.load(open(notes_file, encoding='utf-8'))
+        lead1['pre_notes'] = j.get('merged', '')
+        lead1['title_note'] = j.get('col12', '')
+    all_marks = set(marks)
     leaves = []
-    gi0 = 0
-    for li in range(len(cuts) - 1):
-        lo, hi = cuts[li], cuts[li+1]
+    pending = []          # 跨叶注溢出队列 [(kind, chars, started)]
+    for li, (kno, sl) in enumerate(leaf_slots):
+        lo = cuts[li]; hi = cuts[li+1] if li + 1 < len(cuts) else len(body_stream)
         seg = body_stream[lo:hi]
-        seg_notes = {}
-        for pos, v in notes_at.items():
-            if lo <= pos < hi:
-                seg_notes[pos - lo] = v
-        scale = 1.0
-        for _ in range(6):
-            lf = typeset_leaf_suwen(seg, seg_notes, pian_title if li == 0 else None, scale, gi0, marks)
-            if len(lf) == 1:
-                break
-            scale *= 0.93
-        for lf2 in lf:
-            for c in lf2.cells:
-                if isinstance(c[5], int) and c[5] in marks:
-                    all_marks.add(c[5])
-        for lf2 in lf:
-            for c in lf2.cells:
-                if isinstance(c[5], int):
-                    pass
-        leaves.extend(lf)
-        gi0 += len(seg)
-        print(f'  叶{li+1}: scale={round(scale,3)}', flush=True)
+        slots_local = []
+        for s in sl:
+            slots_local.append(s - lo if isinstance(s, int) else s)
+        seg_notes = {pos - lo: v for pos, v in notes_at.items() if lo <= pos < hi}
+        report = []
+        lf = typeset_leaf_slots(seg, seg_notes, slots_local,
+                                lead1 if kno == 1 else None,
+                                1.0, lo, all_marks, pending, report)
+        leaves.append(lf)
+        for r in report:
+            print(f'  叶{kno} 槽{r[0]}: {r[1]} {r[2]}')
+        print(f'  叶{kno}: 大字{len(seg)} 槽锚{sum(1 for x in sl if isinstance(x,int))} 溢出续注{len(pending)}', flush=True)
+
+    # ---------- 比对验证：复刻各槽首大字 vs 元刻锚 ----------
+    tot = hit = 0
+    for li, (kno, sl) in enumerate(leaf_slots):
+        firstb = {}
+        for c in leaves[li].cells:
+            if c[6] == 0 and c[2] >= BIG*0.999 and c[0] not in firstb:
+                firstb[c[0]] = c[3]
+        misses = []
+        for j, s in enumerate(sl):        # sl 为全局位置
+            if isinstance(s, int):
+                tot += 1
+                if firstb.get(j) == body_stream[s]: hit += 1
+                else: misses.append((j+1, body_stream[s], firstb.get(j, '∅')))
+        if misses: print(f'  叶{kno} 锚不合: {misses}')
+    print(f'列锚命中率: {hit}/{tot}')
+    # 注字总量审计：录文注（除被卷端目验转录替代的篇题下注）应全部落版
+    exp = sum(len(re.sub(r'\W', '', t)) for pos, lst in notes_at.items() if pos >= 0
+              for kind, t in lst)
+    placed = sum(1 for lf in leaves for c in lf.cells if c[6])
+    lead_lane = sum(1 for c in leaves[0].cells if c[6])
+    left = sum(len(ch) for _, ch, _ in pending)
+    print(f'注字审计: 应排 {exp} | 实排 {placed - lead_lane} | 卷端目验注列 {lead_lane} | 未消化 {left}')
+
+    # 文本映射导出（EPUB 等下游与 PDF 同源：逐叶大字流 + 锚位注文）
+    tmap = {'pian': pian_title, 'lead': lead1, 'leaves': []}
+    for li, (kno, sl) in enumerate(leaf_slots):
+        lo, hi = cuts[li], cuts[li + 1]
+        tmap['leaves'].append({
+            'leaf': kno, 'text': body_stream[lo:hi],
+            'marks': [m - lo for m in marks if lo <= m < hi],
+            'notes': [[pos - lo, v] for pos, v in sorted(notes_at.items()) if lo <= pos < hi]})
+    with open(os.path.join(ROOT, 'fuke_text_map.json'), 'w', encoding='utf-8') as f:
+        json.dump(tmap, f, ensure_ascii=False, indent=1)
 
     # 渲染：封面 + 逐叶 pair page（左元刻原叶 / 右复刻叶）
     doc = fitz.open()
+    cp = page_chrome(doc)   # 封面叶：右半嵌卷端书影（vRain 卷端嵌真叶书影惯例）
+    iw, ih = 900, int(900*2034/1172)
+    ix = ((GUT_CX+LCW/2) + FR_X1)/2 - iw/2
+    iy = (FR_Y0 + FR_Y1)/2 - ih/2
+    cp.insert_image(fitz.Rect(px(ix), px(iy), px(ix+iw), px(iy+ih)),
+                    filename=os.path.join(ROOT, 'assets', 'yuan_cover.jpg'))
+    cp.draw_rect(fitz.Rect(px(ix), px(iy), px(ix+iw), px(iy+ih)), color=INK, width=px(2))
+    for c in range(1, LEAF_COL):
+        x = FR_X0 + COL_W*c
+        cp.draw_line(fitz.Point(px(x), px(FR_Y0)), fitz.Point(px(x), px(FR_Y1)), color=INK, width=px(OUT_H))
     dsrc = fitz.open('/Users/sec-t/Downloads/黄帝内经/ZHSY000605 新刊補注釋文黄帝內經素問十二卷 (唐)王冰 注(宋)林億等 校正(宋)孫兆 改誤 元至元五年胡氏古林書堂刻本/001.pdf')
     for li, lf in enumerate(leaves):
         k = li + 1
@@ -383,7 +447,7 @@ def main():
             dsrc[pidx].get_pixmap(matrix=fitz.Matrix(2, 2),
                 clip=fitz.Rect(x0, 0, x0 + r.width/2, r.height)).save(jpg, jpg_quality=85)
         bigs = [c[3] for c in lf.cells if c[2] == BIG]
-        cap = f'原書葉　卷一　第{k}叶'
+        cap = f'原書葉　卷一　第{CN_NUM[k] if k < len(CN_NUM) else k}葉'   # 汉字叶次（qiji 无阿拉伯数字形，用数字会成空白）
         render_pair_page(doc, lf, k, all_marks, jpg, cap)
         print(f'  对页{k}: 左=元刻半叶{k} 右=复刻叶{k} 首={"".join(bigs[:3])}', flush=True)
     try:
@@ -394,80 +458,116 @@ def main():
     doc.save(out, garbage=4, deflate=True)
     print(f'{out}: 封面 1 + {len(leaves)} 对页, 正文 {len(body_stream)} 字, 句读圈 {len(marks)}')
 
-def typeset_leaf_suwen(seg, seg_notes, lead, scale, gi0, marks):
-    """单叶排版（素问）：卷端列（叶 1）+ 经文大字 + 王冰注墨双行/新校正朱双行随文夹注。
-    注小行高 0.52×大字行。返回 [Leaf]。"""
-    big = BIG*scale
-    note = NOTE*scale
-    note_h = NOTE_H
-    leaves = [Leaf()]
-    L = leaves[0]
-    col, row = 0, 0
-    gi = gi0
-    if lead:
-        for r, ch in enumerate('新刊補註釋文黃帝內經素問卷之一'):
-            L.cells.append((0, r*1.4375, DATI*scale, ch, 'ink', None, 0))
-        for r, ch in enumerate('啓玄子次註林億孫奇高保衡等奉勅校正孫兆重改誤'):
-            L.cells.append((1, r, BJ*scale, ch, 'ink', None, 0))
-        L.cells.append((2, 0, PIANTI*scale*0.8, '○', 'ink', None, 0))
-        for r, ch in enumerate(lead):
-            L.cells.append((2, 1+r*1.5, PIANTI*scale, ch, 'ink', None, 0))
-        col, row = 2, int(2 + len(lead)*1.5)
+def draw_lead_leaf1(L, lead, scale):
+    """叶1 卷端（元刻叶1实察·6x目验）：col0大题、col1题署、col2-9新校正序注双行
+    （行距≈1.1×大字行·每行约21字——卷端注疏朗，非随文密注）、col10 ○篇题+题下注起、
+    col11 题下注续；正文自 col12（元刻col13）起。"""
+    for r, ch in enumerate('新刊補註釋文黃帝內經素問卷之一'):
+        L.cells.append((0, r*1.4375, DATI*scale, ch, 'ink', None, 0))
+    for r, ch in enumerate('啓玄子次註林億孫奇高保衡等奉勅校正孫兆重改誤'):
+        L.cells.append((1, r, BJ*scale, ch, 'ink', None, 0))
+    def note_lanes(col, row0, text, kind, h, lane_len):
+        chars = [c for c in text if c.strip()]
+        nr = min((len(chars)+1)//2, lane_len)
+        for j, ch in enumerate(chars[:lane_len*2]):
+            ln = 1 if j < nr else 2
+            L.cells.append((col, row0 + (j if j < nr else j-nr)*h, NOTE*scale, ch, kind, None, ln))
+        return chars[lane_len*2:]
+    if lead.get('pre_notes'):
+        rest = lead['pre_notes'][:21*2*8]          # 元刻序注实占 col3-10 共8槽，溢出不刻（护篇题列）
+        for c0 in range(2, 10):
+            if not rest: break
+            rest = note_lanes(c0, 0, rest, 'note', 1.1, 21)
+    L.cells.append((10, 0, PIANTI*scale, '', 'red', 'inkcircle', 0))   # 篇题墨圈○（矢量绘制，避字体缺字）
+    for r, ch in enumerate(lead['pian']):
+        L.cells.append((10, 1 + r*1.1, PIANTI*scale, ch, 'ink', None, 0))
+    if lead.get('title_note'):
+        note_lanes(10, 10, lead['title_note'][:26], 'note', 0.95, 13)
+        tail = lead['title_note'][26:]
+        if tail:                                   # note_lanes 返回值只含入参切片的余量，续列须直接取全串尾部
+            note_lanes(11, 0, tail, 'note', 1.0, 16)
 
-    def new_col():
-        nonlocal col, row
-        col += 1
-        row = 0
-        if col >= LEAF_COL:
-            leaves.append(Leaf()); col = 0
-
-    for ch in seg:
-        if row >= ROWS:
-            new_col()
-        L2 = leaves[-1]
-        L2.cells.append((col, row, big, ch, 'ink', gi, 0))
-        gi += 1
-        row += 1
-        nlist = seg_notes.get(gi - 1)
-        if not nlist:
+def typeset_leaf_slots(seg, seg_notes, slots, lead, scale, gi0, marks_all, pending, report):
+    """列锚驱动排版（用户定稿方案）：slots[k]=该槽首大字在 seg 内的位置 / None=纯注槽 / 'F'=自由续排。
+    每槽首大字顶格（头尾段落句子对齐的硬不变式）；注宽=双小行容量预估，
+    放不下→整条溢出到下一槽（纯注槽顶格或首大字之后），复刻元刻跨列/跨叶溢注形态。"""
+    L = Leaf()
+    big = BIG*scale; note = NOTE*scale; nh = NOTE_H
+    def lane(col, row, kind, chars):
+        n = (len(chars)+1)//2
+        for i, ch in enumerate(chars):
+            ln = 1 if i < n else 2
+            L.cells.append((col, row + (i if i < n else i-n)*nh, note, ch, kind, None, ln))
+        return n*nh
+    def flush(col, row, until=ROWS):
+        while pending and row < until:
+            kind, chars, started = pending[0]
+            cap = int((until - row)/nh)*2
+            if cap < 2: break
+            take, rest = chars[:cap], chars[cap:]
+            row += lane(col, row, kind, take)
+            if rest: pending[0] = (kind, rest, True); break
+            pending.pop(0)
+        return row
+    if lead is not None:
+        draw_lead_leaf1(L, lead, scale)
+    start_col = 12 if lead is not None else 0
+    flow = None
+    for k in range(start_col, 13):
+        col = k; row = 0.0
+        s = slots[k] if k < len(slots) else 'F'
+        if flow is None:
+            flow = s if isinstance(s, int) else 0
+        if s is None:
+            row = flush(col, row)
+            if row == 0:
+                report.append((k+1, 'EMPTY', '注短于元刻，纯注槽无内容'))
             continue
-        for kind, ntext in nlist:
-            # 注随文夹注：嵌当前列剩余行，双行平衡，注毕接排
+        if s == 'F':
+            p0 = flow; p1 = None
+        else:
+            p0 = s
+            rest = [slots[j] if j < len(slots) else 'F' for j in range(k+1, 13)]
+            p1 = next((x for x in rest if isinstance(x, int)), None)
+            if p1 is None and 'F' not in rest:
+                p1 = len(seg)
+        if p0 >= len(seg):
+            row = flush(col, 0.0)          # 大字已尽而仍有溢注→此列顶格续排
+            continue
+        L.cells.append((col, 0, big, seg[p0], 'ink', gi0+p0, 0))   # 锚字顶格
+        gp = p0 + 1; row = 1.0
+        # 首字之注（注随其字——锚在槽首大字下的注，如叶2「天」下王冰注）先于溢注排
+        for kind, ntext in seg_notes.get(p0, []):
             chars = [c for c in ntext if c.strip()]
-            n2 = len(chars)
-            if n2 == 0: continue
-            nr = (n2 + 1) // 2
-            span = nr * note_h
-            if ROWS - row >= span:
-                # 当前列放得下
-                for k, c2 in enumerate(chars):
-                    lane = 1 if k < nr else 2
-                    rr = row + (k if k < nr else k - nr) * note_h
-                    leaves[-1].cells.append((col, rr, note, c2, kind, None, lane))
-                row += span
+            if not chars: continue
+            cap_rows = ROWS - (p1 - p0 - 1) if p1 is not None else ROWS
+            h = ((len(chars)+1)//2)*nh
+            if row + h <= cap_rows:
+                row += lane(col, row, kind, chars)
             else:
-                # 拆两段：当前列填满，剩余续下列
-                room_rows = ROWS - row
-                take_first = int(room_rows / note_h) * 2
-                if take_first <= 0:
-                    new_col()
-                seg_a, seg_b = chars[:take_first], chars[take_first:]
-                tr_a = (len(seg_a) + 1) // 2
-                for k, c2 in enumerate(seg_a):
-                    lane = 1 if k < tr_a else 2
-                    rr = row + (k if k < tr_a else k - tr_a) * note_h
-                    leaves[-1].cells.append((col, rr, note, c2, kind, None, lane))
-                row = ROWS
-                new_col()
-                tr_b = (len(seg_b) + 1) // 2
-                for k, c2 in enumerate(seg_b):
-                    lane = 1 if k < tr_b else 2
-                    rr = row + (k if k < tr_b else k - tr_b) * note_h
-                    leaves[-1].cells.append((col, rr, note, c2, kind, None, lane))
-                row = tr_b * note_h
-        # 注毕经文接排（row 已在注末）
-
-    return leaves
+                pending.append((kind, chars, False))
+        # 溢注接排于锚字后；但须给本槽大字留足行（p1-p0 行），否则溢注续到纯注槽
+        until = ROWS if p1 is None else max(1, 1 + ROWS - (p1 - p0))
+        row = flush(col, row, until)
+        while gp < len(seg) and (p1 is None or gp < p1) and row < ROWS:
+            L.cells.append((col, row, big, seg[gp], 'ink', gi0+gp, 0))
+            row += 1.0
+            for kind, ntext in seg_notes.get(gp, []):
+                chars = [c for c in ntext if c.strip()]
+                if not chars: continue
+                cap_rows = ROWS if p1 is None else ROWS - (p1 - gp - 1)  # 本槽大字到达锚前仍需的行
+                h = ((len(chars)+1)//2)*nh
+                if row + h <= cap_rows:
+                    row += lane(col, row, kind, chars)
+                else:
+                    pending.append((kind, chars, False))            # 整条溢出续下列
+            gp += 1
+        if p1 is not None and gp < p1:
+            report.append((k+1, 'ANCHOR_BREAK', f'槽满溢出大字{p1-gp}，后续锚弃'))
+            for j in range(k+1, len(slots)):
+                if isinstance(slots[j], int): slots[j] = 'F'
+        flow = gp
+    return L
 
 if __name__ == '__main__':
     main()
