@@ -75,10 +75,8 @@ body{ font-family:var(--song); color:var(--ink); font-kerning:normal; }
   font-size:9.5pt; letter-spacing:.34em; color:rgba(200,185,141,.85); height:120mm; }
 .cover-page .quote{ position:absolute; bottom:36mm; left:26mm; writing-mode:vertical-rl;
   font-size:9pt; letter-spacing:.3em; color:rgba(200,185,141,.6); height:70mm; }
-.cover-page .seal{ position:absolute; bottom:23mm; right:23mm; width:16mm; height:16mm;
-  background:var(--cinnabar); color:#F6EBD9; display:flex; align-items:center; justify-content:center;
-  writing-mode:vertical-rl; text-orientation:upright; font-size:8.2pt; letter-spacing:.14em;
-  line-height:1.25; border-radius:1mm; }
+.cover-page .seal{ position:absolute; bottom:23mm; right:23mm; width:7.5mm; }
+.cover-page .seal img{ width:100%; display:block; filter:brightness(1.45); }
 .cover-page .foot{ position:absolute; bottom:11mm; left:0; right:0; text-align:center;
   font-size:7.5pt; letter-spacing:.5em; color:rgba(200,185,141,.55); }
 
@@ -221,7 +219,7 @@ body.append('''<section class="cover-page">
   <div class="sub-title">王冰注 · 新校正 · 白話通釋</div>
   <div class="editions">元至元古林書堂刻本葉面對讀 · 金刻本參校 · 全八十一篇</div>
   <div class="quote">法於陰陽　和於術數</div>
-  <div class="seal">上古天真</div>
+  <div class="seal"><img src="assets/seal_gzh.png" alt="郭仲和藏書"/></div>
   <div class="foot">素問 · 子部醫家類</div>
 </section>''')
 body.append('''<section class="titlepage">
