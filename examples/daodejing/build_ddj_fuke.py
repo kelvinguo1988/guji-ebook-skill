@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """《道德經三版本對照箋注》B 版复刻本 —— 品类 B：直排刻本风格（对页 spread，对齐 vRain 定稿样式）
-· 行款：南阳堂刊本叶面实测——半叶 10 行、行 23 字、四周单边粗框、白口对鱼尾
+· 行款：古逸叢書景刊王弼注本叶面实测——半叶 10 行、行 20 字、四周单边粗框、白口对鱼尾
 · 版式对齐 vRain（实测 010.png + canvas/*.cfg + canvas.pl）：
   - 单一粗外框(10px)+细内框(1px)围全对页，书口双细线 120px 居中
   - 上/下鱼尾=实心垂带五边形（rect50+tri30）贴版框，书口大题书名+页码
@@ -10,7 +10,7 @@
   - 注文体系：平衡式双小列（右ceil/左floor），朱色 #874434、0.75×正文，书名号→左侧黑侧线
   - 卷首封面叶：右半嵌卷端原叶书影（含南阳堂诸藏印），左半白叶
   - 正文字号≈行高 0.95（密排），双重偏移描边模拟活字墨涨
-· 数据：zw_ch1_data.json（太微赋+例曰，维基文库录文）；朱圈句读由标点对齐生成
+· 数据：work/book_data.json['wangbi'] 一至四章经注对（王弼注随文夹注）；朱圈句读由标点对齐生成
 用法：python3 build_ddj_fuke.py（输出 復刻-道德經·一章道可道章.pdf）· 底本：古逸叢書景刊王弼注本（半叶 10 行行 20 字）"""
 import re, os, json, sys, difflib, math
 from PIL import Image
@@ -32,7 +32,7 @@ FR_X0, FR_X1 = 150, 2300           # 版框左右（再放大：半叶 1015px×1
 FR_Y0, FR_Y1 = 100, 1760           # 版框上下（再放大：框高 1660，上下边距 85/85 含外框线）
 HALF_W = (FR_X1-FR_X0-LCW)/2       # 805
 LEAF_COL = 10                      # 半叶 10 行（列）
-ROWS = 23                          # 行 23 字（南阳堂叶面实测）
+ROWS = 20                          # 行 20 字（古逸景刊集唐字本叶面实测：满列 19–20 字，取整 20）
 COL_W = HALF_W/LEAF_COL            # 80.5
 ROW_H = (FR_Y1-FR_Y0)/ROWS         # 59.57
 OUT_W, OUT_H = 10, 1               # 外框粗线 / 内框细线 px
@@ -97,19 +97,19 @@ def parse_note(text):
             stream.append(c)
     return ''.join(stream), marks, books
 
-def typeset(body_stream, punct_stream, notes=None):
+def typeset(body_stream, punct_stream, notes=None, anchors=None):
+    """anchors：叶界锚（body_stream 中应开新叶的经文字位）——复刻叶与原书叶逐叶对齐的关键。
+    锚位从古逸扫描件逐叶读出（每扫描页右半叶先读、左半叶后读），叶首若为注文尾则取其后最近经文字位。"""
     leaves = [Leaf()]
-    # 卷端（leaf 1）固定列（大题/篇题用分数行距避免大字叠压）
+    # 卷端（leaf 1）固定列——古逸本卷端叶实察：大题「老子道德經上篇」、章题「一章」（字加墨圈）、
+    # 署「晉王弼注」，正文自第 3 列起（原文如此；勿用他书卷端结构或牌记文字拼装）
     L = leaves[0]
-    for r, ch in enumerate('老子道德經卷上'):
+    for r, ch in enumerate('老子道德經上篇'):
         L.cells.append((0, r*1.4375, DATI, ch, 'ink', None, 0))
-    for ci, col in enumerate(['魏王弼注', '據集唐字本景刊', '古逸叢書之六']):
-        for r, ch in enumerate(col):
-            L.cells.append((1+ci, 10+r, BJ, ch, 'ink', None, 0))
-    for r, ch in enumerate('梓行'):
-        L.cells.append((3, 18+r, BJ, ch, 'ink', None, 0))
-    for r, ch in enumerate('一章道可道章第一'):
-        L.cells.append((4, 0.5+r*1.5, PIANTI, ch, 'ink', None, 0))
+    for r, ch in enumerate('一章'):
+        L.cells.append((1, 0.75+r*2.75, PIANTI, ch, 'ink', 'moquan', 0))
+    for r, ch in enumerate('晉王弼注'):
+        L.cells.append((2, 1.25+r, BJ, ch, 'ink', None, 0))
     # 正文流：卷端自第 5 列起，每叶 10 列；注=平衡式双小列占 ceil(n/2) 大字行，注毕同列续排
     marks = align_marks(body_stream, punct_stream)
     notes_at = {}
@@ -118,13 +118,30 @@ def typeset(body_stream, punct_stream, notes=None):
         assert pos >= 0, '注文锚点未命中: ' + anchor
         notes_at[pos + len(anchor) - 1] = ntext
     gi = 0
-    col = 5; row = 0
+    col = 3; row = 0
+    # 章首墨圈章号（古逸本原貌：二章/三章/四章 各占一列、字加墨圈）
+    chap_starts = {}
+    for k2, lab in [('天下皆知美之為美', '二章'), ('不尚賢', '三章'), ('道沖而用之', '四章')]:
+        p2 = body_stream.find(k2)
+        assert p2 >= 0, '章首锚未命中: ' + k2
+        chap_starts[p2] = lab
     def new_col():
         nonlocal col, row
         col += 1; row = 0
         if col >= LEAF_COL:
             leaves.append(Leaf()); col = 0
+    anchors = set(anchors or ())
     for ch in body_stream:
+        lab = chap_starts.get(gi)
+        if lab:
+            col += 1; row = 0
+            if col >= LEAF_COL: leaves.append(Leaf()); col = 0
+            for lr, lc in enumerate(lab):
+                leaves[-1].cells.append((col, 0.25+lr*2.2, PIANTI, lc, 'ink', 'moquan', 0))
+            col += 1; row = 0
+            if col >= LEAF_COL: leaves.append(Leaf()); col = 0
+        if gi in anchors and leaves[-1].cells:
+            leaves.append(Leaf()); col = 0; row = 0   # 叶界：与原书叶首逐叶对齐
         if row >= ROWS: new_col()
         if col >= LEAF_COL:
             leaves.append(Leaf()); col = 0; row = 0
@@ -222,6 +239,8 @@ def draw_halfleaf(page, leaf, right_edge, marks):
                                color=RED, width=px(2))
             continue
         put_char(page, x, y, ch, size, colr)
+        if gi == 'moquan':                       # 章题墨圈（古逸本章号原貌）
+            page.draw_circle(fitz.Point(x, y), size*0.68, color=INK, width=px(2))
         if isinstance(gi, int) and gi in marks:
             cy = min(y + size*0.45, px(FR_Y1) - size*0.18 - px(9))
             brush_circle(page, x + size*0.42, cy, size*0.17, RED, gi)   # 朱砂毛笔圈（用户定稿）
@@ -288,8 +307,9 @@ def render_pair_page(doc, leaf, folio, marks, src=None, cap=None):
         x = FR_X1 - COL_W*c
         page.draw_line(fitz.Point(px(x), px(FR_Y0)), fitz.Point(px(x), px(FR_Y1)), color=INK, width=px(OUT_H))
     draw_halfleaf(page, leaf, FR_X1, marks)
-    fs = CN_NUM[folio] if folio < len(CN_NUM) else str(folio)
-    put_char(page, px(GUT_CX), px(1510), fs, 41*PXP, INK)
+    if folio is not None:
+        fs = CN_NUM[folio] if folio < len(CN_NUM) else str(folio)
+        put_char(page, px(GUT_CX), px(1510), fs, 41*PXP, INK)
     # 左半：原书叶截图或白叶
     cx_l = (FR_X0 + (GUT_CX - LCW/2)) / 2
     if src:
@@ -331,18 +351,34 @@ def render_spread(doc, lf_r, lf_l, folio, marks, cover=False):
         ix = ((GUT_CX+LCW/2) + FR_X1)/2 - iw/2      # 书影置右半（前片惯例）
         iy = (FR_Y0 + FR_Y1)/2 - ih/2
         page.insert_image(fitz.Rect(px(ix), px(iy), px(ix+iw), px(iy+ih)),
-                          filename=os.path.join(ROOT, 'assets', 'zw_cover_shiying.jpg'))
+                          filename=os.path.join(ROOT, 'assets', 'guyi_juanr.jpg'))
         page.draw_rect(fitz.Rect(px(ix), px(iy), px(ix+iw), px(iy+ih)), color=INK, width=px(2))
     else:
         if lf_r is not None: draw_halfleaf(page, lf_r, FR_X1, marks)
     if lf_l is not None: draw_halfleaf(page, lf_l, FR_X0+HALF_W, marks)
+
+def leaf_anchors(body_stream):
+    """叶界锚表——古逸本逐叶实察（每扫描页右半叶先读）：复刻叶 k 的首字位。
+    叶一首为注文尾（…玄之又玄也），取其后最近经文「故常無欲」；
+    叶二首为注文尾（兩者始與母也…），同理取「此兩者同出」；
+    叶三首=「傾」（高下相|傾，跨叶断词原貌）；叶四首=「功成而弗居」；
+    叶五首为注文尾（用貪者競趣…），取「是以聖人之治」；叶六首=「為無為」。"""
+    KEYS = ['故常無欲', '此兩者同出', ('高下相傾', 3), '功成而弗居', '是以聖人之治', '為無為']
+    anchors = set()
+    for key in KEYS:
+        k, off = key if isinstance(key, tuple) else (key, 0)
+        pos = body_stream.find(k)
+        assert pos >= 0, '叶界锚未命中: ' + k
+        anchors.add(pos + off)
+    return anchors
+
 
 def main():
     # 一章：经文与随文注对
     body_stream = ''.join(re.sub(r'[，。：；！？、「」『』（）〔〕\s]', '', jing) for jing, _ in PAIRED)
     punct = ''.join(jing for jing, _ in PAIRED)
     notes = [(re.sub(r'[，。：；！？、「」『』（）〔〕\s]', '', jing), zhu) for jing, zhu in PAIRED]
-    leaves, marks = typeset(body_stream, punct, notes)
+    leaves, marks = typeset(body_stream, punct, notes, anchors=leaf_anchors(body_stream))
     n_body = sum(1 for lf in leaves for c in lf.cells if isinstance(c[5], int))
     assert n_body == len(body_stream), (n_body, len(body_stream))
     for lf in leaves:
@@ -351,24 +387,35 @@ def main():
     doc = fitz.open()
     render_spread(doc, None, None, None, marks, cover=True)   # 卷首：封面叶（卷端书影+真藏印）
     # 逐叶一一对应（用户定稿）：左半原书叶截图、右半对应复刻叶。
-    # 叶位对应按原书叶面实察（原件：WorkBuddy/书籍/新鋟希夷陳先生紫微斗数全書１.pdf 第5-6开）：
-    # 复刻叶一↔卷端大题叶；叶二↔「乎紫微舍躔…例曰起」；叶三↔「文拱命貴…」；
-    # 叶四↔「文曲於妻宮…」；叶五↔「…至此誠玄微矣」次接形性賦
+    # 叶位对应按古逸本叶面实察（扫描件：/Users/sec-t/Downloads/道德经/古逸丛书06.老子道德经…pdf，页 index 3 起）：
+    # 复刻叶一↔卷端大题叶（老子道德經卷上/魏王弼注）；叶二起为经注续叶（一章起逐叶对应）
     import fitz as _f
     _ddj = _f.open('/Users/sec-t/Downloads/道德经/古逸丛书06.老子道德经.二卷.魏.王弼.注.据集唐字本景刊.pdf')
     def guyi_leaf(k, out):
-        # 古逸读序：每页右半叶先读 → 半叶序 3R,3L,4R,4L,5R,5L,6R,6L（页 index 3 起）
-        pidx = 3 + (k-1)//2
-        side_left = (k-1) % 2 == 1
+        # 古逸读序（逐页实察）：每扫描页右半叶先读、左半叶后读。
+        # k=1 卷端叶（页3右）；k≥2 正文叶 m=k-1：页 index = 4+(m-1)//2，m 奇读右半、偶读左半。
+        # 扫描页左半的「遵義黎氏校刊」牌记是内封叶背面（前置页），不占正文叶序。
+        if k == 1:
+            pidx, side_left = 3, False
+        else:
+            m = k - 1
+            pidx, side_left = 4 + (m-1)//2, (m-1) % 2 == 1
         pg = _ddj[pidx]; r = pg.rect
         x0 = 0 if side_left else r.width/2
         if not os.path.exists(out):
             pg.get_pixmap(matrix=_f.Matrix(2, 2), clip=_f.Rect(x0, 0, x0 + r.width/2, r.height)).save(out, jpg_quality=86)
         return out
-    PAIRS = {i: (f'/tmp/guyi_leaf{i+1}.jpg', f'原書葉　卷一　第{i+1}叶（古逸叢書景刊王弼注本）') for i in range(8)}
+    def leaf_cap(k):
+        # qiji 字体无阿拉伯数字/括号字形：叶次用汉字数字、分隔用全角空格（SKILL §19）
+        if k == 1:
+            return '原書葉　卷端　老子道德經上篇　一章　晉王弼注'
+        return f'原書葉　卷上　第{CN_NUM[k-1]}叶　古逸叢書景刊王弼注本'
+    PAIRS = {i: (f'/tmp/guyi_leaf{i+1}.jpg', leaf_cap(i+1)) for i in range(8)}
     for i, lf in enumerate(leaves):
         src, cap = PAIRS.get(i, (None, None))
-        render_pair_page(doc, lf, i+1, marks, src, cap)
+        if src:
+            src = guyi_leaf(i+1, src)
+        render_pair_page(doc, lf, (i if i > 0 else None), marks, src, cap)
     out = os.path.join(ROOT, '復刻-道德經·一至四章.pdf')
     try:
         doc.subset_fonts()

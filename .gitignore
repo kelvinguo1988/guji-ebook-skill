@@ -23,3 +23,6 @@ __pycache__/
 # 超 GitHub 100MB 限的旧版全本 EPUB 成品（脚本可重建，不入库存档）
 examples/huangdineijing/素問復刻-全本.epub
 examples/huangdineijing/黄帝内经素问-复刻本.epub
+
+# B 版复刻 EPUB 中间页图
+**/epub_fuke/
