@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""《紫微斗数全书》复刻本生成器 —— 品类 B：直排刻本风格（对页 spread，对齐 vRain 样板 010.png）
+"""《道德經三版本對照箋注》B 版复刻本 —— 品类 B：直排刻本风格（对页 spread，对齐 vRain 定稿样式）
 · 行款：南阳堂刊本叶面实测——半叶 10 行、行 23 字、四周单边粗框、白口对鱼尾
 · 版式对齐 vRain（实测 010.png + canvas/*.cfg + canvas.pl）：
   - 单一粗外框(10px)+细内框(1px)围全对页，书口双细线 120px 居中
@@ -10,15 +10,15 @@
   - 注文体系：平衡式双小列（右ceil/左floor），朱色 #874434、0.75×正文，书名号→左侧黑侧线
   - 卷首封面叶：右半嵌卷端原叶书影（含南阳堂诸藏印），左半白叶
   - 正文字号≈行高 0.95（密排），双重偏移描边模拟活字墨涨
-· 数据：道德经一章+二章（王弼本经文+王弼注，work/book_data.json）；朱圈句读由标点对齐生成
-用法：python3 build_zwds_fuke.py（输出 复刻-太微赋.pdf）"""
+· 数据：zw_ch1_data.json（太微赋+例曰，维基文库录文）；朱圈句读由标点对齐生成
+用法：python3 build_ddj_fuke.py（输出 復刻-道德經·一章道可道章.pdf）· 底本：古逸叢書景刊王弼注本（半叶 10 行行 20 字）"""
 import re, os, json, sys, difflib, math
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-DATA = json.load(open('/Users/sec-t/Downloads/道德经/work/book_data.json', encoding='utf-8'))['wangbi']
-# 一章随文注对：zhu=[经句, 注]，天然映射「经句大字→注双行小字」
-
+DATA = json.load(open('/Users/sec-t/Downloads/道德经/work/book_data.json', encoding='utf-8'))['wangbi']['1']
+# 一章随文注对：zhu=[[经句, 注], …]——经句大字、注双行小字（王弼注随文夹注）
+PAIRED = sum((json.load(open('/Users/sec-t/Downloads/道德经/work/book_data.json', encoding='utf-8'))['wangbi'][str(k)]['zhu'] for k in range(1, 5)), [])
 
 _PAPER_XREF = None                 # 宣纸背景只嵌一次，跨页复用 xref
 
@@ -101,14 +101,16 @@ def typeset(body_stream, punct_stream, notes=None):
     leaves = [Leaf()]
     # 卷端（leaf 1）固定列（大题/篇题用分数行距避免大字叠压）
     L = leaves[0]
-    # 卷端列（元刻式）：右 1 列大题、次列题署、第 3 列○篇题
     for r, ch in enumerate('老子道德經卷上'):
         L.cells.append((0, r*1.4375, DATI, ch, 'ink', None, 0))
-    for r, ch in enumerate('魏王弼注'):
-        L.cells.append((1, 10+r, BJ, ch, 'ink', None, 0))
+    for ci, col in enumerate(['魏王弼注', '據集唐字本景刊', '古逸叢書之六']):
+        for r, ch in enumerate(col):
+            L.cells.append((1+ci, 10+r, BJ, ch, 'ink', None, 0))
+    for r, ch in enumerate('梓行'):
+        L.cells.append((3, 18+r, BJ, ch, 'ink', None, 0))
     for r, ch in enumerate('一章道可道章第一'):
-        L.cells.append((2, 0.5+r*1.5, PIANTI, ch, 'ink', None, 0))
-    # 正文流：卷端自第 3 列起，每叶 10 列；注=平衡式双小列，注毕同列续排
+        L.cells.append((4, 0.5+r*1.5, PIANTI, ch, 'ink', None, 0))
+    # 正文流：卷端自第 5 列起，每叶 10 列；注=平衡式双小列占 ceil(n/2) 大字行，注毕同列续排
     marks = align_marks(body_stream, punct_stream)
     notes_at = {}
     for anchor, ntext in (notes or []):
@@ -116,7 +118,7 @@ def typeset(body_stream, punct_stream, notes=None):
         assert pos >= 0, '注文锚点未命中: ' + anchor
         notes_at[pos + len(anchor) - 1] = ntext
     gi = 0
-    col = 3; row = 0
+    col = 5; row = 0
     def new_col():
         nonlocal col, row
         col += 1; row = 0
@@ -336,53 +338,44 @@ def render_spread(doc, lf_r, lf_l, folio, marks, cover=False):
     if lf_l is not None: draw_halfleaf(page, lf_l, FR_X0+HALF_W, marks)
 
 def main():
-    # 一章随文注对：zhu=[经句, 注] —— 经句大字、注双行小字随文
-    body_stream, punct_stream, notes = [], [], []
-    PAIRS_DATA = sum((DATA[str(k)]['zhu'] for k in range(1, 16)), [])    # 一至十五章
-    for jing, zhu_text in PAIRS_DATA:
-        clean = re.sub(r'[，。：；！？、「」『』（）〔〕\s]', '', jing)
-        body_stream.append(clean)
-        punct_stream.append(jing)          # 带标点（句读对齐源）
-        notes.append((clean[-12:], zhu_text))
-    body = ''.join(body_stream)
-    punct = ''.join(punct_stream)
-    leaves, marks = typeset(body, punct)
+    # 一章：经文与随文注对
+    body_stream = ''.join(re.sub(r'[，。：；！？、「」『』（）〔〕\s]', '', jing) for jing, _ in PAIRED)
+    punct = ''.join(jing for jing, _ in PAIRED)
+    notes = [(re.sub(r'[，。：；！？、「」『』（）〔〕\s]', '', jing), zhu) for jing, zhu in PAIRED]
+    leaves, marks = typeset(body_stream, punct, notes)
     n_body = sum(1 for lf in leaves for c in lf.cells if isinstance(c[5], int))
-    assert n_body == len(body), (n_body, len(body))
+    assert n_body == len(body_stream), (n_body, len(body_stream))
     for lf in leaves:
         for (col, row, size, ch, color, gi, lane) in lf.cells:
             assert 0 <= col < LEAF_COL and 0 <= row < ROWS, (col, row, ch)
     doc = fitz.open()
-    # 古逸王弼本原叶（第一章跨叶：index 3 右半起——卷端牌记叶=3L）
-    # 对页1：卷端牌记叶 + 复刻卷端叶
-    # 对页2+：逐叶（左原叶/右复刻）
-    dsrc = fitz.open('/Users/sec-t/Downloads/道德经/古逸丛书06.老子道德经.二卷.魏.王弼.注.据集唐字本景刊.pdf')
-    def yuan_img(pidx, side, out):
-        pg = dsrc[pidx]; r = pg.rect
-        x0 = 0 if side == 'L' else r.width/2
-        if not os.path.exists(out):
-            pg.get_pixmap(matrix=fitz.Matrix(2, 2), clip=fitz.Rect(x0, 0, x0 + r.width/2, r.height)).save(out, jpg_quality=86)
-        return out
-    def yuan_img(k, out):
-        pidx = 4 + (k-1)//2
+    render_spread(doc, None, None, None, marks, cover=True)   # 卷首：封面叶（卷端书影+真藏印）
+    # 逐叶一一对应（用户定稿）：左半原书叶截图、右半对应复刻叶。
+    # 叶位对应按原书叶面实察（原件：WorkBuddy/书籍/新鋟希夷陳先生紫微斗数全書１.pdf 第5-6开）：
+    # 复刻叶一↔卷端大题叶；叶二↔「乎紫微舍躔…例曰起」；叶三↔「文拱命貴…」；
+    # 叶四↔「文曲於妻宮…」；叶五↔「…至此誠玄微矣」次接形性賦
+    import fitz as _f
+    _ddj = _f.open('/Users/sec-t/Downloads/道德经/古逸丛书06.老子道德经.二卷.魏.王弼.注.据集唐字本景刊.pdf')
+    def guyi_leaf(k, out):
+        # 古逸读序：每页右半叶先读 → 半叶序 3R,3L,4R,4L,5R,5L,6R,6L（页 index 3 起）
+        pidx = 3 + (k-1)//2
         side_left = (k-1) % 2 == 1
+        pg = _ddj[pidx]; r = pg.rect
+        x0 = 0 if side_left else r.width/2
         if not os.path.exists(out):
-            pg = dsrc[pidx]; r = pg.rect
-            x0 = 0 if side_left else r.width/2
-            pg.get_pixmap(matrix=fitz.Matrix(2, 2),
-                          clip=fitz.Rect(x0, 0, x0 + r.width/2, r.height)).save(out, jpg_quality=86)
+            pg.get_pixmap(matrix=_f.Matrix(2, 2), clip=_f.Rect(x0, 0, x0 + r.width/2, r.height)).save(out, jpg_quality=86)
         return out
+    PAIRS = {i: (f'/tmp/guyi_leaf{i+1}.jpg', f'原書葉　卷一　第{i+1}叶（古逸叢書景刊王弼注本）') for i in range(8)}
     for i, lf in enumerate(leaves):
-        src = yuan_img(i+1, f'/tmp/guyi_h{i+1}.jpg')
-        cap = f'原書葉　卷一　第{i+1}叶（古逸叢書景刊王弼注本）'
+        src, cap = PAIRS.get(i, (None, None))
         render_pair_page(doc, lf, i+1, marks, src, cap)
-    out = os.path.join(ROOT, '復刻-道德經-B版样版-一至十五章.pdf')
+    out = os.path.join(ROOT, '復刻-道德經·一至四章.pdf')
     try:
         doc.subset_fonts()
     except Exception:
         pass
     doc.save(out, garbage=4, deflate=True)
-    print(f'{out}: {len(leaves)} 对页（左原叶右复刻一一对应）, 正文 {n_body} 字, 句读圈 {len(marks)}')
+    print(f'{out}: 卷首封面 1 + {len(leaves)} 对页（左原叶右复刻一一对应）, 正文 {n_body} 字, 句读圈 {len(marks)}, 朱注字 {sum(1 for lf in leaves for c in lf.cells if c[4] == "note")}')
 
 if __name__ == '__main__':
     main()
