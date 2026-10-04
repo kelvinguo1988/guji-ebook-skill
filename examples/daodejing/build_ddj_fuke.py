@@ -359,10 +359,11 @@ def render_spread(doc, lf_r, lf_l, folio, marks, cover=False):
 
 def leaf_anchors(body_stream):
     """叶界锚表——古逸本逐叶实察（每扫描页右半叶先读）：复刻叶 k 的首字位。
-    叶一首为注文尾（…玄之又玄也），取其后最近经文「故常無欲」；
+    叶一首为注文尾（…玄之又玄也），取其后最近经文字位；
     叶二首为注文尾（兩者始與母也…），同理取「此兩者同出」；
     叶三首=「傾」（高下相|傾，跨叶断词原貌）；叶四首=「功成而弗居」；
-    叶五首为注文尾（用貪者競趣…），取「是以聖人之治」；叶六首=「為無為」。"""
+    叶五首为注文尾（用貪者競趣…），取「是以聖人之治」；叶六首=「為無為」。
+    严格对齐（跨度档）：叶末字位=次锚-1，由 verify_leaf_spans 硬断言。"""
     KEYS = ['故常無欲', '此兩者同出', ('高下相傾', 3), '功成而弗居', '是以聖人之治', '為無為']
     anchors = set()
     for key in KEYS:
@@ -373,6 +374,42 @@ def leaf_anchors(body_stream):
     return anchors
 
 
+def verify_leaf_spans(leaves, body_stream, anchors):
+    """严格对齐验收（用户定稿：右复刻叶与左原书叶逐叶一一对齐）——
+    每叶经文字位区间必须与叶界锚表完全一致：叶k 的 gi 区间 == [锚k, 锚k+1)。
+    溢出（注文尾越过叶界自然续排）只允许出现在末叶、且不得含经文字位。
+    返回 False 即构建失败（左右对齐已破坏）。同时打印每叶首末字对照报告。"""
+    xs = sorted(anchors)
+    if not xs or xs[0] != 0:
+        xs = [0] + xs                       # 叶一首字位
+    n_span = len(xs)
+    errors = []
+    print('── 逐叶跨度验收（复刻叶 ↔ 原书叶） ──')
+    for k, lf in enumerate(leaves):
+        gis = [c[5] for c in lf.cells if isinstance(c[5], int)]
+        if not gis:
+            if k < n_span:
+                errors.append(f'叶{k+1}（{tag}）无经文字位，锚表要求该叶承载跨度')
+            continue
+        lo, hi = min(gis), max(gis)
+        if k < n_span:
+            if lo != xs[k]:
+                errors.append(f'叶{k+1}（{tag}）首字位 {lo} ≠ 锚 {xs[k]}（左原叶右复刻首句不一致）')
+            if k + 1 < n_span and hi != xs[k + 1] - 1:
+                errors.append(f'叶{k+1}（{tag}）末字位 {hi} ≠ 次锚-1 {xs[k+1]-1}（内容溢出/断流，对读将错位）')
+            head = body_stream[lo:lo + 6]
+            print(f'  叶{k+1} ↔ 原书{"卷端叶" if k == 0 else f"第{CN_NUM[k]}叶"}: {lo}-{hi} 首「{head}…」末「{body_stream[hi]}」'
+                  + ('　（含自然注尾续排）' if k == n_span - 1 and hi == len(body_stream) - 1 else ''))
+        else:
+            errors.append(f'叶{k+1}（{tag}）超出锚表仍含经文 {lo}-{hi}（溢出叶只能是纯注文尾）')
+    if errors:
+        for e in errors:
+            print('  ✗ ' + e)
+        return False
+    print(f'  ✓ {n_span} 叶跨度与原书逐叶一致' + ('，末叶注尾自然续排' if len(leaves) > n_span else ''))
+    return True
+
+
 def main():
     # 一章：经文与随文注对
     body_stream = ''.join(re.sub(r'[，。：；！？、「」『』（）〔〕\s]', '', jing) for jing, _ in PAIRED)
@@ -381,6 +418,7 @@ def main():
     leaves, marks = typeset(body_stream, punct, notes, anchors=leaf_anchors(body_stream))
     n_body = sum(1 for lf in leaves for c in lf.cells if isinstance(c[5], int))
     assert n_body == len(body_stream), (n_body, len(body_stream))
+    assert verify_leaf_spans(leaves, body_stream, leaf_anchors(body_stream)), '左右逐叶对齐验收未过'
     for lf in leaves:
         for (col, row, size, ch, color, gi, lane) in lf.cells:
             assert 0 <= col < LEAF_COL and 0 <= row < ROWS, (col, row, ch)

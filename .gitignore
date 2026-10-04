@@ -26,3 +26,6 @@ examples/huangdineijing/黄帝内经素问-复刻本.epub
 
 # B 版复刻 EPUB 中间页图
 **/epub_fuke/
+
+# 抓取器磁盘缓存
+scripts/cache/

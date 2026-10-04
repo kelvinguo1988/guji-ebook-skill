@@ -23,6 +23,7 @@ SKILL.md                      ← Skill 本体：全流程方法 + 踩坑规范�
 02-范例-版式规格书与样章.md         ← 版式规格书范例
 scripts/
 ├── fetch_fonts.sh            ← 下载开源字体（思源宋体 CJK TC 全字库 + 霞鹜文楷）
+├── fetch_classic_text.py     ← 古籍文字抓取器（luckclub/识典古籍/微信读书三站适配+防反爬）
 ├── render_audit.sh           ← 通用 HTML→PDF 渲染器（字体审计+自动重渲）
 └── stamp_folios.py           ← 通用页码盖印（PyMuPDF）
 examples/
@@ -153,6 +154,26 @@ PY
 
 复刻本与整理本**共享同一份 `book_data.json`**：经文(p)/王冰注(zhu)/新校正(xiao)三层直排落格；朱圈句读由殆知阁标点录文 difflib 对齐自动生成；墨钉等版刻特征按叶面实察入 `MORDANTS` 表。
 
+## 文字数据抓取（三站适配 + 防反爬）
+
+`scripts/fetch_classic_text.py`——整理数据/注文的第一公里，防反爬纪律=礼貌抓取+会话复用，**不绕过风控**：
+
+```bash
+# luckclub.cn（术数医书 138 种，静态 SSR 直连；原文繁体+白话译文按容器精确抽取）
+python3 scripts/fetch_classic_text.py luckclub --category bazi          # 书单
+python3 scripts/fetch_classic_text.py luckclub --book /bazi/001/ --limit 5 --out ysyp.json
+
+# weread.qq.com（搜索/目录匿名；正文需登录 cookie：WEREAD_COOKIE 或 --cookie-file）
+python3 scripts/fetch_classic_text.py weread --search 穷通宝鉴
+python3 scripts/fetch_classic_text.py weread --book-hash f4f3225072615773f4f6c05 --toc
+python3 scripts/fetch_classic_text.py weread --book-id 39933811 --chapter-uid 2 --cookie-file wr.txt --out ch2.json
+
+# shidianguji.com（识典古籍，字节 argus 风控：必须用户浏览器登录后复制 cookie）
+python3 scripts/fetch_classic_text.py shidianguji --cookie-file sdj.txt --search 老子
+```
+
+内置：真 Chrome UA 池、每 host 随机限速（静态站 1.2-2.8s/风控站 2-4.5s）、指数退避重试、24h 磁盘缓存（`scripts/cache/`，不入库）、JS 挑战页识别与一次性 cookie 重放、无凭证时给出可操作的取 cookie 指引。抓到的文字入 `book_data.json` 前仍须过 SKILL.md §2 清洗三件套并回扫核对。
+
 ## QA 体系（实战沉淀）
 
 | 关卡 | 工具 | 说明 |
@@ -161,6 +182,7 @@ PY
 | 版面验收 | judge 逐页抽样 | 110dpi 误判字形细节时用 220dpi 高清复核 |
 | 数据洁净 | 生成器内置 | OpenCC 转繁、实体解码、句对污染过滤、增补区异体字归一 |
 | 复刻本越界检查 | cells 遍历断言 | row<ROWS、col<COLS；密排参数下防溢框 |
+| 复刻本左右逐叶对齐 | `verify_leaf_spans` 跨度断言 | 每叶经文字位区间==叶界锚表（[锚k, 锚k+1)），首末句对照报告随构建输出；溢出仅限末叶注文尾——对齐不过=构建失败（SKILL.md §0.5.18 三档标准） |
 | EPUB | epubcheck / XML 解析 | 重排版零错误；FXL 版式本逐文件校验 |
 
 ## 授权
