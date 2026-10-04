@@ -21,6 +21,26 @@ from build_neijing_fuke import (px, Leaf, COLORMAP, BIG, NOTE, NOTE_H, ROWS, LEA
                                 put_char, FONT, KAI)
 
 eng.DZ_PUNCT_FILE = os.path.join(ROOT, 'work', 'suwen_daizhige.txt')
+_SUBSET = os.path.join(ROOT, 'fonts', 'qiji-nj-subset.ttf')
+if not os.path.exists(_SUBSET) and os.path.exists(os.path.join(ROOT, 'fonts', 'qiji-combo.ttf')):
+    # fontTools 离线子集（PyMuPDF subset_fonts 对全书 29 万字病态空转，见文件头注）：
+    # 用字全集 = fuke_text_map_full.json 全字段 + 两引擎脚本 CJK 字面量 + 汉字数字
+    import subprocess as _sp
+    _ch = set(re.findall(r'[^\x00-\x7f]', open('fuke_text_map_full.json', encoding='utf-8').read()))
+    for _f in ('build_neijing_fuke_full.py', 'build_neijing_fuke.py'):
+        _ch |= set(re.findall(r'[^\x00-\x7f]', open(_f, encoding='utf-8').read()))
+    _ch |= set('〇一二三四五六七八九十百零')
+    _tx = os.path.join(ROOT, 'work', 'nj_charset.txt')
+    open(_tx, 'w', encoding='utf-8').write(''.join(sorted(_ch)))
+    _sp.run([sys.executable, '-m', 'fontTools.subset', os.path.join(ROOT, 'fonts', 'qiji-combo.ttf'),
+             f'--text-file={_tx}', f'--output-file={_SUBSET}',
+             '--layout-features=', '--no-hinting', '--desubroutinize'], check=True)
+    print('subset font built:', _SUBSET)
+if os.path.exists(_SUBSET):
+    eng.KAI = _SUBSET
+    eng.FONT = fitz.Font(fontfile=_SUBSET)
+    KAI = _SUBSET
+    FONT = eng.FONT
 S2T = OpenCC('s2t').convert
 s2t_file = eng  # noqa
 
@@ -277,22 +297,32 @@ def main():
         print('FUKE_NO_RENDER：跳过 PDF 渲染（仅导出文本映射）')
         return
     doc = fitz.open()
-    cp = page_chrome(doc)
+    _shard = int(os.environ.get('FUKE_SHARD', '0')) if int(os.environ.get('FUKE_NSH', '0')) else 0
+    cp = page_chrome(doc) if (_shard == 0 or not int(os.environ.get('FUKE_NSH', '0'))) else None
+    if cp is None:
+        doc.new_page(width=px(CV_W), height=px(CV_H))   # 占位页，merge 时剔除
     iw, ih = 900, int(900 * 2034 / 1172)
     ix = ((GUT_CX + LCW / 2) + FR_X1) / 2 - iw / 2
     iy = (FR_Y0 + FR_Y1) / 2 - ih / 2
-    cp.insert_image(fitz.Rect(px(ix), px(iy), px(ix + iw), px(iy + ih)),
-                    filename=os.path.join(ROOT, 'assets', 'yuan_cover.jpg'))
-    cp.draw_rect(fitz.Rect(px(ix), px(iy), px(ix + iw), px(iy + ih)), color=INK, width=px(2))
-    for c in range(1, LEAF_COL):
-        x = FR_X0 + COL_W * c
-        cp.draw_line(fitz.Point(px(x), px(FR_Y0)), fitz.Point(px(x), px(FR_Y1)), color=INK, width=px(1))
+    if cp is not None:
+        cp.insert_image(fitz.Rect(px(ix), px(iy), px(ix + iw), px(iy + ih)),
+                        filename=os.path.join(ROOT, 'assets', 'yuan_cover.jpg'))
+        cp.draw_rect(fitz.Rect(px(ix), px(iy), px(ix + iw), px(iy + ih)), color=INK, width=px(2))
+        for c in range(1, LEAF_COL):
+            x = FR_X0 + COL_W * c
+            cp.draw_line(fitz.Point(px(x), px(FR_Y0)), fitz.Point(px(x), px(FR_Y1)), color=INK, width=px(1))
 
     gmarks = set()
     for chp in chapters:
         gmarks.update(chp['_start'] + m for m in chp['marks'])
     nj = (len(leaves) + 1) // 2
-    for j in range(nj):
+    nsh = int(os.environ.get('FUKE_NSH', '0'))
+    if nsh:
+        si = int(os.environ['FUKE_SHARD'])
+        lo, hi = nj * si // nsh, nj * (si + 1) // nsh
+    else:
+        lo, hi = 0, nj
+    for j in range(lo, hi):
         lr = leaves[2 * j]
         ll = leaves[2 * j + 1] if 2 * j + 1 < len(leaves) else None
         page = page_chrome(doc)
@@ -310,13 +340,34 @@ def main():
             ys += px(34)
         print(f'  对页{j+1}/{nj}', end='\r', flush=True)
     print()
-    try:
-        doc.subset_fonts()
-    except Exception:
-        pass
+    # subset_fonts 跳过：字体已 fontTools 预子集（见文件头）；save 用 garbage=1——
+    # garbage=4 的全量去重在本档文档上病态空转（两次实测 25min+ 无产出）。
+    if nsh:
+        out = os.path.join(ROOT, f'復刻-素問全書-shard{si}.pdf')
+        doc.save(out, garbage=1, deflate=True)
+        print(f'{out}: 对页 {lo+1}-{hi} / {nj}')
+        return
     out = os.path.join(ROOT, '復刻-素問全書.pdf')
-    doc.save(out, garbage=4, deflate=True)
+    doc.save(out, garbage=1, deflate=True)
     print(f'{out}: 封面1 + {nj} 对页, {len(leaves)} 叶, 大字 {tot_body}, 句读圈 {len(gmarks)}')
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) > 2 and sys.argv[1] == '--merge':
+        n = int(sys.argv[2])
+        doc = fitz.open()
+        for i in range(n):
+            doc.insert_pdf(fitz.open(os.path.join(ROOT, f'復刻-素問全書-shard{i}.pdf')))
+        per = doc.page_count // n                      # 每分片页数（含 1 占位/封面页）
+        keep = list(range(doc.page_count))
+        for i in range(1, n):                          # 剔除第 2..n 片的占位页
+            keep.remove(i * per)
+        src = fitz.open()
+        for pno in keep:                               # 压缩重建：新文档只保留真实资源
+            pp = doc[pno]
+            np_ = src.new_page(width=pp.rect.width, height=pp.rect.height)
+            np_.show_pdf_page(pp.rect, doc, pno)
+        out = os.path.join(ROOT, '復刻-素問全書.pdf')
+        src.save(out, garbage=1, deflate=True)
+        print(f'{out}: merged {n} shards → {src.page_count} pages (covers deduped, xref compacted)')
+    else:
+        main()

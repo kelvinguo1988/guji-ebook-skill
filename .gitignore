@@ -29,3 +29,6 @@ examples/huangdineijing/黄帝内经素问-复刻本.epub
 
 # 抓取器磁盘缓存
 scripts/cache/
+
+# 素问 EPUB 构建中间目录
+**/epub_nj/
