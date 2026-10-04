@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """道德经 B 版复刻 EPUB（FXL pre-paginated，随 PDF 逐页同版式，右→左 rtl 书脊）
-用法：python3 build_ddj_fuke_epub.py  →  復刻-道德經·一至四章.epub
-页源：復刻-道德經·一至四章.pdf（build_ddj_fuke.py 产物），每页渲 1.6x PNG 整页嵌入。"""
-import os, zipfile, html
+用法：python3 build_ddj_fuke_epub.py [--src 主档.pdf] [--out 样版.epub] [--labels 卷首;卷端;…]
+页源=PDF 逐页整页图（原生画布分辨率）；缺省产出 復刻-道德經·一至四章.epub（9 页全样）。"""
+import os, zipfile, html, argparse
 import fitz
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(ROOT, '復刻-道德經·一至四章.pdf')
-OUT = os.path.join(ROOT, '復刻-道德經·一至四章.epub')
-TITLE = '老子道德經注（古逸叢書景刊王弼注本）復刻樣式'
-SUB = '復刻本樣式·一至四章·左原葉右復刻逐葉對讀'
-
-TOC = ['卷首封面葉（遵義黎氏校刊牌記）', '卷端葉：老子道德經上篇　一章　晉王弼注',
-       '第一章（續）故常無欲以觀其妙', '第二章　天下皆知美之為美', '第二章（續）',
-       '第三章　不尚賢', '第三章（續）是以聖人之治', '第四章　道沖而用之', '第四章（續·注尾）']
+ap = argparse.ArgumentParser()
+ap.add_argument('--src', default=os.path.join(ROOT, '復刻-道德經·一至四章.pdf'))
+ap.add_argument('--out', default=os.path.join(ROOT, '復刻-道德經·一至四章.epub'))
+ap.add_argument('--title', default='老子道德經注（古逸叢書景刊王弼注本）復刻樣式')
+ap.add_argument('--sub', default='復刻本樣式·左原葉右復刻逐葉對讀')
+ap.add_argument('--labels', help='目录标签分号分隔；缺省=卷首/卷端+第N叶')
+a = ap.parse_args()
+SRC, OUT, TITLE, SUB = a.src, a.out, a.title, a.sub
 
 doc = fitz.open(SRC)
 os.makedirs(os.path.join(ROOT, 'epub_fuke'), exist_ok=True)
@@ -25,6 +25,14 @@ for i, p in enumerate(doc):
     pages.append((name, pm.width, pm.height))
     pm.save(os.path.join(ROOT, 'epub_fuke', name))
 doc.close()
+
+CN = '〇一二三四五六七八九十'
+if a.labels:
+    TOC = a.labels.split(';')
+else:
+    TOC = ['卷首封面葉（遵義黎氏校刊牌記）', '卷端葉：老子道德經上篇　一章　晉王弼注'] \
+        + [f'第{CN[k]}叶　左原葉右復刻' for k in range(2, len(pages))]
+TOC = (TOC + [f'第{k+1}頁' for k in range(len(TOC), len(pages))])[:len(pages)]
 
 CONTAINER = '''<?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
