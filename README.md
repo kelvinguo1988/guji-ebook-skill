@@ -34,7 +34,8 @@ examples/
 ├── huangdineijing/           ← 黄帝内经素问：无文本层扫描的完整示范
 │   ├── parse_suwen.py        ← 录文获取与装配（维基文库四部丛刊本+殆知阁双源）
 │   ├── build_neijing_full.py / content_nj.py            （品类 A，828 页）
-│   ├── build_neijing_fuke.py                            （品类 B 复刻引擎 ★）
+│   ├── build_neijing_epub.py                            （品类 A 重排 EPUB 生成器）
+│   ├── build_neijing_fuke.py / build_neijing_fuke_full.py（品类 B 复刻引擎 ★ / 全书级分片并行）
 │   └── build_nj_fxl.py                                  （FXL 版式本）
 └── */assets/                 ← 书影/卷端叶/宣纸底图（公有领域图版）
 ```
@@ -124,7 +125,8 @@ epubcheck 道德经三版本对照笺注-全书.epub           # 重排版校验
 ```bash
 cd examples/huangdineijing
 python3 parse_suwen.py             # 维基文库四部丛刊本(含王冰注)+殆知阁双源 → book_data.json
-python3 build_neijing_full.py      # → neijing_full.html + 重排版 EPUB（81 篇）
+python3 build_neijing_full.py      # → neijing_full.html（81 篇全书 HTML）
+python3 build_neijing_epub.py      # → 黄帝内经素问-全书.epub（重排版，流式 section→reflow）
 # 渲染/盖码/FXL 同上，脚本为 build_nj_fxl.py
 ```
 
@@ -153,6 +155,20 @@ PY
 ```
 
 复刻本与整理本**共享同一份 `book_data.json`**：经文(p)/王冰注(zhu)/新校正(xiao)三层直排落格；朱圈句读由殆知阁标点录文 difflib 对齐自动生成；墨钉等版刻特征按叶面实察入 `MORDANTS` 表。
+
+### 全书级 B 版（81 篇纯复刻对页，素问实战）
+
+```bash
+cd examples/huangdineijing
+python3 build_neijing_fuke_full.py              # 单进程全量（约 50min：排版审计+240 对页）
+# 提速：4 分片并行 + 合并（墙钟约 20min；自动 fontTools 预子集字体，避开
+# PyMuPDF subset_fonts/save(garbage=4) 在大文档上的病态空转，见 SKILL.md §6）
+FUKE_NSH=4 FUKE_SHARD=0 python3 build_neijing_fuke_full.py &   # …SHARD=1/2/3 同理
+python3 build_neijing_fuke_full.py --merge 4    # → 復刻-素問全書.pdf（241 页）
+python3 build_neijing_fuke_epub_full.py         # → 復刻-素問全書.epub（81 章对读，单一来源 fuke_text_map_full.json）
+```
+
+全书无逐叶元刻锚定 → 纯复刻对页、不嵌原叶书影（SKILL §0.5.17）；逐叶"左原叶右复刻"仅在做了列锚实察的篇（如上古天真論，73 锚 100%）实现。
 
 ## 文字数据抓取（三站适配 + 防反爬）
 

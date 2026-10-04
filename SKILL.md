@@ -158,6 +158,8 @@ book.html（版式设计系统 + 全部内容，唯一手工源）
 | 电子录文常带增补 B/C/F 区异体字（𤣥𠉀𫝊…），Noto 全字库不含增补区 | 装配时全库扫描 `ord(c)>0xFFFF`，按上下文逐字映射为通行正字（约 45–65 组）；否则印刷 PDF 缺字、FXL 子集字体亦无字形 |
 | PyMuPDF 对 Type3 无 Unicode 映射的字形返回 `\x00` 等控制字符 | 生成 XML/EPUB 前必须剥除（esc 内 `re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]','')`），否则 EPUB 解包校验报 not well-formed |
 | 竖排面板文字截断无法靠 PDF 文本比对发现（竖排提取乱序） | 用字符计数法：按章比对面板页提取的汉字总数与渲染文本基线的差值（容差 4 字） |
+| PyMuPDF 大文档病态空转（≥20 万字/≥481 页实测两次各 25min+ 零产出、0 字节 PDF） | ① `subset_fonts()` 弃用——改 fontTools **离线预子集**（用字全集=文本映射全字段+引擎脚本 CJK 字面量+汉字数字，3342 字 41MB→6.7MB，脚本内置自动重建）；② `save(garbage=4)` 弃用——garbage=1 秒存；③ 渲染分片并行 `FUKE_NSH/FUKE_SHARD` 环境变量（4 片墙钟 45→20min，仅 0 号片渲封面）；④ 合并后 `show_pdf_page` 重建进新文档压缩 xref（insert_pdf 会原样复制全部 xref 残项，136MB→25MB），merge 时剔除各分片占位封面页 |
+| 全书级 B 版（无逐叶锚定）构建流程 | 纯复刻双半叶对页流式（SKILL §0.5.17 无对应即关闭对照）+ 卷端大题/篇题墨圈入流 + 全量审计（应排=实排大字/注字、越界 0）+ `--merge N` 合并；参考 build_neijing_fuke_full.py（素问 81 篇 240 对页） |
 
 ## 7. 资产索引（仓库即打包）
 
@@ -178,6 +180,8 @@ book.html（版式设计系统 + 全部内容，唯一手工源）
 ├── examples/ziweidoushu/     ← B 复刻本全书参考：build_zwds_fuke.py（对页PDF）/ build_zwds_epub.py（EPUB 定稿设计语言）/ make_seal.py（篆印）
 └── examples/huangdineijing/  ← B 复刻+逐列锚定参考：build_neijing_fuke.py（列锚引擎）+ yuan_leaf_anchors.json（锚定表）
                                 / fuke_text_map.json（PDF→EPUB 单一来源）/ build_neijing_fuke_epub.py（对读 EPUB）/ 復刻-元刻比对表.md
+    全书级：build_neijing_fuke_full.py（81 篇 240 对页，分片并行+合并）/ build_neijing_epub.py（A 重排 EPUB 生成器，流式 section→reflow）
+                                / fuke_text_map_full.json（全书单一来源）/ 黄帝内经素问-全书.pdf 828 页 + 復刻-素問全書.pdf 241 页
 字体不入库：bash scripts/fetch_fonts.sh 下载（思源宋体全字库 OTF + 霞鹜文楷，断点续传+校验）。
 ```
 
