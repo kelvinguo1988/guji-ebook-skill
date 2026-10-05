@@ -132,7 +132,7 @@ python3 build_neijing_epub.py      # → 黄帝内经素问-全书.epub（重排
 
 **换一本书**：复制 `examples/daodejing/`（或 `huangdineijing/`）为新目录，替换 `book_data.json` 与 `content_*.py`（章旨/白话/术语撰写层），按 SKILL.md §8 扩章流程生成。
 
-## 品类 B · 复刻本调用（以素问·上古天真论为例）
+## 品类 B · 复刻本调用（以素问·上古天真论为例；B 版必须有底本扫描件，无扫描只能做品类 A）
 
 ```bash
 cd examples/huangdineijing
@@ -168,7 +168,7 @@ python3 build_neijing_fuke_full.py --merge 4    # → 復刻-素問全書.pdf（
 python3 build_neijing_fuke_epub_full.py         # → 復刻-素問全書.epub（81 章对读，单一来源 fuke_text_map_full.json）
 ```
 
-全书无逐叶元刻锚定 → 纯复刻对页、不嵌原叶书影（SKILL §0.5.17）；逐叶"左原叶右复刻"仅在做了列锚实察的篇（如上古天真論，73 锚 100%）实现。
+**B 版铁律（2026-10 定稿）：对页=左原书叶右复刻叶逐叶一一对齐（跨度断言强制），EPUB 从 PDF 逐页生成与 PDF 一致**——全书级必须先对底本全册逐叶读锚再构建（工作量与全册叶数成正比，无捷径）。素问全书现档为旧规"纯复刻"产物，待全册锚定后重建为对读版；上古天真論篇（73 锚 100% 命中）已是合规样版。
 
 ## 文字数据抓取（三站适配 + 防反爬）
 
