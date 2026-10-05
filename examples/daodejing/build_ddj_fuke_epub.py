@@ -72,6 +72,9 @@ OPF = f'''<?xml version="1.0" encoding="utf-8"?>
   <dc:language>zh-Hant</dc:language>
   <meta property="dcterms:modified">2026-10-03T00:00:00Z</meta>
   <meta name="cover" content="p1"/>
+  <meta property="rendition:layout">pre-paginated</meta>
+  <meta property="rendition:orientation">landscape</meta>
+  <meta property="rendition:spread">landscape</meta>
  </metadata>
  <manifest>
   <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
