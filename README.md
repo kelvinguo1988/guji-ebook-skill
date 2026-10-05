@@ -126,7 +126,8 @@ epubcheck 道德经三版本对照笺注-全书.epub           # 重排版校验
 cd examples/huangdineijing
 python3 parse_suwen.py             # 维基文库四部丛刊本(含王冰注)+殆知阁双源 → book_data.json
 python3 build_neijing_full.py      # → neijing_full.html（81 篇全书 HTML）
-python3 build_neijing_epub.py      # → 黄帝内经素问-全书.epub（重排版，流式 section→reflow）
+python3 build_nj_fxl.py 黄帝内经素问-全书.pdf 黄帝内经素问-全书.epub   # → FXL 版式本（与 PDF 逐页一致，EPUB 默认交付）
+# build_neijing_epub.py 生成的是重排版（reflow），版式会偏离 PDF，仅作可选增强
 # 渲染/盖码/FXL 同上，脚本为 build_nj_fxl.py
 ```
 
@@ -168,7 +169,7 @@ python3 build_neijing_fuke_full.py --merge 4    # → 復刻-素問全書.pdf（
 python3 build_neijing_fuke_epub_full.py         # → 復刻-素問全書.epub（81 章对读，单一来源 fuke_text_map_full.json）
 ```
 
-**B 版铁律（2026-10 定稿）：对页=左原书叶右复刻叶逐叶一一对齐（跨度断言强制），EPUB 从 PDF 逐页生成与 PDF 一致**——全书级必须先对底本全册逐叶读锚再构建（工作量与全册叶数成正比，无捷径）。素问全书现档为旧规"纯复刻"产物，待全册锚定后重建为对读版；上古天真論篇（73 锚 100% 命中）已是合规样版。
+**交付铁律（2026-10 定稿）：B 对页=左原书叶右复刻叶逐叶一一对齐（跨度断言强制）；A/B 的 EPUB 一律 FXL、与 PDF 一致（重排版仅可选增强）**——全书级必须先对底本全册逐叶读锚再构建（工作量与全册叶数成正比，无捷径）。素问全书现档为旧规"纯复刻"产物，待全册锚定后重建为对读版；上古天真論篇（73 锚 100% 命中）已是合规样版。
 
 ## 文字数据抓取（三站适配 + 防反爬）
 
