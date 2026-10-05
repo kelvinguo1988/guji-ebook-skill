@@ -1,0 +1,23 @@
+{"batch": "g10", "pages": "p13-p22", "leaves": "19-38",
+ "starts": [
+  {"leaf": 19, "first": "寵辱若驚貴大患若身", "kind": "j"},
+  {"leaf": 20, "first": "又吾無身", "kind": "n"},
+  {"leaf": 21, "first": "名曰微此三者不可致詰", "kind": "j"},
+  {"leaf": 22, "first": "迎之不見其首", "kind": "j"},
+  {"leaf": 23, "first": "故強為之容", "kind": "j"},
+  {"leaf": 24, "first": "孰能濁以靜之徐清", "kind": "j"},
+  {"leaf": 25, "first": "萬物並作", "kind": "j"},
+  {"leaf": 26, "first": "歸根則靜故曰靜則", "kind": "n"},
+  {"leaf": 27, "first": "公乃王", "kind": "j"},
+  {"leaf": 28, "first": "無之為物水火不能害", "kind": "n"},
+  {"leaf": 29, "first": "下得親而譽之也", "kind": "n"},
+  {"leaf": 30, "first": "慧出則大偽生也", "kind": "n"},
+  {"leaf": 31, "first": "六親不和有孝慈國家昏", "kind": "j"},
+  {"leaf": 32, "first": "憂故續皁之足何異", "kind": "n"},
+  {"leaf": 33, "first": "有仇寒鄉之邑必知族求", "kind": "?", "note": "待回读复核（疑绝学无忧章注/经）"},
+  {"leaf": 34, "first": "言我廓然無形之可名無", "kind": "n"},
+  {"leaf": 35, "first": "窈兮冥兮", "kind": "j", "note": "或为ch20注文，映射时复核"},
+  {"leaf": 36, "first": "眾人皆有以", "kind": "j", "note": "与叶35次序需复核（ch20应在ch21前）"},
+  {"leaf": 37, "first": "其精甚眞其中有信", "kind": "j"},
+  {"leaf": 38, "first": "其中有望其秒所歸", "kind": "n", "note": "待回读复核"}
+ ]}
