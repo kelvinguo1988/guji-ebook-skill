@@ -1,0 +1,23 @@
+{"batch": "g20", "pages": "p23-p32", "leaves": "39-58",
+ "starts": [
+  {"leaf": 39, "first": "吾何以知衆甫之狀哉以此", "kind": "j"},
+  {"leaf": 40, "first": "不自矜故其德長也", "kind": "n", "note": "格内左缘另见敝則新字样，回读复核"},
+  {"leaf": 41, "first": "謂曲則全者豈虛言哉", "kind": "j"},
+  {"leaf": 42, "first": "從事謂舉動從事於道", "kind": "n"},
+  {"leaf": 43, "first": "同於道者道亦樂得之", "kind": "j"},
+  {"leaf": 44, "first": "其唯於道而論之若卽至", "kind": "n"},
+  {"leaf": 45, "first": "強為之名曰大", "kind": "j"},
+  {"leaf": 46, "first": "吾所以字之曰道者取其", "kind": "n"},
+  {"leaf": 47, "first": "故道大天大地大王亦大", "kind": "j"},
+  {"leaf": 48, "first": "處人主之大也", "kind": "n"},
+  {"leaf": 49, "first": "奈何萬乘之主而以身輕天", "kind": "j"},
+  {"leaf": 50, "first": "失君", "kind": "?", "note": "经尾或注，映射定"},
+  {"leaf": 51, "first": "善閉無關楗而不可開", "kind": "j", "note": "格内另见「因物之數不假形也」注列"},
+  {"leaf": 52, "first": "復歸於無極", "kind": "j", "note": "疑ch28复命相关，回读复核"},
+  {"leaf": 53, "first": "忒差也", "kind": "n"},
+  {"leaf": 54, "first": "故物或行或隨或歔或吹", "kind": "j"},
+  {"leaf": 55, "first": "物有往來而執之故必失", "kind": "n"},
+  {"leaf": 56, "first": "果而勿矜果而勿伐果而勿", "kind": "j"},
+  {"leaf": 57, "first": "吾不以師道為尚不得已", "kind": "n"},
+  {"leaf": 58, "first": "其事好還", "kind": "j", "note": "或注首，映射定"}
+ ]}
